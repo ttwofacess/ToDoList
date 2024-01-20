@@ -27,4 +27,8 @@ const addNewTask = event => {
     event.target.reset();
 };
 
+const changeTaskState = event => {
+    event.target.classList.toggle('done');
+}
+
 setDate();
