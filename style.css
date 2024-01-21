@@ -21,3 +21,11 @@ body {
     border-radius: 5px;
 }
 
+.list {
+    margin: 25px auto;
+    padding: 25px;
+    background-color: var(--light);
+    width: 100%;
+    max-width: 350px;
+}
+
