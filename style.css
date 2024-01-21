@@ -6,3 +6,10 @@
     --disabled: #e7e7e7e;
 }
 
+body {
+    font-family: 'Lato', sans-serif;
+    margin: 0;
+    height: 100vh;
+    background-color: var(--disabled);
+}
+
