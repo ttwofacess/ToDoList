@@ -29,3 +29,34 @@ body {
     max-width: 350px;
 }
 
+.date {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.dateLeft {
+    display: flex;
+    align-items: center;
+}
+
+#dateNumber {
+    font-size: 50px;
+}
+
+#dateText {
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+#dateMonth,
+#dateNumber,
+#dateText {
+    font-weight: bolder;
+}
+
+#dateMonth,
+#dateYear {
+    margin-left: 7px;
+    font-size: 20px;
+}
