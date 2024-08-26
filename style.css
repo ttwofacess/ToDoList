@@ -1,9 +1,26 @@
 :root {
-    --primary: #A5C882;
-    --secondary: #D33F49;
-    --light: #fff;
-    --dark: #000;
-    --disabled: #e7e7e7;
+    --lightprimary: #A5C882; 
+    --plus: #D33F49;
+    --primary: rgb(29, 146, 146); 
+    /* --secondary: #D33F49; */
+    --secondary: #007BFF;
+    /* --light: #fff; */
+    --light: #E9ECEF;
+    /* --dark: #000; */
+    /* --disabled: #e7e7e7; */
+    --disabled: #F8F9FA;
+    --maintxt: #212529;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --lightprimary: #665744;
+        --primary: #EEB264;
+        --secondary: #0D6EFD;
+        --light: #343A40;
+        --disabled: #212529;
+        --maintxt: #F8F9FA;
+    }
 }
 
 body {
@@ -30,6 +47,7 @@ body {
 }
 
 .date {
+    color: var(--maintxt);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -70,13 +88,15 @@ form {
 }
 
 input {
-    border: none;
-    padding-left: 10px;
     background-color: var(--disabled);
+    border: none;
+    color: var(--maintxt);
+    padding-left: 10px;
 }
 
 input:focus {
-    outline: none;
+    outline: 1px solid;
+    outline-color: var(--secondary);
 }
 
 .addTaskButton,
@@ -87,15 +107,24 @@ input:focus {
 }
 
 .addTaskButton {
-    height: 35px;
+    /* background-color: var(--disabled); */
+    background-color: var(--plus);
+    color: var(--maintxt);
     border-radius: 50%;
     font-size: 18px;
-    background-color: var(--disabled);
+    height: 35px;
 }
 
 .orderButton {
     background-color: var(--secondary);
-    color: var(--light);
+    color: var(--maintxt);
+}
+
+.task-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
 }
 
 .task {
@@ -104,9 +133,23 @@ input:focus {
     margin-top: 15px;
     color: var(--light);
     cursor: pointer;
+
+    /* display: flex;
+    justify-content: space-between;
+    align-items: center; */
+    flex-grow: 1;
+    margin-right: 10px;
 }
+
+.delete-button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2em;
+}
+
 .done {
-    background-color: var(--disabled);
+    background-color: var(--lightprimary);
     text-decoration: line-through;
     color: var(--dark);
 }
