@@ -1,33 +1,29 @@
 :root {
-    --lightprimary: #A5C882; 
-    --plus: #D33F49;
-    --primary: rgb(29, 146, 146); 
-    /* --secondary: #D33F49; */
-    --secondary: #007BFF;
-    /* --light: #fff; */
-    --light: #E9ECEF;
-    /* --dark: #000; */
-    /* --disabled: #e7e7e7; */
-    --disabled: #F8F9FA;
+    --bckgrndbdy: #F8F9FA;
+    --btnordr: #007BFF;
+    --btnplus: #D33F49;
+    --donetsk: #A5C882;
+    --wrpprbck: #E9ECEF; 
     --maintxt: #212529;
+    --primary: rgb(29, 146, 146); 
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --lightprimary: #665744;
+        --bckgrndbdy: #212529;
+        --btnordr: #0D6EFD;
+        --donetsk: #665744;
         --primary: #EEB264;
-        --secondary: #0D6EFD;
-        --light: #343A40;
-        --disabled: #212529;
+        --wrpprbck: #343A40; 
         --maintxt: #F8F9FA;
     }
 }
 
 body {
+    background-color: var(--bckgrndbdy);
     font-family: 'Lato', sans-serif;
-    margin: 0;
     height: 100vh;
-    background-color: var(--disabled);
+    margin: 0;
 }
 
 *::first-letter {
@@ -39,23 +35,23 @@ body {
 }
 
 .list {
+    background-color: var(--wrpprbck);
     margin: 25px auto;
-    padding: 25px;
-    background-color: var(--light);
-    width: 100%;
     max-width: 350px;
+    padding: 25px;
+    width: 100%;
 }
 
 .date {
+    align-items: center;
     color: var(--maintxt);
     display: flex;
-    align-items: center;
     justify-content: space-between;
 }
 
 .dateLeft {
-    display: flex;
     align-items: center;
+    display: flex;
 }
 
 #dateNumber {
@@ -75,70 +71,73 @@ body {
 
 #dateMonth,
 #dateYear {
-    margin-left: 7px;
     font-size: 20px;
+    margin-left: 7px;
 }
 
 form {
-    margin: 20px 0;
     display: grid;
+    margin: 20px 0;
     grid-auto-flow: column;
-    grid-template-columns: auto 35px auto;
     grid-column-gap: 15px;
+    grid-template-columns: auto 35px auto;
 }
 
 input {
-    background-color: var(--disabled);
+    background-color: var(--bckgrndbdy);
     border: none;
     color: var(--maintxt);
+    font-family: Lato, sans-serif;
+    font-weight: 600;
     padding-left: 10px;
 }
 
 input:focus {
-    outline: 1px solid;
-    outline-color: var(--secondary);
+    outline: 2px solid;
+    outline-color: var(--primary);
 }
 
 .addTaskButton,
 .orderButton {
     border: none;
-    font-weight: bold;
     cursor: pointer;
+    font-family: Lato, sans-serif;
+    font-weight: 600;
 }
 
 .addTaskButton {
-    /* background-color: var(--disabled); */
-    background-color: var(--plus);
-    color: var(--maintxt);
+    background-color: var(--btnplus);
     border-radius: 50%;
+    color: var(--maintxt);
     font-size: 18px;
     height: 35px;
 }
 
 .orderButton {
-    background-color: var(--secondary);
+    background-color: var(--btnordr);
     color: var(--maintxt);
 }
 
 .task-wrapper {
+    align-items: center;
     display: flex;
     justify-content: space-between;
-    align-items: center;
     margin-bottom: 10px;
 }
 
 .task {
     background-color: var(--primary);
-    padding: 15px;
-    margin-top: 15px;
-    color: var(--light);
+    color: var(--maintxt);
     cursor: pointer;
-
+    flex-grow: 1;
+    font-family: Lato, sans-serif;
+    font-weight: 900;
+    margin-right: 10px;
+    margin-top: 15px;
+    padding: 15px;
     /* display: flex;
     justify-content: space-between;
     align-items: center; */
-    flex-grow: 1;
-    margin-right: 10px;
 }
 
 .delete-button {
@@ -149,7 +148,7 @@ input:focus {
 }
 
 .done {
-    background-color: var(--lightprimary);
+    background-color: var(--donetsk);
+    color: var(--bckgrndbdy);
     text-decoration: line-through;
-    color: var(--dark);
 }
