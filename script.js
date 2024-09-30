@@ -111,10 +111,11 @@ const deleteTask = event => {
 const order = () => {
     const done = [];
     const toDo = [];
-    tasksContainer.childNodes.forEach( el => {
+    tasksContainer.childNodes.forEach(el => {
         /* if (el.classList.contains('task')) { */
         if (el.classList.contains('task-wrapper')) {
             /* el.classList.contains('done') ? done.push(el) : toDo.push(el); */
+            const taskEl = el.querySelector('.task');
             taskEl.classList.contains('done') ? done.push(el) : toDo.push(el);
         }
     });
@@ -126,6 +127,7 @@ const renderOrderedTasks = () => {
     saveTasks();  //call saveTasks after reordering tasks
 };
 
+document.querySelector('.orderButton').addEventListener('click', renderOrderedTasks);
 
 setDate();
 loadTasks();
