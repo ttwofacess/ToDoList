@@ -92,6 +92,17 @@ const addNewTask = event => {
     const { value } = event.target.taskText;
     if(!value) return;
 
+    // Agregar validaciones
+    if (value.length > 500) { // Limitar longitud de la tarea
+        alert('El texto de la tarea es demasiado largo. Máximo 500 caracteres permitidos.');
+        return;
+    }
+    
+    if (tasksContainer.childNodes.length >= 100) { // Limitar número de tareas
+        alert('Número máximo de tareas alcanzado.');
+        return;
+    }
+
     const task = createTaskElement(value);
     tasksContainer.prepend(task);
     event.target.reset();
