@@ -34,15 +34,36 @@ const saveTasks = () => {
 
 //load tasks from local storage
 const loadTasks = () => {
-    const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-    tasks.forEach(task => {
-        const taskElement = createTaskElement(task.text);
-        if (task.done) {
-            taskElement.querySelector('.task').classList.add('done');
-        }
-        tasksContainer.appendChild(taskElement);
-    });
-};
+    try {
+        /* const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        tasks.forEach(task => {
+            const taskElement = createTaskElement(task.text);
+            if (task.done) {
+                taskElement.querySelector('.task').classList.add('done');
+            }
+            tasksContainer.appendChild(taskElement);
+        });
+    } */
+
+        const tasksData = localStorage.getItem('tasks');
+        if (!tasksData) return;
+        
+        const tasks = JSON.parse(tasksData);
+        if (!Array.isArray(tasks)) return;
+
+        tasks.forEach(task => {
+            if (typeof task.text === 'string' && typeof task.done === 'boolean') {
+                const taskElement = createTaskElement(task.text);
+                if (task.done) {
+                    taskElement.querySelector('.task').classList.add('done');
+                }
+                tasksContainer.appendChild(taskElement);
+            }
+        });
+} catch (error) {
+    console.error('Error loading tasks:', error);
+        localStorage.removeItem('tasks'); // Limpiar datos corruptos
+}
 
 //create tasks elements from here
 const createTaskElement = (text) => {
