@@ -60,9 +60,10 @@ const loadTasks = () => {
                 tasksContainer.appendChild(taskElement);
             }
         });
-} catch (error) {
-    console.error('Error loading tasks:', error);
+    } catch (error) {
+        console.error('Error loading tasks:', error);
         localStorage.removeItem('tasks'); // Limpiar datos corruptos
+        }
 }
 
 //create tasks elements from here
