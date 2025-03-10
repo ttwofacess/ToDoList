@@ -51,7 +51,8 @@ const createTaskElement = (text) => {
 
     const task = document.createElement('div');
     task.classList.add('task', 'roundBorder');
-    task.textContent = text;
+    // task.textContent = text;
+    task.textContent = DOMPurify.sanitize(text);
     task.addEventListener('click', changeTaskState);
 
     const deleteButton = document.createElement('button');
