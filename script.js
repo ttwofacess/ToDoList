@@ -17,20 +17,7 @@ const setDate = () => {
 };
 
 //save tasks in local storage
-const saveTasks = () => {
-    /* const tasks = [];
-    tasksContainer.childNodes.forEach(el => {
-        if (el.classList.contains('task-wrapper')) {
-            const taskEl = el.querySelector('.task');
-            tasks.push({
-                text: taskEl.textContent,
-                done: taskEl.classList.contains('done')
-            });
-        }
-        
-    });
-    localStorage.setItem('tasks', JSON.stringify(tasks)); */
-
+const saveTasks = () => {    
     try {
         const tasks = [];
         tasksContainer.childNodes.forEach(el => {
@@ -51,16 +38,6 @@ const saveTasks = () => {
 //load tasks from local storage
 const loadTasks = () => {
     try {
-        /* const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-        tasks.forEach(task => {
-            const taskElement = createTaskElement(task.text);
-            if (task.done) {
-                taskElement.querySelector('.task').classList.add('done');
-            }
-            tasksContainer.appendChild(taskElement);
-        });
-    } */
-
         const tasksData = localStorage.getItem('tasks');
         if (!tasksData) return;
         
