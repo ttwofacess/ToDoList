@@ -135,9 +135,14 @@ input:focus {
     margin-right: 10px;
     margin-top: 15px;
     padding: 15px;
-    /* display: flex;
+    display: flex;
     justify-content: space-between;
-    align-items: center; */
+    align-items: center;
+}
+
+.task-date {
+    font-size: 0.8em;
+    color: #888;
 }
 
 .delete-button {
