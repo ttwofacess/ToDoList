@@ -18,27 +18,17 @@ const setDate = () => {
 
 //save tasks in local storage
 const saveTasks = () => {
-    /* const tasks = [];
-    tasksContainer.childNodes.forEach(el => {
-        if (el.classList.contains('task-wrapper')) {
-            const taskEl = el.querySelector('.task');
-            tasks.push({
-                text: taskEl.textContent,
-                done: taskEl.classList.contains('done')
-            });
-        }
-        
-    });
-    localStorage.setItem('tasks', JSON.stringify(tasks)); */
-
     try {
         const tasks = [];
         tasksContainer.childNodes.forEach(el => {
             if (el.classList.contains('task-wrapper')) {
                 const taskEl = el.querySelector('.task');
+                const taskText = taskEl.querySelector('.task-text').textContent;
+                const taskDate = taskEl.querySelector('.task-date').textContent;
                 tasks.push({
-                    text: taskEl.textContent,
-                    done: taskEl.classList.contains('done')
+                    text: taskText,
+                    done: taskEl.classList.contains('done'),
+                    date: taskDate
                 });
             }
         });
@@ -51,16 +41,6 @@ const saveTasks = () => {
 //load tasks from local storage
 const loadTasks = () => {
     try {
-        /* const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-        tasks.forEach(task => {
-            const taskElement = createTaskElement(task.text);
-            if (task.done) {
-                taskElement.querySelector('.task').classList.add('done');
-            }
-            tasksContainer.appendChild(taskElement);
-        });
-    } */
-
         const tasksData = localStorage.getItem('tasks');
         if (!tasksData) return;
         
@@ -69,7 +49,8 @@ const loadTasks = () => {
 
         tasks.forEach(task => {
             if (typeof task.text === 'string' && typeof task.done === 'boolean') {
-                const taskElement = createTaskElement(task.text);
+                const date = task.date || new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' });
+                const taskElement = createTaskElement(task.text, date);
                 if (task.done) {
                     taskElement.querySelector('.task').classList.add('done');
                 }
@@ -83,15 +64,25 @@ const loadTasks = () => {
 }
 
 //create tasks elements from here
-const createTaskElement = (text) => {
+const createTaskElement = (text, date) => {
     const taskWrapper = document.createElement('div');
     taskWrapper.classList.add('task-wrapper');
 
     const task = document.createElement('div');
     task.classList.add('task', 'roundBorder');
-    // task.textContent = text;
-    task.textContent = DOMPurify.sanitize(text);
     task.addEventListener('click', changeTaskState);
+
+    const taskText = document.createElement('span');
+    taskText.classList.add('task-text');
+    taskText.textContent = DOMPurify.sanitize(text);
+
+    const taskDate = document.createElement('span');
+    taskDate.classList.add('task-date');
+    taskDate.textContent = date;
+
+    task.appendChild(taskText);
+    task.appendChild(taskDate);
+
 
     const deleteButton = document.createElement('button');
     deleteButton.textContent = '❌';
@@ -119,7 +110,9 @@ const addNewTask = event => {
         return;
     }
 
-    const task = createTaskElement(value);
+    const date = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' });
+
+    const task = createTaskElement(value, date);
     tasksContainer.prepend(task);
     event.target.reset();
     saveTasks();
