@@ -1,45 +1,47 @@
+/* Importar fuentes de Google */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&family=Roboto:wght@400;500&display=swap');
+
 :root {
-    --bckgrndbdy: #F8F9FA;
-    --btnordr: #007BFF;
-    --btnplus: #D33F49;
-    --donetsk: #A5C882;
-    --wrpprbck: #E9ECEF; 
-    --maintxt: #212529;
-    --primary: rgb(29, 146, 146); 
+    --bckgrndbdy: #F0F2F5;
+    --btnordr: #6C63FF;
+    --btnplus: #FF6584;
+    --donetsk: #50C878;
+    --wrpprbck: #FFFFFF; 
+    --maintxt: #333333;
+    --primary: #6C63FF; 
+    --shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --bckgrndbdy: #212529;
-        --btnordr: #0D6EFD;
-        --donetsk: #665744;
-        --primary: #EEB264;
-        --wrpprbck: #343A40; 
-        --maintxt: #F8F9FA;
+        --bckgrndbdy: #1A1A2E;
+        --btnordr: #6C63FF;
+        --donetsk: #16a085;
+        --primary: #6C63FF;
+        --wrpprbck: #1E1E3F; 
+        --maintxt: #EAEAEA;
     }
 }
 
 body {
     background-color: var(--bckgrndbdy);
-    font-family: 'Lato', sans-serif;
+    font-family: 'Roboto', sans-serif; /* Fuente principal */
     height: 100vh;
     margin: 0;
-}
-
-*::first-letter {
-    text-transform: capitalize;
-}
-
-.roundBorder {
-    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Alinea arriba */
+    padding-top: 50px; /* Espacio superior */
 }
 
 .list {
     background-color: var(--wrpprbck);
     margin: 25px auto;
-    max-width: 350px;
-    padding: 25px;
+    max-width: 450px; /* Un poco más ancho */
+    padding: 30px;
     width: 100%;
+    box-shadow: var(--shadow); /* Sombra para profundidad */
+    border-radius: 15px; /* Bordes más redondeados */
 }
 
 .date {
@@ -47,32 +49,26 @@ body {
     color: var(--maintxt);
     display: flex;
     justify-content: space-between;
-}
-
-.dateLeft {
-    align-items: center;
-    display: flex;
+    margin-bottom: 20px; /* Más espacio */
+    font-family: 'Poppins', sans-serif; /* Fuente para la fecha */
 }
 
 #dateNumber {
-    font-size: 50px;
+    font-size: 3.5rem; /* Más grande */
+    font-weight: 700;
 }
 
 #dateText {
-    letter-spacing: 3px;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
     text-transform: uppercase;
-}
-
-#dateMonth,
-#dateNumber,
-#dateText {
-    font-weight: bold;
+    font-weight: 500;
 }
 
 #dateMonth,
 #dateYear {
-    font-size: 20px;
-    margin-left: 7px;
+    font-size: 1.2rem;
+    margin-left: 10px;
 }
 
 form {
@@ -80,80 +76,94 @@ form {
     margin: 20px 0;
     grid-auto-flow: column;
     grid-column-gap: 15px;
-    grid-template-columns: auto 35px auto;
+    grid-template-columns: 1fr auto auto; /* Ajuste de columnas */
 }
 
 input {
     background-color: var(--bckgrndbdy);
-    border: none;
+    border: 2px solid transparent; /* Borde transparente */
     color: var(--maintxt);
-    font-family: Lato, sans-serif;
-    font-weight: 600;
-    padding-left: 10px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    padding: 10px 15px;
+    border-radius: 10px; /* Bordes redondeados */
+    transition: border-color 0.3s;
 }
 
 input:focus {
-    outline: 2px solid;
-    outline-color: var(--primary);
+    outline: none;
+    border-color: var(--primary); /* Borde de color al enfocar */
 }
 
 .addTaskButton,
 .orderButton {
     border: none;
     cursor: pointer;
-    font-family: Lato, sans-serif;
-    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    border-radius: 10px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.addTaskButton:hover,
+.orderButton:hover {
+    transform: translateY(-2px); /* Efecto al pasar el ratón */
+    box-shadow: 0 6px 10px rgba(0,0,0,0.15);
 }
 
 .addTaskButton {
     background-color: var(--btnplus);
-    border-radius: 50%;
-    color: var(--maintxt);
-    font-size: 18px;
-    height: 35px;
+    color: white;
+    font-size: 24px;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%; /* Círculo perfecto */
 }
 
 .orderButton {
     background-color: var(--btnordr);
-    color: var(--maintxt);
-}
-
-.task-wrapper {
-    align-items: center;
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
+    color: white;
+    padding: 0 20px;
 }
 
 .task {
-    background-color: var(--primary);
+    background-color: var(--wrpprbck);
+    border: 1px solid #E0E0E0;
     color: var(--maintxt);
     cursor: pointer;
     flex-grow: 1;
-    font-family: Lato, sans-serif;
-    font-weight: 900;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
     margin-right: 10px;
-    margin-top: 15px;
     padding: 15px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border-radius: 10px;
+    transition: background-color 0.3s, color 0.3s;
 }
 
-.task-date {
-    font-size: 0.8em;
-    color: #888;
+.done {
+    background-color: var(--donetsk);
+    color: white;
+    text-decoration: none; /* Quitar el tachado */
+    border-color: var(--donetsk);
+}
+
+.done .task-text {
+    text-decoration: line-through; /* Tachar solo el texto */
+    opacity: 0.7;
 }
 
 .delete-button {
     background: transparent;
     border: none;
     cursor: pointer;
-    font-size: 1.2em;
+    font-size: 1.5em;
+    color: #FF6B6B; /* Color rojo para el botón de eliminar */
+    transition: transform 0.2s;
 }
 
-.done {
-    background-color: var(--donetsk);
-    color: var(--bckgrndbdy);
-    text-decoration: line-through;
+.delete-button:hover {
+    transform: scale(1.2); /* Agrandar al pasar el ratón */
 }
