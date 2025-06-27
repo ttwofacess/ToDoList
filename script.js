@@ -1,13 +1,16 @@
-// Info date
+// Obtiene los elementos del DOM para mostrar la fecha.
 const dateNumber = document.getElementById('dateNumber');
 const dateText = document.getElementById('dateText');
 const dateMonth = document.getElementById('dateMonth');
 const dateYear = document.getElementById('dateYear');
 
-
-// Tasks Container
+// Obtiene el contenedor de tareas del DOM.
 const tasksContainer = document.getElementById('tasksContainer');
 
+/**
+ * Establece la fecha actual en los elementos del DOM correspondientes.
+ * Utiliza el objeto `Date` para obtener la fecha y la formatea en español.
+ */
 const setDate = () => {
     const date = new Date();
     dateNumber.textContent = date.toLocaleString('es', { day: 'numeric' });
@@ -16,7 +19,11 @@ const setDate = () => {
     dateYear.textContent = date.toLocaleString('es', { year: 'numeric' });
 };
 
-//save tasks in local storage
+/**
+ * Guarda las tareas actuales en el almacenamiento local (localStorage).
+ * Recorre los elementos de tarea en el contenedor, extrae la información
+ * (texto, estado "done" y fecha) y la guarda como un array de objetos JSON.
+ */
 const saveTasks = () => {
     try {
         const tasks = [];
@@ -38,7 +45,11 @@ const saveTasks = () => {
     }
 };
 
-//load tasks from local storage
+/**
+ * Carga las tareas desde el almacenamiento local al iniciar la página.
+ * Obtiene las tareas guardadas, las parsea desde JSON y crea los elementos
+ * de tarea correspondientes en el DOM.
+ */
 const loadTasks = () => {
     try {
         const tasksData = localStorage.getItem('tasks');
@@ -59,11 +70,16 @@ const loadTasks = () => {
         });
     } catch (error) {
         console.error('Error loading tasks:', error);
-        localStorage.removeItem('tasks'); // Limpiar datos corruptos
-        }
+        localStorage.removeItem('tasks'); // Limpia datos corruptos si los hay.
+    }
 }
 
-//create tasks elements from here
+/**
+ * Crea un nuevo elemento de tarea en el DOM.
+ * @param {string} text - El texto de la tarea.
+ * @param {string} date - La fecha de creación de la tarea.
+ * @returns {HTMLElement} El elemento de tarea (`div.task-wrapper`) creado.
+ */
 const createTaskElement = (text, date) => {
     const taskWrapper = document.createElement('div');
     taskWrapper.classList.add('task-wrapper');
@@ -74,6 +90,7 @@ const createTaskElement = (text, date) => {
 
     const taskText = document.createElement('span');
     taskText.classList.add('task-text');
+    // Sanitiza el texto para prevenir ataques XSS.
     taskText.textContent = DOMPurify.sanitize(text);
 
     const taskDate = document.createElement('span');
@@ -83,29 +100,36 @@ const createTaskElement = (text, date) => {
     task.appendChild(taskText);
     task.appendChild(taskDate);
 
-
     const deleteButton = document.createElement('button');
     deleteButton.textContent = '❌';
     deleteButton.classList.add('delete-button');
     deleteButton.addEventListener('click', deleteTask);
+    
     taskWrapper.appendChild(task);
     taskWrapper.appendChild(deleteButton);
+    
     return taskWrapper;
 };
 
+/**
+ * Maneja el evento de agregar una nueva tarea.
+ * Previene el comportamiento por defecto del formulario, valida la entrada,
+ * crea la nueva tarea y la agrega al principio del contenedor.
+ * @param {Event} event - El evento del formulario.
+ */
 const addNewTask = event => {
     event.preventDefault();
 
     const { value } = event.target.taskText;
     if(!value) return;
 
-    // Agregar validaciones
-    if (value.length > 500) { // Limitar longitud de la tarea
+    // Validaciones para la longitud del texto y el número de tareas.
+    if (value.length > 500) {
         alert('El texto de la tarea es demasiado largo. Máximo 500 caracteres permitidos.');
         return;
     }
     
-    if (tasksContainer.childNodes.length >= 100) { // Limitar número de tareas
+    if (tasksContainer.childNodes.length >= 100) {
         alert('Número máximo de tareas alcanzado.');
         return;
     }
@@ -118,18 +142,29 @@ const addNewTask = event => {
     saveTasks();
 };
 
+/**
+ * Cambia el estado de una tarea (completada/pendiente) al hacer clic en ella.
+ * @param {Event} event - El evento de clic.
+ */
 const changeTaskState = event => {
     event.target.closest('.task').classList.toggle('done');
-    saveTasks();  //call saveTasks after a change is made
+    saveTasks(); // Guarda el nuevo estado en localStorage.
 };
 
-//delete the task and update local storage
+/**
+ * Elimina una tarea del DOM y actualiza el almacenamiento local.
+ * @param {Event} event - El evento de clic en el botón de eliminar.
+ */
 const deleteTask = event => {
     const taskWrapper = event.target.closest('.task-wrapper');
     taskWrapper.remove();
     saveTasks();
 }
 
+/**
+ * Ordena las tareas, separando las completadas de las pendientes.
+ * @returns {Array<HTMLElement>} Un array con los elementos de tarea ordenados.
+ */
 const order = () => {
     const done = [];
     const toDo = [];
@@ -142,12 +177,17 @@ const order = () => {
     return [...toDo, ...done];
 };
 
+/**
+ * Renderiza las tareas en el contenedor en el orden correcto (pendientes primero).
+ */
 const renderOrderedTasks = () => {
     order().forEach(el => tasksContainer.appendChild(el));
-    saveTasks();  //call saveTasks after reordering tasks
+    saveTasks(); // Guarda el nuevo orden en localStorage.
 };
 
+// Agrega un event listener al botón de ordenar para que llame a renderOrderedTasks.
 document.querySelector('.orderButton').addEventListener('click', renderOrderedTasks);
 
+// Llama a setDate y loadTasks al cargar el script para inicializar la aplicación.
 setDate();
 loadTasks();
