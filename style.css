@@ -126,15 +126,22 @@ input:focus {
     padding: 0 20px;
 }
 
+/* CAMBIOS PRINCIPALES: Hacer que task-wrapper sea un flexbox horizontal */
+.task-wrapper {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px; /* Espacio entre tareas */
+    gap: 10px; /* Espacio entre la tarea y el botón */
+}
+
 .task {
     background-color: var(--wrpprbck);
     border: 1px solid #E0E0E0;
     color: var(--maintxt);
     cursor: pointer;
-    flex-grow: 1;
+    flex-grow: 1; /* La tarea ocupa todo el espacio disponible */
     font-family: 'Roboto', sans-serif;
     font-weight: 500;
-    margin-right: 10px;
     padding: 15px;
     display: flex;
     justify-content: space-between;
@@ -162,6 +169,8 @@ input:focus {
     font-size: 1.5em;
     color: #FF6B6B; /* Color rojo para el botón de eliminar */
     transition: transform 0.2s;
+    flex-shrink: 0; /* El botón mantiene su tamaño */
+    padding: 5px; /* Un poco de padding para mejor área de clic */
 }
 
 .delete-button:hover {
