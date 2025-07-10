@@ -192,6 +192,18 @@ input:focus {
     transform: scale(1.2);
 }
 
+.priority-high {
+    border-left: 5px solid #FF6B6B;
+}
+
+.priority-medium {
+    border-left: 5px solid #FFA500;
+}
+
+.priority-low {
+    border-left: 5px solid #50C878;
+}
+
 .edit-input {
     flex-grow: 1;
     border: 1px solid #6C63FF;

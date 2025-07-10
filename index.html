@@ -26,6 +26,11 @@
         </div>
         <form onsubmit="addNewTask(event)">
             <input type="text" name="taskText" autocomplete="off" placeholder="Nueva tarea" class="roundBorder">
+            <select name="taskPriority" class="roundBorder">
+                <option value="high">Alta</option>
+                <option value="medium" selected>Media</option>
+                <option value="low">Baja</option>
+            </select>
             <button type="submit" class="addTaskButton">+</button>
             <button type="button" class="orderButton roundBorder" onclick="renderOrderedTasks()">Ordenar</button>
         </form>
