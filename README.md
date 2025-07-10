@@ -2,12 +2,14 @@
 
 Una aplicación web simple y elegante para gestionar tus tareas diarias. La interfaz es limpia, moderna y responsive, con soporte para tema claro y oscuro según las preferencias del sistema.
 
-![ToDo List Screenshot](https://github.com/user-attachments/assets/966b9ee4-98ff-4680-808a-53c5bc6866a1)
+![ToDo List Screenshot](https://github.com/user-attachments/assets/102ad4ef-f4dd-42e0-bee2-259d2631963b) 
 
 ## ✨ Características
 
 - **Añadir Tareas**: Agrega nuevas tareas fácilmente a través de un campo de entrada intuitivo.
 - **Marcar como Completadas**: Haz clic en una tarea para marcarla como completada. El estilo cambiará para reflejar el estado.
+- **Edición de Tareas**: Modifica el texto de una tarea existente haciendo clic en el botón de editar (✏️).
+- **Prioridad de Tareas**: Asigna una prioridad (Alta, Media, Baja) a tus tareas para una mejor organización visual.
 - **Eliminar Tareas**: Borra tareas que ya no necesites con un solo clic.
 - **Ordenar Tareas**: Reorganiza tu lista para mostrar las tareas pendientes primero.
 - **Persistencia de Datos**: Las tareas se guardan en el `localStorage` de tu navegador, por lo que no las perderás al recargar la página.
