@@ -32,8 +32,12 @@
                 <option value="low">Baja</option>
             </select>
             <button type="submit" class="addTaskButton">+</button>
-            <button type="button" class="orderButton roundBorder" onclick="renderOrderedTasks()">Ordenar</button>
+            <!-- <button type="button" class="orderButton roundBorder" onclick="renderOrderedTasks()">Ordenar</button> -->
         </form>
+        <!-- ...formulario y lista de tareas... -->
+        <div class="orderButton-wrapper">
+            <button type="button" class="orderButton roundBorder" onclick="renderOrderedTasks()">Ordenar</button>
+        </div>
         <div id="tasksContainer"></div>
     </div>
 </body>
