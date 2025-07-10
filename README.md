@@ -2,7 +2,7 @@
 
 Una aplicación web simple y elegante para gestionar tus tareas diarias. La interfaz es limpia, moderna y responsive, con soporte para tema claro y oscuro según las preferencias del sistema.
 
-![ToDo List Screenshot]("https://github.com/user-attachments/assets/102ad4ef-f4dd-42e0-bee2-259d2631963b") 
+![ToDo List Screenshot](https://github.com/user-attachments/assets/102ad4ef-f4dd-42e0-bee2-259d2631963b) 
 
 ## ✨ Características
 
