@@ -210,3 +210,21 @@ input:focus {
     padding: 10px;
     border-radius: 5px;
 }
+
+/* Centrar el botón Ordenar en un renglón inferior */
+.orderButton-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px; /* Espacio respecto al formulario */
+    margin-bottom: 24px; /* Margen inferior para separar del contenido siguiente */
+}
+
+.orderButton {
+    background-color: var(--btnordr);
+    color: white;
+    padding: 12px 28px;
+    font-size: 1.1rem;
+    min-width: 120px;
+    min-height: 44px;
+    border-radius: 10px;
+}
