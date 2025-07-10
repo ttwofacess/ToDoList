@@ -100,12 +100,18 @@ const createTaskElement = (text, date) => {
     task.appendChild(taskText);
     task.appendChild(taskDate);
 
+    const editButton = document.createElement('button');
+    editButton.textContent = '✏️';
+    editButton.classList.add('edit-button');
+    editButton.addEventListener('click', editTask);
+
     const deleteButton = document.createElement('button');
     deleteButton.textContent = '❌';
     deleteButton.classList.add('delete-button');
     deleteButton.addEventListener('click', deleteTask);
     
     taskWrapper.appendChild(task);
+    taskWrapper.appendChild(editButton);
     taskWrapper.appendChild(deleteButton);
     
     return taskWrapper;
@@ -160,6 +166,62 @@ const deleteTask = event => {
     taskWrapper.remove();
     saveTasks();
 }
+
+/**
+ * Maneja el evento de editar una tarea, permitiendo al usuario modificar el texto.
+ * @param {Event} event - El evento de clic en el botón de editar.
+ */
+const editTask = event => {
+    const taskWrapper = event.target.closest('.task-wrapper');
+    const taskTextElement = taskWrapper.querySelector('.task-text');
+    const currentText = taskTextElement.textContent;
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = currentText;
+    input.classList.add('edit-input');
+
+    taskTextElement.replaceWith(input);
+    input.focus();
+
+    const editButton = taskWrapper.querySelector('.edit-button');
+    editButton.textContent = '💾';
+    editButton.removeEventListener('click', editTask);
+    editButton.addEventListener('click', saveEditedTask);
+};
+
+/**
+ * Guarda el texto modificado de una tarea.
+ * @param {Event} event - El evento de clic en el botón de guardar.
+ */
+const saveEditedTask = event => {
+    const taskWrapper = event.target.closest('.task-wrapper');
+    const input = taskWrapper.querySelector('.edit-input');
+    const newText = input.value;
+
+    if (!newText) {
+        alert('La tarea no puede estar vacía.');
+        return;
+    }
+
+    if (newText.length > 500) {
+        alert('El texto de la tarea es demasiado largo. Máximo 500 caracteres permitidos.');
+        return;
+    }
+
+    const newTaskTextElement = document.createElement('span');
+    newTaskTextElement.classList.add('task-text');
+    newTaskTextElement.textContent = DOMPurify.sanitize(newText);
+
+    input.replaceWith(newTaskTextElement);
+
+    const editButton = taskWrapper.querySelector('.edit-button');
+    editButton.textContent = '✏️';
+    editButton.removeEventListener('click', saveEditedTask);
+    editButton.addEventListener('click', editTask);
+
+    saveTasks();
+};
 
 /**
  * Ordena las tareas, separando las completadas de las pendientes.
