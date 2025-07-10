@@ -32,10 +32,12 @@ const saveTasks = () => {
                 const taskEl = el.querySelector('.task');
                 const taskText = taskEl.querySelector('.task-text').textContent;
                 const taskDate = taskEl.querySelector('.task-date').textContent;
+                const priority = taskEl.classList.contains('priority-high') ? 'high' : taskEl.classList.contains('priority-medium') ? 'medium' : 'low';
                 tasks.push({
                     text: taskText,
                     done: taskEl.classList.contains('done'),
-                    date: taskDate
+                    date: taskDate,
+                    priority: priority
                 });
             }
         });
@@ -61,7 +63,8 @@ const loadTasks = () => {
         tasks.forEach(task => {
             if (typeof task.text === 'string' && typeof task.done === 'boolean') {
                 const date = task.date || new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' });
-                const taskElement = createTaskElement(task.text, date);
+                const priority = task.priority || 'medium';
+                const taskElement = createTaskElement(task.text, date, priority);
                 if (task.done) {
                     taskElement.querySelector('.task').classList.add('done');
                 }
@@ -80,12 +83,12 @@ const loadTasks = () => {
  * @param {string} date - La fecha de creación de la tarea.
  * @returns {HTMLElement} El elemento de tarea (`div.task-wrapper`) creado.
  */
-const createTaskElement = (text, date) => {
+const createTaskElement = (text, date, priority) => {
     const taskWrapper = document.createElement('div');
     taskWrapper.classList.add('task-wrapper');
 
     const task = document.createElement('div');
-    task.classList.add('task', 'roundBorder');
+    task.classList.add('task', 'roundBorder', `priority-${priority}`);
     task.addEventListener('click', changeTaskState);
 
     const taskText = document.createElement('span');
@@ -127,6 +130,8 @@ const addNewTask = event => {
     event.preventDefault();
 
     const { value } = event.target.taskText;
+    const priority = event.target.taskPriority.value;
+
     if(!value) return;
 
     // Validaciones para la longitud del texto y el número de tareas.
@@ -142,7 +147,7 @@ const addNewTask = event => {
 
     const date = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' });
 
-    const task = createTaskElement(value, date);
+    const task = createTaskElement(value, date, priority);
     tasksContainer.prepend(task);
     event.target.reset();
     saveTasks();
