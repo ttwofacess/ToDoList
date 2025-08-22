@@ -1,3 +1,63 @@
+// Diccionario de traducciones para los textos de la interfaz.
+const translations = {
+    en: {
+        pageTitle: 'To-Do List',
+        taskPlaceholder: 'New task',
+        priorityHigh: 'High',
+        priorityMedium: 'Medium',
+        priorityLow: 'Low',
+        orderButton: 'Order',
+        alertTaskTooLong: 'Task text is too long. Maximum 500 characters allowed.',
+        alertMaxTasks: 'Maximum number of tasks reached.',
+        alertEmptyTask: 'Task cannot be empty.',
+    },
+    es: {
+        pageTitle: 'Lista de Tareas',
+        taskPlaceholder: 'Nueva tarea',
+        priorityHigh: 'Alta',
+        priorityMedium: 'Media',
+        priorityLow: 'Baja',
+        orderButton: 'Ordenar',
+        alertTaskTooLong: 'El texto de la tarea es demasiado largo. Máximo 500 caracteres permitidos.',
+        alertMaxTasks: 'Número máximo de tareas alcanzado.',
+        alertEmptyTask: 'La tarea no puede estar vacía.',
+    }
+};
+
+// Variable para almacenar el idioma actual. Por defecto es inglés.
+let currentLang = 'en'; // Default language
+
+/**
+ * Cambia el idioma de la interfaz y actualiza los textos.
+ * @param {string} lang - Código de idioma ('en' o 'es').
+ */
+const setLanguage = (lang) => {
+    currentLang = lang;
+    document.querySelectorAll('[data-i18n-key]').forEach(element => {
+        const key = element.getAttribute('data-i18n-key');
+        const translation = translations[lang][key];
+        if (element.tagName === 'INPUT' && element.placeholder) {
+            element.placeholder = translation;
+        } else {
+            element.textContent = translation;
+        }
+    });
+    document.title = translations[lang].pageTitle;
+    setDate(); // Update date format
+};
+
+/**
+ * Detecta el idioma del navegador y ajusta la interfaz en consecuencia.
+ */
+const detectLanguage = () => {
+    const browserLang = navigator.language.split('-')[0];
+    if (browserLang === 'es') {
+        setLanguage('es');
+    } else {
+        setLanguage('en');
+    }
+};
+
 // Obtiene los elementos del DOM para mostrar la fecha.
 const dateNumber = document.getElementById('dateNumber');
 const dateText = document.getElementById('dateText');
@@ -9,14 +69,14 @@ const tasksContainer = document.getElementById('tasksContainer');
 
 /**
  * Establece la fecha actual en los elementos del DOM correspondientes.
- * Utiliza el objeto `Date` para obtener la fecha y la formatea en español.
+ * Utiliza el objeto `Date` para obtener la fecha y la formatea en el idioma actual.
  */
 const setDate = () => {
     const date = new Date();
-    dateNumber.textContent = date.toLocaleString('es', { day: 'numeric' });
-    dateText.textContent = date.toLocaleString('es', { weekday: 'long' });
-    dateMonth.textContent = date.toLocaleString('es', { month: 'short' });
-    dateYear.textContent = date.toLocaleString('es', { year: 'numeric' });
+    dateNumber.textContent = date.toLocaleString(currentLang, { day: 'numeric' });
+    dateText.textContent = date.toLocaleString(currentLang, { weekday: 'long' });
+    dateMonth.textContent = date.toLocaleString(currentLang, { month: 'short' });
+    dateYear.textContent = date.toLocaleString(currentLang, { year: 'numeric' });
 };
 
 /**
@@ -62,7 +122,7 @@ const loadTasks = () => {
 
         tasks.forEach(task => {
             if (typeof task.text === 'string' && typeof task.done === 'boolean') {
-                const date = task.date || new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' });
+                const date = task.date || new Date().toLocaleDateString(`${currentLang}-${currentLang.toUpperCase()}`, { day: '2-digit', month: '2-digit', year: '2-digit' });
                 const priority = task.priority || 'medium';
                 const taskElement = createTaskElement(task.text, date, priority);
                 if (task.done) {
@@ -136,16 +196,16 @@ const addNewTask = event => {
 
     // Validaciones para la longitud del texto y el número de tareas.
     if (value.length > 500) {
-        alert('El texto de la tarea es demasiado largo. Máximo 500 caracteres permitidos.');
+        alert(translations[currentLang].alertTaskTooLong);
         return;
     }
     
     if (tasksContainer.childNodes.length >= 100) {
-        alert('Número máximo de tareas alcanzado.');
+        alert(translations[currentLang].alertMaxTasks);
         return;
     }
 
-    const date = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' });
+    const date = new Date().toLocaleDateString(`${currentLang}-${currentLang.toUpperCase()}`, { day: '2-digit', month: '2-digit', year: '2-digit' });
 
     const task = createTaskElement(value, date, priority);
     tasksContainer.prepend(task);
@@ -205,12 +265,12 @@ const saveEditedTask = event => {
     const newText = input.value;
 
     if (!newText) {
-        alert('La tarea no puede estar vacía.');
+        alert(translations[currentLang].alertEmptyTask);
         return;
     }
 
     if (newText.length > 500) {
-        alert('El texto de la tarea es demasiado largo. Máximo 500 caracteres permitidos.');
+        alert(translations[currentLang].alertTaskTooLong);
         return;
     }
 
@@ -247,14 +307,23 @@ const order = () => {
 /**
  * Renderiza las tareas en el contenedor en el orden correcto (pendientes primero).
  */
+/**
+ * Renderiza las tareas en el contenedor en el orden correcto (pendientes primero).
+ */
 const renderOrderedTasks = () => {
     order().forEach(el => tasksContainer.appendChild(el));
     saveTasks(); // Guarda el nuevo orden en localStorage.
 };
 
 // Agrega un event listener al botón de ordenar para que llame a renderOrderedTasks.
+
+// Agrega un event listener al botón de ordenar para que llame a renderOrderedTasks.
 document.querySelector('.orderButton').addEventListener('click', renderOrderedTasks);
 
 // Llama a setDate y loadTasks al cargar el script para inicializar la aplicación.
-setDate();
-loadTasks();
+
+// Inicializa la aplicación al cargar el documento: detecta idioma y carga tareas.
+document.addEventListener('DOMContentLoaded', () => {
+    detectLanguage();
+    loadTasks();
+});
