@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de tareas</title>
+    <title data-i18n-key="pageTitle">To-Do List</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
@@ -25,18 +25,16 @@
             <div id="dateText"></div>
         </div>
         <form onsubmit="addNewTask(event)">
-            <input type="text" name="taskText" autocomplete="off" placeholder="Nueva tarea" class="roundBorder">
+            <input type="text" name="taskText" autocomplete="off" placeholder="New Task" class="roundBorder" data-i18n-key="taskPlaceholder">
             <select name="taskPriority" class="roundBorder">
-                <option value="high">Alta</option>
-                <option value="medium" selected>Media</option>
-                <option value="low">Baja</option>
+                <option value="high" data-i18n-key="priorityHigh">High</option>
+                <option value="medium" selected data-i18n-key="priorityMedium">Medium</option>
+                <option value="low" data-i18n-key="priorityLow">Low</option>
             </select>
             <button type="submit" class="addTaskButton">+</button>
-            <!-- <button type="button" class="orderButton roundBorder" onclick="renderOrderedTasks()">Ordenar</button> -->
         </form>
-        <!-- ...formulario y lista de tareas... -->
         <div class="orderButton-wrapper">
-            <button type="button" class="orderButton roundBorder" onclick="renderOrderedTasks()">Ordenar</button>
+            <button type="button" class="orderButton roundBorder" onclick="renderOrderedTasks()" data-i18n-key="orderButton">Order</button>
         </div>
         <div id="tasksContainer"></div>
     </div>
