@@ -10,6 +10,9 @@ const translations = {
         alertTaskTooLong: 'Task text is too long. Maximum 500 characters allowed.',
         alertMaxTasks: 'Maximum number of tasks reached.',
         alertEmptyTask: 'Task cannot be empty.',
+        donateButton: 'Donate',
+        donateTitle: 'Donate',
+        copyButton: 'Copy',
     },
     es: {
         pageTitle: 'Lista de Tareas',
@@ -21,6 +24,9 @@ const translations = {
         alertTaskTooLong: 'El texto de la tarea es demasiado largo. Máximo 500 caracteres permitidos.',
         alertMaxTasks: 'Número máximo de tareas alcanzado.',
         alertEmptyTask: 'La tarea no puede estar vacía.',
+        donateButton: 'Donar',
+        donateTitle: 'Donar',
+        copyButton: 'Copiar',
     }
 };
 
@@ -326,4 +332,37 @@ document.querySelector('.orderButton').addEventListener('click', renderOrderedTa
 document.addEventListener('DOMContentLoaded', () => {
     detectLanguage();
     loadTasks();
+
+    const donateButton = document.getElementById('donateButton');
+    const modal = document.getElementById('donateModal');
+    const closeButton = document.querySelector('.close-button');
+
+    donateButton.onclick = () => {
+        modal.style.display = 'block';
+    }
+
+    closeButton.onclick = () => {
+        modal.style.display = 'none';
+    }
+
+    window.onclick = (event) => {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    const copyButtons = document.querySelectorAll('.copy-button');
+    copyButtons.forEach(button => {
+        button.addEventListener('click', (event) => {
+            const input = event.target.previousElementSibling.querySelector('input');
+            input.select();
+            document.execCommand('copy');
+            // Optional: Add some feedback to the user
+            const originalText = button.textContent;
+            button.textContent = 'Copied!';
+            setTimeout(() => {
+                button.textContent = originalText;
+            }, 2000);
+        });
+    });
 });

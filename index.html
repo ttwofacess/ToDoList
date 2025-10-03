@@ -37,6 +37,42 @@
             <button type="button" class="orderButton roundBorder" onclick="renderOrderedTasks()" data-i18n-key="orderButton">Order</button>
         </div>
         <div id="tasksContainer"></div>
+        <div class="donate-wrapper">
+            <button type="button" id="donateButton" class="roundBorder" data-i18n-key="donateButton">Donate</button>
+        </div>
+    </div>
+
+    <div id="donateModal" class="modal">
+        <div class="modal-content roundBorder">
+            <span class="close-button">&times;</span>
+            <h2 data-i18n-key="donateTitle">Donate</h2>
+            <div class="crypto-options">
+                <div class="crypto-option">
+                    <div class="crypto-icon">₿</div>
+                    <div class="crypto-info">
+                        <span class="crypto-name">Bitcoin</span>
+                        <input type="text" value="bc1qxz4nxj8rzxzsnwj8u4rq46wy8dnf5h7yvzaqs2" readonly>
+                    </div>
+                    <button class="copy-button" data-i18n-key="copyButton">Copy</button>
+                </div>
+                <div class="crypto-option">
+                    <div class="crypto-icon">Ł</div>
+                    <div class="crypto-info">
+                        <span class="crypto-name">Litecoin</span>
+                        <input type="text" value="M8snytUjZP13KVTEHA4JCbHfy31Ve2xMr4" readonly>
+                    </div>
+                    <button class="copy-button" data-i18n-key="copyButton">Copy</button>
+                </div>
+                <div class="crypto-option">
+                    <div class="crypto-icon">$</div>
+                    <div class="crypto-info">
+                        <span class="crypto-name">USDT (TRC20)</span>
+                        <input type="text" value="TYsPkPyHbWN8cPuoDA7DohwhAdXWkVbQHm" readonly>
+                    </div>
+                    <button class="copy-button" data-i18n-key="copyButton">Copy</button>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 </html>
