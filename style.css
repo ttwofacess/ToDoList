@@ -21,6 +21,15 @@
         --wrpprbck: #1E1E3F; 
         --maintxt: #EAEAEA;
     }
+
+    .modal-content {
+        color: var(--maintxt);
+    }
+
+    .crypto-info input {
+        color: var(--maintxt);
+        background-color: var(--bckgrndbdy);
+    }
 }
 
 body {
