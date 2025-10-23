@@ -81,14 +81,15 @@ body {
 }
 
 form {
-    display: grid;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
     margin: 20px 0;
-    grid-auto-flow: column;
-    grid-column-gap: 15px;
-    grid-template-columns: 1fr auto auto; /* Ajuste de columnas */
+    width: 100%;
 }
 
-input {
+input, select {
     background-color: var(--bckgrndbdy);
     border: 2px solid transparent; /* Borde transparente */
     color: var(--maintxt);
@@ -97,6 +98,40 @@ input {
     padding: 10px 15px;
     border-radius: 10px; /* Bordes redondeados */
     transition: border-color 0.3s;
+    width: 80%; /* Ancho consistente para todos los elementos */
+}
+
+/* Estilo específico para el botón de agregar tarea */
+.addTaskButton {
+    width: 40px; /* Ancho fijo para el botón */
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--btnplus);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin-top: 10px;
+}
+
+input[type="date"] {
+    background-color: var(--bckgrndbdy);
+    border: 2px solid transparent;
+    color: var(--maintxt);
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    padding: 8px 12px;
+    border-radius: 10px;
+    transition: border-color 0.3s;
+    color-scheme: dark;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
 }
 
 input:focus {

@@ -197,6 +197,7 @@ const addNewTask = event => {
 
     const { value } = event.target.taskText;
     const priority = event.target.taskPriority.value;
+    const dateValue = event.target.taskDate.value;
 
     if(!value) return;
 
@@ -211,7 +212,13 @@ const addNewTask = event => {
         return;
     }
 
-    const date = new Date().toLocaleDateString(`${currentLang}-${currentLang.toUpperCase()}`, { day: '2-digit', month: '2-digit', year: '2-digit' });
+    let date;
+    if (dateValue) {
+        const [year, month, day] = dateValue.split('-');
+        date = new Date(year, month - 1, day).toLocaleDateString(`${currentLang}-${currentLang.toUpperCase()}`, { day: '2-digit', month: '2-digit', year: '2-digit' });
+    } else {
+        date = new Date().toLocaleDateString(`${currentLang}-${currentLang.toUpperCase()}`, { day: '2-digit', month: '2-digit', year: '2-digit' });
+    }
 
     const task = createTaskElement(value, date, priority);
     tasksContainer.prepend(task);
