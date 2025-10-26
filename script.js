@@ -3,6 +3,8 @@ const translations = {
     en: {
         pageTitle: 'To-Do List',
         taskPlaceholder: 'New task',
+        datePlaceholder: 'Date',
+        dateTitle: 'mm-dd-yyyy',
         priorityHigh: 'High',
         priorityMedium: 'Medium',
         priorityLow: 'Low',
@@ -17,6 +19,8 @@ const translations = {
     es: {
         pageTitle: 'Lista de Tareas',
         taskPlaceholder: 'Nueva tarea',
+        datePlaceholder: 'Fecha',
+        dateTitle: 'dd-mm-aaaa',
         priorityHigh: 'Alta',
         priorityMedium: 'Media',
         priorityLow: 'Baja',
@@ -42,8 +46,13 @@ const setLanguage = (lang) => {
     document.querySelectorAll('[data-i18n-key]').forEach(element => {
         const key = element.getAttribute('data-i18n-key');
         const translation = translations[lang][key];
-        if (element.tagName === 'INPUT' && element.placeholder) {
-            element.placeholder = translation;
+        if (element.tagName === 'INPUT') {
+            if (element.type === 'date') {
+                element.title = translations[lang]['dateTitle'];
+            }
+            if (element.placeholder) {
+                element.placeholder = translation;
+            }
         } else {
             element.textContent = translation;
         }
@@ -197,6 +206,7 @@ const addNewTask = event => {
 
     const { value } = event.target.taskText;
     const priority = event.target.taskPriority.value;
+    const dateValue = event.target.taskDate.value;
 
     if(!value) return;
 
@@ -211,7 +221,13 @@ const addNewTask = event => {
         return;
     }
 
-    const date = new Date().toLocaleDateString(`${currentLang}-${currentLang.toUpperCase()}`, { day: '2-digit', month: '2-digit', year: '2-digit' });
+    let date;
+    if (dateValue) {
+        const [year, month, day] = dateValue.split('-');
+        date = new Date(year, month - 1, day).toLocaleDateString(`${currentLang}-${currentLang.toUpperCase()}`, { day: '2-digit', month: '2-digit', year: '2-digit' });
+    } else {
+        date = new Date().toLocaleDateString(`${currentLang}-${currentLang.toUpperCase()}`, { day: '2-digit', month: '2-digit', year: '2-digit' });
+    }
 
     const task = createTaskElement(value, date, priority);
     tasksContainer.prepend(task);
@@ -321,6 +337,21 @@ const renderOrderedTasks = () => {
     saveTasks(); // Guarda el nuevo orden en localStorage.
 };
 
+/**
+ * Resalta las tareas que vencen en el día actual.
+ */
+const highlightDueTasks = () => {
+    const today = new Date().toLocaleDateString(`${currentLang}-${currentLang.toUpperCase()}`, { day: '2-digit', month: '2-digit', year: '2-digit' });
+    const tasks = tasksContainer.querySelectorAll('.task-wrapper');
+
+    tasks.forEach(taskWrapper => {
+        const taskDateElement = taskWrapper.querySelector('.task-date');
+        if (taskDateElement && taskDateElement.textContent === today) {
+            taskWrapper.querySelector('.task').classList.add('due-today');
+        }
+    });
+};
+
 // Agrega un event listener al botón de ordenar para que llame a renderOrderedTasks.
 
 // Agrega un event listener al botón de ordenar para que llame a renderOrderedTasks.
@@ -332,6 +363,7 @@ document.querySelector('.orderButton').addEventListener('click', renderOrderedTa
 document.addEventListener('DOMContentLoaded', () => {
     detectLanguage();
     loadTasks();
+    highlightDueTasks();
 
     const donateButton = document.getElementById('donateButton');
     const modal = document.getElementById('donateModal');
