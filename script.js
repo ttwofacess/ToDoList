@@ -4,6 +4,7 @@ const translations = {
         pageTitle: 'To-Do List',
         taskPlaceholder: 'New task',
         datePlaceholder: 'Date',
+        dateTitle: 'mm-dd-yyyy',
         priorityHigh: 'High',
         priorityMedium: 'Medium',
         priorityLow: 'Low',
@@ -19,6 +20,7 @@ const translations = {
         pageTitle: 'Lista de Tareas',
         taskPlaceholder: 'Nueva tarea',
         datePlaceholder: 'Fecha',
+        dateTitle: 'dd-mm-aaaa',
         priorityHigh: 'Alta',
         priorityMedium: 'Media',
         priorityLow: 'Baja',
@@ -44,8 +46,13 @@ const setLanguage = (lang) => {
     document.querySelectorAll('[data-i18n-key]').forEach(element => {
         const key = element.getAttribute('data-i18n-key');
         const translation = translations[lang][key];
-        if (element.tagName === 'INPUT' && element.placeholder) {
-            element.placeholder = translation;
+        if (element.tagName === 'INPUT') {
+            if (element.type === 'date') {
+                element.title = translations[lang]['dateTitle'];
+            }
+            if (element.placeholder) {
+                element.placeholder = translation;
+            }
         } else {
             element.textContent = translation;
         }
