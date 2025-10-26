@@ -3,6 +3,7 @@ const translations = {
     en: {
         pageTitle: 'To-Do List',
         taskPlaceholder: 'New task',
+        datePlaceholder: 'Date',
         priorityHigh: 'High',
         priorityMedium: 'Medium',
         priorityLow: 'Low',
@@ -17,6 +18,7 @@ const translations = {
     es: {
         pageTitle: 'Lista de Tareas',
         taskPlaceholder: 'Nueva tarea',
+        datePlaceholder: 'Fecha',
         priorityHigh: 'Alta',
         priorityMedium: 'Media',
         priorityLow: 'Baja',
