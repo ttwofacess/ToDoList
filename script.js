@@ -328,6 +328,21 @@ const renderOrderedTasks = () => {
     saveTasks(); // Guarda el nuevo orden en localStorage.
 };
 
+/**
+ * Resalta las tareas que vencen en el día actual.
+ */
+const highlightDueTasks = () => {
+    const today = new Date().toLocaleDateString(`${currentLang}-${currentLang.toUpperCase()}`, { day: '2-digit', month: '2-digit', year: '2-digit' });
+    const tasks = tasksContainer.querySelectorAll('.task-wrapper');
+
+    tasks.forEach(taskWrapper => {
+        const taskDateElement = taskWrapper.querySelector('.task-date');
+        if (taskDateElement && taskDateElement.textContent === today) {
+            taskWrapper.querySelector('.task').classList.add('due-today');
+        }
+    });
+};
+
 // Agrega un event listener al botón de ordenar para que llame a renderOrderedTasks.
 
 // Agrega un event listener al botón de ordenar para que llame a renderOrderedTasks.
@@ -339,6 +354,7 @@ document.querySelector('.orderButton').addEventListener('click', renderOrderedTa
 document.addEventListener('DOMContentLoaded', () => {
     detectLanguage();
     loadTasks();
+    highlightDueTasks();
 
     const donateButton = document.getElementById('donateButton');
     const modal = document.getElementById('donateModal');
