@@ -3,8 +3,8 @@ const translations = {
     en: {
         pageTitle: 'To-Do List',
         taskPlaceholder: 'New task',
-        datePlaceholder: 'Date',
-        dateTitle: 'mm-dd-yyyy',
+        /* datePlaceholder: 'Date',
+        dateTitle: 'mm-dd-yyyy', */
         priorityHigh: 'High',
         priorityMedium: 'Medium',
         priorityLow: 'Low',
@@ -19,8 +19,8 @@ const translations = {
     es: {
         pageTitle: 'Lista de Tareas',
         taskPlaceholder: 'Nueva tarea',
-        datePlaceholder: 'Fecha',
-        dateTitle: 'dd-mm-aaaa',
+        /* datePlaceholder: 'Fecha',
+        dateTitle: 'dd-mm-aaaa', */
         priorityHigh: 'Alta',
         priorityMedium: 'Media',
         priorityLow: 'Baja',
