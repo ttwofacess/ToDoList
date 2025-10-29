@@ -89,6 +89,31 @@ form {
     width: 100%;
 }
 
+/* Contenedor para el input de texto */
+form > input[name="taskText"] {
+    width: 80%;
+}
+
+.priority-wrapper, .date-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 80%;
+}
+
+.priority-wrapper label, .date-wrapper label {
+    color: var(--maintxt);
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    text-align: right;
+    width: 30%;
+}
+
+.priority-wrapper select, .date-wrapper input[type="date"] {
+    width: 70%;
+}
+
 input, select {
     background-color: var(--bckgrndbdy);
     border: 2px solid transparent; /* Borde transparente */
