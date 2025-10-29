@@ -3,6 +3,8 @@ const translations = {
     en: {
         pageTitle: 'To-Do List',
         taskPlaceholder: 'New task',
+        priorityLabel: 'Priority:',
+        dateLabel: 'Date:',
         /* datePlaceholder: 'Date',
         dateTitle: 'mm-dd-yyyy', */
         priorityHigh: 'High',
@@ -19,6 +21,8 @@ const translations = {
     es: {
         pageTitle: 'Lista de Tareas',
         taskPlaceholder: 'Nueva tarea',
+        priorityLabel: 'Prioridad:',
+        dateLabel: 'Fecha:',
         /* datePlaceholder: 'Fecha',
         dateTitle: 'dd-mm-aaaa', */
         priorityHigh: 'Alta',

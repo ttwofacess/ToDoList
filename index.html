@@ -27,7 +27,7 @@
         <form onsubmit="addNewTask(event)">
             <input type="text" name="taskText" autocomplete="off" placeholder="New Task" class="roundBorder" data-i18n-key="taskPlaceholder">
             <div class="priority-wrapper">
-                <label for="taskPriority">Prioridad:</label>
+                <label for="taskPriority" data-i18n-key="priorityLabel">Prioridad:</label>
                 <select name="taskPriority" id="taskPriority" class="roundBorder">
                     <option value="high" data-i18n-key="priorityHigh">High</option>
                     <option value="medium" selected data-i18n-key="priorityMedium">Medium</option>
@@ -35,7 +35,7 @@
                 </select>
             </div>
             <div class="date-wrapper">
-                <label for="taskDate">Fecha:</label>
+                <label for="taskDate" data-i18n-key="dateLabel">Fecha:</label>
                 <input type="date" name="taskDate" id="taskDate" class="roundBorder" data-i18n-key="datePlaceholder">
             </div>
             <button type="submit" class="addTaskButton">+</button>
