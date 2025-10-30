@@ -7,27 +7,31 @@ Una aplicación web simple y elegante para gestionar tus tareas diarias. La inte
 ## ✨ Características
 
 - **Añadir Tareas**: Agrega nuevas tareas fácilmente a través de un campo de entrada intuitivo.
-- **Marcar como Completadas**: Haz clic en una tarea para marcarla como completada. El estilo cambiará para reflejar el estado.
-- **Edición de Tareas**: Modifica el texto de una tarea existente haciendo clic en el botón de editar (✏️).
-- **Prioridad de Tareas**: Asigna una prioridad (Alta, Media, Baja) a tus tareas para una mejor organización visual.
-- **Eliminar Tareas**: Borra tareas que ya no necesites con un solo clic.
+- **Marcar como Completadas**: Haz clic en una tarea para marcarla como completada.
+- **Edición de Tareas**: Modifica el texto de una tarea existente.
+- **Prioridad de Tareas**: Asigna una prioridad (Alta, Media, Baja) para una mejor organización.
+- **Fecha de Vencimiento**: Asigna una fecha a tus tareas.
+- **Tareas Pendientes de Hoy**: Las tareas que vencen en el día actual se resaltan con una animación para llamar tu atención.
+- **Eliminar Tareas**: Borra tareas que ya no necesites.
 - **Ordenar Tareas**: Reorganiza tu lista para mostrar las tareas pendientes primero.
-- **Persistencia de Datos**: Las tareas se guardan en el `localStorage` de tu navegador, por lo que no las perderás al recargar la página.
-- **Diseño Moderno**: Interfaz de usuario actualizada con una paleta de colores agradable, tipografía moderna y micro-interacciones.
+- **Persistencia de Datos**: Las tareas se guardan en el `localStorage` de tu navegador.
+- **Diseño Moderno**: Interfaz de usuario actualizada con una paleta de colores agradable y tipografía moderna.
 - **Tema Claro y Oscuro**: La apariencia se adapta automáticamente al tema de tu sistema operativo.
-- **Seguridad**: Se utiliza `DOMPurify` para sanitizar las entradas del usuario y prevenir ataques XSS.
+- **Soporte Multilenguaje**: La interfaz se muestra en español o inglés según el idioma del navegador.
+- **Seguridad**: Utiliza `DOMPurify` para sanitizar las entradas del usuario y prevenir ataques XSS.
+- **Opción de Donar**: Incluye un botón para donar a través de criptomonedas.
 
 ## 🛠️ Tecnologías Utilizadas
 
 - **HTML5**: Para la estructura semántica de la aplicación.
-- **CSS3**: Para los estilos, el diseño responsive y la tematización (claro/oscuro) utilizando variables CSS.
-- **JavaScript (ES6+)**: Para toda la lógica de la aplicación, incluyendo la manipulación del DOM y la interacción con `localStorage`.
-- **Google Fonts**: Se utilizan las fuentes "Poppins" y "Roboto" para una mejor legibilidad y un diseño más pulido.
+- **CSS3**: Para los estilos, el diseño responsive y la tematización (claro/oscuro).
+- **JavaScript (ES6+)**: Para toda la lógica de la aplicación.
+- **Google Fonts**: Fuentes "Poppins" y "Roboto" para un diseño más pulido.
 - **DOMPurify**: Para la sanitización de HTML y prevención de XSS.
 
 ## 🚀 Cómo Usar
 
-No se requiere ninguna instalación o construcción. Simplemente abre el archivo `index.html` en tu navegador web preferido.
+No se requiere ninguna instalación. Simplemente abre el archivo `index.html` en tu navegador web.
 
 1.  Clona o descarga este repositorio.
 2.  Navega a la carpeta del proyecto.
@@ -35,7 +39,7 @@ No se requiere ninguna instalación o construcción. Simplemente abre el archivo
 
 ## 🎨 Personalización
 
-Puedes personalizar fácilmente la apariencia de la lista de tareas modificando las variables CSS que se encuentran en la parte superior del archivo `style.css`.
+Puedes personalizar la apariencia modificando las variables CSS en la parte superior de `style.css`.
 
 ```css
 :root {
