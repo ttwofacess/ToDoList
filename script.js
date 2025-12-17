@@ -215,8 +215,8 @@ const addNewTask = event => {
     const dateValue = event.target.taskDate.value;
 
     if (dateValue) {
-        const selectedDate = new Date(dateValue);
-        selectedDate.setHours(0, 0, 0, 0); // Normalize to start of day
+        const [year, month, day] = dateValue.split('-').map(Number);
+        const selectedDate = new Date(year, month - 1, day);
 
         const todayNormalized = new Date();
         todayNormalized.setHours(0, 0, 0, 0);
