@@ -18,6 +18,7 @@ const translations = {
         donateTitle: 'Donate',
         copyButton: 'Copy',
         alertPastDate: 'Task date cannot be in the past.',
+        alertInvalidPriority: 'Invalid priority value submitted.',
     },
     es: {
         pageTitle: 'Lista de Tareas',
@@ -37,8 +38,12 @@ const translations = {
         donateTitle: 'Donar',
         copyButton: 'Copiar',
         alertPastDate: 'La fecha de la tarea no puede ser anterior a la fecha actual.',
+        alertInvalidPriority: 'Valor de prioridad inválido.',
     }
 };
+
+// Array de prioridades válidas para validación.
+const VALID_PRIORITIES = ['high', 'medium', 'low'];
 
 // Variable para almacenar el idioma actual. Por defecto es inglés.
 let currentLang = 'en'; // Default language
@@ -212,6 +217,11 @@ const addNewTask = event => {
 
     const { value } = event.target.taskText;
     const priority = event.target.taskPriority.value;
+
+    if (!VALID_PRIORITIES.includes(priority)) {
+        alert(translations[currentLang].alertInvalidPriority);
+        return;
+    }
     const dateValue = event.target.taskDate.value;
 
     if (dateValue) {
