@@ -17,6 +17,7 @@ const translations = {
         donateButton: 'Donate',
         donateTitle: 'Donate',
         copyButton: 'Copy',
+        alertPastDate: 'Task date cannot be in the past.',
     },
     es: {
         pageTitle: 'Lista de Tareas',
@@ -35,6 +36,7 @@ const translations = {
         donateButton: 'Donar',
         donateTitle: 'Donar',
         copyButton: 'Copiar',
+        alertPastDate: 'La fecha de la tarea no puede ser anterior a la fecha actual.',
     }
 };
 
@@ -212,6 +214,19 @@ const addNewTask = event => {
     const priority = event.target.taskPriority.value;
     const dateValue = event.target.taskDate.value;
 
+    if (dateValue) {
+        const [year, month, day] = dateValue.split('-').map(Number);
+        const selectedDate = new Date(year, month - 1, day);
+
+        const todayNormalized = new Date();
+        todayNormalized.setHours(0, 0, 0, 0);
+
+        if (selectedDate < todayNormalized) {
+            alert(translations[currentLang].alertPastDate);
+            return;
+        }
+    }
+
     if(!value) return;
 
     // Validaciones para la longitud del texto y el número de tareas.
@@ -368,6 +383,13 @@ document.addEventListener('DOMContentLoaded', () => {
     detectLanguage();
     loadTasks();
     highlightDueTasks();
+
+    const taskDateInput = document.getElementById('taskDate');
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
+    const dd = String(today.getDate()).padStart(2, '0');
+    taskDateInput.min = `${yyyy}-${mm}-${dd}`;
 
     const donateButton = document.getElementById('donateButton');
     const modal = document.getElementById('donateModal');
