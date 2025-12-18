@@ -287,39 +287,77 @@ const deleteTask = event => {
 }
 
 /**
+ * Cancela la edición de una tarea y restaura su texto original.
+ * @param {Event} event - El evento que dispara la cancelación.
+ * @param {string} originalText - El texto original de la tarea a restaurar.
+ */
+const cancelEdit = (event, originalText) => {
+    const taskWrapper = event.target.closest('.task-wrapper');
+    const input = taskWrapper.querySelector('.edit-input');
+
+    const originalTaskTextElement = document.createElement('span');
+    originalTaskTextElement.classList.add('task-text');
+    originalTaskTextElement.textContent = originalText; // Texto original, no necesita sanitización.
+    
+    if(input) {
+        input.replaceWith(originalTaskTextElement);
+    }
+
+    const editButton = taskWrapper.querySelector('.edit-button');
+    editButton.textContent = '✏️';
+    editButton.onclick = editTask; // Se restaura el evento original.
+
+    const cancelButton = taskWrapper.querySelector('.cancel-button');
+    if (cancelButton) {
+        cancelButton.remove();
+    }
+};
+
+
+/**
  * Maneja el evento de editar una tarea, permitiendo al usuario modificar el texto.
  * @param {Event} event - El evento de clic en el botón de editar.
  */
 const editTask = event => {
     const taskWrapper = event.target.closest('.task-wrapper');
     const taskTextElement = taskWrapper.querySelector('.task-text');
-    const currentText = taskTextElement.textContent;
+    const originalText = taskTextElement.textContent;
 
     const input = document.createElement('input');
     input.type = 'text';
-    input.value = currentText;
+    input.value = originalText;
     input.classList.add('edit-input');
 
     taskTextElement.replaceWith(input);
     input.focus();
 
     const editButton = taskWrapper.querySelector('.edit-button');
-    editButton.textContent = '💾';
-    editButton.removeEventListener('click', editTask);
-    editButton.addEventListener('click', saveEditedTask);
+    editButton.textContent = '💾'; // Cambia a ícono de guardar
+    // Pasa el texto original a las funciones de guardar y cancelar.
+    editButton.onclick = (e) => saveEditedTask(e, originalText);
+
+    const cancelButton = document.createElement('button');
+    cancelButton.textContent = '↩️'; // Ícono de cancelar/deshacer
+    cancelButton.classList.add('cancel-button');
+    cancelButton.onclick = (e) => cancelEdit(e, originalText);
+    
+    editButton.after(cancelButton); // Añade el botón de cancelar junto al de guardar.
 };
 
 /**
  * Guarda el texto modificado de una tarea.
  * @param {Event} event - El evento de clic en el botón de guardar.
+ * @param {string} originalText - El texto original, para restaurar si la validación falla.
  */
-const saveEditedTask = event => {
+const saveEditedTask = (event, originalText) => {
     const taskWrapper = event.target.closest('.task-wrapper');
     const input = taskWrapper.querySelector('.edit-input');
-    const newText = input.value;
+    const newText = input.value.trim(); // Usa trim() para eliminar espacios al inicio y final.
 
+    // Validación para no permitir tareas vacías.
     if (!newText) {
         alert(translations[currentLang].alertEmptyTask);
+        cancelEdit(event, originalText); // Restaura el estado original.
         return;
     }
 
@@ -330,14 +368,19 @@ const saveEditedTask = event => {
 
     const newTaskTextElement = document.createElement('span');
     newTaskTextElement.classList.add('task-text');
+    // Sanitiza el nuevo texto antes de insertarlo en el DOM para prevenir XSS.
     newTaskTextElement.textContent = DOMPurify.sanitize(newText);
 
     input.replaceWith(newTaskTextElement);
 
     const editButton = taskWrapper.querySelector('.edit-button');
     editButton.textContent = '✏️';
-    editButton.removeEventListener('click', saveEditedTask);
-    editButton.addEventListener('click', editTask);
+    editButton.onclick = editTask; // Restaura el manejador de evento para editar.
+
+    const cancelButton = taskWrapper.querySelector('.cancel-button');
+    if (cancelButton) {
+        cancelButton.remove();
+    }
 
     saveTasks();
 };
