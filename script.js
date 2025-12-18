@@ -237,7 +237,10 @@ const addNewTask = event => {
         }
     }
 
-    if(!value) return;
+    if (!value.trim()) {
+        alert(translations[currentLang].alertEmptyTask);
+        return;
+    }
 
     // Validaciones para la longitud del texto y el número de tareas.
     if (value.length > 500) {
