@@ -26,7 +26,7 @@ Una aplicación web simple y elegante para gestionar tus tareas diarias. La inte
 - **HTML5**: Para la estructura semántica de la aplicación.
 - **CSS3**: Para los estilos, el diseño responsive y la tematización (claro/oscuro).
 - **JavaScript (ES6+)**: Para toda la lógica de la aplicación.
-- **Google Fonts**: Fuentes "Poppins" y "Roboto" para un diseño más pulido.
+- **Fuentes Locales**: Las fuentes "Poppins" y "Roboto" están auto-alojadas para optimizar el rendimiento y la privacidad.
 - **DOMPurify**: Para la sanitización de HTML y prevención de XSS.
 
 ## 🚀 Cómo Usar

@@ -177,6 +177,10 @@ const createTaskElement = (text, date, priority) => {
     task.classList.add('task', 'roundBorder', `priority-${priority}`);
     task.addEventListener('click', changeTaskState);
 
+    // La clase `priority-<nivel>` permite aplicar estilos (color/orden)
+    // según la prioridad; el listener anterior cambia el estado "done" al
+    // hacer clic sobre la tarea.
+
     const taskText = document.createElement('span');
     taskText.classList.add('task-text');
     // Sanitiza el texto para prevenir ataques XSS.
@@ -194,10 +198,16 @@ const createTaskElement = (text, date, priority) => {
     editButton.classList.add('edit-button');
     editButton.addEventListener('click', editTask);
 
+    // Botón de editar: cambia el texto a un input editable y muestra
+    // botones para guardar o cancelar la edición.
+
     const deleteButton = document.createElement('button');
     deleteButton.textContent = '❌';
     deleteButton.classList.add('delete-button');
     deleteButton.addEventListener('click', deleteTask);
+
+    // Botón de eliminar: remueve el contenedor de la tarea y actualiza
+    // el almacenamiento local.
     
     taskWrapper.appendChild(task);
     taskWrapper.appendChild(editButton);
@@ -222,6 +232,8 @@ const addNewTask = event => {
         alert(translations[currentLang].alertInvalidPriority);
         return;
     }
+    // El input `taskDate` (type="date") devuelve una cadena en formato
+    // 'YYYY-MM-DD'. Aquí la leemos para validarla y compararla con la fecha actual.
     const dateValue = event.target.taskDate.value;
 
     if (dateValue) {
@@ -440,6 +452,8 @@ document.addEventListener('DOMContentLoaded', () => {
     loadTasks();
     highlightDueTasks();
 
+    // Establece el valor mínimo del input de fecha al día actual en formato
+    // 'YYYY-MM-DD' para evitar que el usuario seleccione fechas pasadas.
     const taskDateInput = document.getElementById('taskDate');
     const today = new Date();
     const yyyy = today.getFullYear();
@@ -465,6 +479,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Los botones `.copy-button` copian al portapapeles el valor del input
+    // adyacente. Se utiliza `document.execCommand('copy')` por compatibilidad
+    // amplia, aunque está en desuso en algunos navegadores modernos.
     const copyButtons = document.querySelectorAll('.copy-button');
     copyButtons.forEach(button => {
         button.addEventListener('click', (event) => {
