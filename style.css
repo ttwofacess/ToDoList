@@ -61,23 +61,23 @@
 
 body {
     background-color: var(--bckgrndbdy);
-    font-family: 'Roboto', sans-serif; /* Fuente principal */
+    font-family: 'Roboto', sans-serif;
     height: 100vh;
     margin: 0;
     display: flex;
     justify-content: center;
-    align-items: flex-start; /* Alinea arriba */
-    padding-top: 50px; /* Espacio superior */
+    align-items: flex-start;
+    padding-top: 50px;
 }
 
 .list {
     background-color: var(--wrpprbck);
     margin: 25px auto;
-    max-width: 450px; /* Un poco más ancho */
+    max-width: 450px;
     padding: 30px;
     width: 100%;
-    box-shadow: var(--shadow); /* Sombra para profundidad */
-    border-radius: 15px; /* Bordes más redondeados */
+    box-shadow: var(--shadow);
+    border-radius: 15px;
 }
 
 .date {
@@ -85,12 +85,12 @@ body {
     color: var(--maintxt);
     display: flex;
     justify-content: space-between;
-    margin-bottom: 20px; /* Más espacio */
-    font-family: 'Poppins', sans-serif; /* Fuente para la fecha */
+    margin-bottom: 20px;
+    font-family: 'Poppins', sans-serif;
 }
 
 #dateNumber {
-    font-size: 3.5rem; /* Más grande */
+    font-size: 3.5rem;
     font-weight: 700;
 }
 
@@ -116,7 +116,6 @@ form {
     width: 100%;
 }
 
-/* Contenedor para el input de texto */
 form > input[name="taskText"] {
     width: 80%;
 }
@@ -143,92 +142,99 @@ form > input[name="taskText"] {
 
 input, select {
     background-color: var(--bckgrndbdy);
-    border: 2px solid transparent; /* Borde transparente */
-    color: var(--maintxt);
-    font-family: 'Roboto', sans-serif;
-    font-weight: 500;
-    padding: 10px 15px;
-    border-radius: 10px; /* Bordes redondeados */
-    transition: border-color 0.3s;
-    width: 80%; /* Ancho consistente para todos los elementos */
-}
-
-/* Estilo específico para el botón de agregar tarea */
-.addTaskButton {
-    width: 40px; /* Ancho fijo para el botón */
-    height: 40px;
-    border-radius: 50%;
-    background-color: var(--btnplus);
-    color: white;
-    border: none;
-    cursor: pointer;
-    font-size: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    margin-top: 10px;
-}
-
-input[type="date"] {
-    background-color: var(--bckgrndbdy);
     border: 2px solid transparent;
     color: var(--maintxt);
     font-family: 'Roboto', sans-serif;
     font-weight: 500;
-    padding: 8px 12px;
+    padding: 10px 15px;
     border-radius: 10px;
     transition: border-color 0.3s;
-    color-scheme: dark;
+    width: 80%;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--primary);
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
     filter: invert(1);
 }
 
-input:focus {
-    outline: none;
-    border-color: var(--primary); /* Borde de color al enfocar */
-}
-
-.addTaskButton,
-.orderButton {
-    border: none;
-    cursor: pointer;
-    font-family: 'Poppins', sans-serif;
-    font-weight: 500;
-    border-radius: 10px;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.addTaskButton:hover,
-.orderButton:hover {
-    transform: translateY(-2px); /* Efecto al pasar el ratón */
-    box-shadow: 0 6px 10px rgba(0,0,0,0.15);
-}
-
+/* Botón flotante para agregar tarea */
 .addTaskButton {
     background-color: var(--btnplus);
     color: white;
     font-size: 24px;
     width: 45px;
     height: 45px;
-    border-radius: 50%; /* Círculo perfecto */
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.orderButton {
+.addTaskButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0,0,0,0.15);
+}
+
+/* Contenedores de botones */
+.orderButton-wrapper, .actions-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+/* Estilo unificado para botones de acción */
+.orderButton, .filterButton, .actionButton, #donateButton {
     background-color: var(--btnordr);
     color: white;
-    padding: 0 20px;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    min-width: 120px;
+    min-height: 40px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-/* Estilos para Drag & Drop */
+.orderButton:hover, .filterButton:hover, .actionButton:hover, #donateButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.actionButton {
+    background-color: #50C878; /* Verde para export/import */
+}
+
+.actionButton:hover {
+    background-color: #45b36b;
+}
+
+.filterButton.filter-active {
+    background-color: var(--btnplus);
+}
+
+/* Tareas */
 .task-wrapper {
     display: flex;
     align-items: center;
     margin-bottom: 10px;
     gap: 10px;
-    cursor: grab; /* Indica que es movible */
+    cursor: grab;
 }
 
 .task-wrapper:active {
@@ -249,7 +255,7 @@ input:focus {
     border: 1px solid #E0E0E0;
     color: var(--maintxt);
     cursor: pointer;
-    flex-grow: 1; /* La tarea ocupa todo el espacio disponible */
+    flex-grow: 1;
     font-family: 'Roboto', sans-serif;
     font-weight: 500;
     padding: 15px;
@@ -263,56 +269,34 @@ input:focus {
 .done {
     background-color: var(--donetsk);
     color: white;
-    text-decoration: none; /* Quitar el tachado */
     border-color: var(--donetsk);
 }
 
 .done .task-text {
-    text-decoration: line-through; /* Tachar solo el texto */
+    text-decoration: line-through;
     opacity: 0.7;
 }
 
-.delete-button {
+.delete-button, .edit-button {
     background: transparent;
     border: none;
     cursor: pointer;
     font-size: 1.5em;
-    color: #FF6B6B; /* Color rojo para el botón de eliminar */
-    transition: transform 0.2s;
-    flex-shrink: 0; /* El botón mantiene su tamaño */
-    padding: 5px; /* Un poco de padding para mejor área de clic */
-}
-
-.delete-button:hover {
-    transform: scale(1.2); /* Agrandar al pasar el ratón */
-}
-
-.edit-button {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    font-size: 1.5em;
-    color: #6C63FF; /* Color primario para el botón de editar */
     transition: transform 0.2s;
     flex-shrink: 0;
     padding: 5px;
 }
 
-.edit-button:hover {
+.delete-button { color: #FF6B6B; }
+.edit-button { color: #6C63FF; }
+
+.delete-button:hover, .edit-button:hover {
     transform: scale(1.2);
 }
 
-.priority-high {
-    border-left: 5px solid #FF6B6B;
-}
-
-.priority-medium {
-    border-left: 5px solid #FFA500;
-}
-
-.priority-low {
-    border-left: 5px solid #50C878;
-}
+.priority-high { border-left: 5px solid #FF6B6B; }
+.priority-medium { border-left: 5px solid #FFA500; }
+.priority-low { border-left: 5px solid #50C878; }
 
 .edit-input {
     flex-grow: 1;
@@ -321,83 +305,31 @@ input:focus {
     border-radius: 5px;
 }
 
-.orderButton-wrapper {
-    display: flex;
-    justify-content: center;
-    gap: 15px; /* Espacio entre botones */
-    margin-top: 20px;
-    margin-bottom: 24px;
-}
-
-.orderButton, .filterButton {
-    background-color: var(--btnordr);
-    color: white;
-    padding: 12px 28px;
-    font-size: 1rem;
-    min-width: 140px;
-    min-height: 44px;
-    border-radius: 10px;
-    border: none;
-    cursor: pointer;
-    font-family: 'Poppins', sans-serif;
-    font-weight: 500;
-    transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
-}
-
-.filterButton.filter-active {
-    background-color: var(--btnplus); /* Color diferente cuando está activo */
-}
-
-/* Lógica de filtrado "Solo Hoy" */
+/* Lógica de filtrado */
 #tasksContainer.filter-today-active .task-wrapper {
-    display: none; /* Ocultar todas por defecto */
+    display: none;
 }
-
-/* Mostrar si es para hoy */
-#tasksContainer.filter-today-active .task-wrapper:has(.due-today) {
-    display: flex;
-}
-
-/* Mostrar si es prioridad alta y no está terminada (pendientes urgentes) */
+#tasksContainer.filter-today-active .task-wrapper:has(.due-today),
 #tasksContainer.filter-today-active .task-wrapper:has(.priority-high:not(.done)) {
     display: flex;
 }
 
-/* Donate Button */
+/* Donate Button Wrapper */
 .donate-wrapper {
     display: flex;
     justify-content: center;
     margin-top: 20px;
 }
 
-#donateButton {
-    background-color: var(--btnordr);
-    color: white;
-    padding: 12px 28px;
-    font-size: 1.1rem;
-    min-width: 120px;
-    min-height: 44px;
-    border-radius: 10px;
-    border: none;
-    cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-#donateButton:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 10px rgba(0,0,0,0.15);
-}
-
 /* Modal Styles */
 .modal {
     display: none; 
     position: fixed; 
-    z-index: 1; 
+    z-index: 100; 
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    overflow: auto; 
     background-color: rgba(0,0,0,0.4);
 }
 
@@ -410,6 +342,7 @@ input:focus {
     max-width: 500px;
     border-radius: 15px;
     position: relative;
+    color: var(--maintxt);
 }
 
 .close-button {
@@ -417,12 +350,6 @@ input:focus {
     float: right;
     font-size: 28px;
     font-weight: bold;
-}
-
-.close-button:hover,
-.close-button:focus {
-    color: var(--maintxt);
-    text-decoration: none;
     cursor: pointer;
 }
 
@@ -439,21 +366,14 @@ input:focus {
     gap: 15px;
 }
 
-.crypto-icon {
-    font-size: 2rem;
-    width: 40px;
-    text-align: center;
-}
-
 .crypto-info {
     flex-grow: 1;
-    display: flex;
-    flex-direction: column;
 }
 
 .crypto-info input {
     width: 100%;
-    box-sizing: border-box; /* Ensures padding doesn't affect width */
+    background-color: var(--bckgrndbdy);
+    color: var(--maintxt);
 }
 
 .copy-button {
@@ -463,11 +383,6 @@ input:focus {
     padding: 10px 15px;
     border-radius: 10px;
     cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.copy-button:hover {
-    background-color: #FF85A1;
 }
 
 .due-today {
@@ -475,13 +390,7 @@ input:focus {
 }
 
 @keyframes pulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(255, 101, 132, 0.7);
-    }
-    70% {
-        box-shadow: 0 0 0 10px rgba(255, 101, 132, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(255, 101, 132, 0);
-    }
+    0% { box-shadow: 0 0 0 0 rgba(255, 101, 132, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(255, 101, 132, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 101, 132, 0); }
 }
