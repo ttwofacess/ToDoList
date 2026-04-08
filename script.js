@@ -19,6 +19,8 @@ const translations = {
         copyButton: 'Copy',
         alertPastDate: 'Task date cannot be in the past.',
         alertInvalidPriority: 'Invalid priority value submitted.',
+        filterButtonToday: 'Focus Mode',
+        filterButtonAll: 'Show All',
     },
     es: {
         pageTitle: 'Lista de Tareas',
@@ -39,6 +41,8 @@ const translations = {
         copyButton: 'Copiar',
         alertPastDate: 'La fecha de la tarea no puede ser anterior a la fecha actual.',
         alertInvalidPriority: 'Valor de prioridad inválido.',
+        filterButtonToday: 'Modo Enfoque',
+        filterButtonAll: 'Ver Todo',
     }
 };
 
@@ -185,6 +189,13 @@ const createTaskElement = (text, date, priority) => {
 
     const task = document.createElement('div');
     task.classList.add('task', 'roundBorder', `priority-${priority}`);
+    
+    // Comprobar si la tarea es para hoy
+    const todayStr = new Date().toLocaleDateString(`${currentLang}-${currentLang.toUpperCase()}`, { day: '2-digit', month: '2-digit', year: '2-digit' });
+    if (date === todayStr) {
+        task.classList.add('due-today');
+    }
+
     task.addEventListener('click', changeTaskState);
 
     const taskText = document.createElement('span');
@@ -432,8 +443,27 @@ const highlightDueTasks = () => {
         const taskDateElement = taskWrapper.querySelector('.task-date');
         if (taskDateElement && taskDateElement.textContent === today) {
             taskWrapper.querySelector('.task').classList.add('due-today');
+        } else {
+            taskWrapper.querySelector('.task').classList.remove('due-today');
         }
     });
+};
+
+/**
+ * Alterna el filtro de "Solo Hoy" en el contenedor de tareas.
+ * @param {Event} event - El evento de clic del botón de filtro.
+ */
+const toggleFilterToday = (event) => {
+    const button = event.target;
+    const isActive = tasksContainer.classList.toggle('filter-today-active');
+    
+    if (isActive) {
+        button.textContent = translations[currentLang].filterButtonAll;
+        button.classList.add('filter-active');
+    } else {
+        button.textContent = translations[currentLang].filterButtonToday;
+        button.classList.remove('filter-active');
+    }
 };
 
 /**
