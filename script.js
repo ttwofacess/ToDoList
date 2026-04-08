@@ -21,6 +21,10 @@ const translations = {
         alertInvalidPriority: 'Invalid priority value submitted.',
         filterButtonToday: 'Focus Mode',
         filterButtonAll: 'Show All',
+        exportButton: 'Export',
+        importButton: 'Import',
+        confirmImport: 'Are you sure? This will replace your current tasks.',
+        alertImportError: 'Error importing file. Make sure it is a valid JSON.',
     },
     es: {
         pageTitle: 'Lista de Tareas',
@@ -43,6 +47,10 @@ const translations = {
         alertInvalidPriority: 'Valor de prioridad inválido.',
         filterButtonToday: 'Modo Enfoque',
         filterButtonAll: 'Ver Todo',
+        exportButton: 'Exportar',
+        importButton: 'Importar',
+        confirmImport: '¿Estás seguro? Esto reemplazará tus tareas actuales.',
+        alertImportError: 'Error al importar el archivo. Asegúrate de que sea un JSON válido.',
     }
 };
 
@@ -464,6 +472,55 @@ const toggleFilterToday = (event) => {
         button.textContent = translations[currentLang].filterButtonToday;
         button.classList.remove('filter-active');
     }
+};
+
+/**
+ * Exporta las tareas actuales a un archivo JSON.
+ */
+const exportTasks = () => {
+    const tasksData = localStorage.getItem('tasks');
+    if (!tasksData) return;
+
+    const blob = new Blob([tasksData], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    
+    const date = new Date().toISOString().split('T')[0];
+    a.href = url;
+    a.download = `todolist_backup_${date}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+};
+
+/**
+ * Importa tareas desde un archivo JSON seleccionado por el usuario.
+ * @param {Event} event - El evento de cambio del input de archivo.
+ */
+const importTasks = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const tasks = JSON.parse(e.target.result);
+            if (!Array.isArray(tasks)) throw new Error('Invalid format');
+
+            if (confirm(translations[currentLang].confirmImport)) {
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+                tasksContainer.innerHTML = ''; // Limpiar contenedor actual
+                loadTasks(); // Cargar nuevas tareas
+                highlightDueTasks();
+            }
+        } catch (error) {
+            alert(translations[currentLang].alertImportError);
+            console.error('Import error:', error);
+        }
+        event.target.value = ''; // Resetear input
+    };
+    reader.readAsText(file);
 };
 
 /**

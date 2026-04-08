@@ -42,6 +42,11 @@
             <button type="button" class="orderButton roundBorder" onclick="renderOrderedTasks()" data-i18n-key="orderButton">Order</button>
             <button type="button" class="filterButton roundBorder" onclick="toggleFilterToday(event)" data-i18n-key="filterButtonToday">Focus Mode</button>
         </div>
+        <div class="actions-wrapper">
+            <button type="button" class="actionButton roundBorder" onclick="exportTasks()" data-i18n-key="exportButton">Export</button>
+            <button type="button" class="actionButton roundBorder" onclick="document.getElementById('importInput').click()" data-i18n-key="importButton">Import</button>
+            <input type="file" id="importInput" accept=".json" style="display: none;" onchange="importTasks(event)">
+        </div>
         <div id="tasksContainer"></div>
         <div class="donate-wrapper">
             <button type="button" id="donateButton" class="roundBorder" data-i18n-key="donateButton">Donate</button>
