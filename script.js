@@ -172,6 +172,16 @@ const loadTasks = () => {
 const createTaskElement = (text, date, priority) => {
     const taskWrapper = document.createElement('div');
     taskWrapper.classList.add('task-wrapper');
+    taskWrapper.draggable = true; // Habilitar arrastre
+
+    taskWrapper.addEventListener('dragstart', () => {
+        taskWrapper.classList.add('dragging');
+    });
+
+    taskWrapper.addEventListener('dragend', () => {
+        taskWrapper.classList.remove('dragging');
+        saveTasks(); // Guardar el nuevo orden al terminar de arrastrar
+    });
 
     const task = document.createElement('div');
     task.classList.add('task', 'roundBorder', `priority-${priority}`);
@@ -467,6 +477,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
     donateButton.onclick = () => {
         modal.style.display = 'block';
+    }
+
+    closeButton.onclick = () => {
+        modal.style.display = 'none';
+    }
+
+    window.onclick = (event) => {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    // Los botones `.copy-button` copian al portapapeles el valor del input
+    // adyacente. Se utiliza `document.execCommand('copy')` por compatibilidad
+    // amplia, aunque está en desuso en algunos navegadores modernos.
+    const copyButtons = document.querySelectorAll('.copy-button');
+    copyButtons.forEach(button => {
+        button.addEventListener('click', (event) => {
+            const input = event.target.previousElementSibling.querySelector('input');
+            input.select();
+            document.execCommand('copy');
+            // Optional: Add some feedback to the user
+            const originalText = button.textContent;
+            button.textContent = 'Copied!';
+            setTimeout(() => {
+                button.textContent = originalText;
+            }, 2000);
+        });
+    });
+});
+'block';
     }
 
     closeButton.onclick = () => {

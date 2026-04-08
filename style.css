@@ -222,12 +222,26 @@ input:focus {
     padding: 0 20px;
 }
 
-/* CAMBIOS PRINCIPALES: Hacer que task-wrapper sea un flexbox horizontal */
+/* Estilos para Drag & Drop */
 .task-wrapper {
     display: flex;
     align-items: center;
-    margin-bottom: 10px; /* Espacio entre tareas */
-    gap: 10px; /* Espacio entre la tarea y el botón */
+    margin-bottom: 10px;
+    gap: 10px;
+    cursor: grab; /* Indica que es movible */
+}
+
+.task-wrapper:active {
+    cursor: grabbing;
+}
+
+.task-wrapper.dragging {
+    opacity: 0.4;
+    transform: scale(0.98);
+}
+
+.task-wrapper.dragging .task {
+    border: 2px dashed var(--primary);
 }
 
 .task {
