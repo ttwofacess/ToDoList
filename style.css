@@ -321,22 +321,46 @@ input:focus {
     border-radius: 5px;
 }
 
-/* Centrar el botón Ordenar en un renglón inferior */
 .orderButton-wrapper {
     display: flex;
     justify-content: center;
-    margin-top: 20px; /* Espacio respecto al formulario */
-    margin-bottom: 24px; /* Margen inferior para separar del contenido siguiente */
+    gap: 15px; /* Espacio entre botones */
+    margin-top: 20px;
+    margin-bottom: 24px;
 }
 
-.orderButton {
+.orderButton, .filterButton {
     background-color: var(--btnordr);
     color: white;
     padding: 12px 28px;
-    font-size: 1.1rem;
-    min-width: 120px;
+    font-size: 1rem;
+    min-width: 140px;
     min-height: 44px;
     border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
+}
+
+.filterButton.filter-active {
+    background-color: var(--btnplus); /* Color diferente cuando está activo */
+}
+
+/* Lógica de filtrado "Solo Hoy" */
+#tasksContainer.filter-today-active .task-wrapper {
+    display: none; /* Ocultar todas por defecto */
+}
+
+/* Mostrar si es para hoy */
+#tasksContainer.filter-today-active .task-wrapper:has(.due-today) {
+    display: flex;
+}
+
+/* Mostrar si es prioridad alta y no está terminada (pendientes urgentes) */
+#tasksContainer.filter-today-active .task-wrapper:has(.priority-high:not(.done)) {
+    display: flex;
 }
 
 /* Donate Button */
