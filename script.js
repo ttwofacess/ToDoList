@@ -172,14 +172,20 @@ const loadTasks = () => {
 const createTaskElement = (text, date, priority) => {
     const taskWrapper = document.createElement('div');
     taskWrapper.classList.add('task-wrapper');
+    taskWrapper.draggable = true; // Habilitar arrastre
+
+    taskWrapper.addEventListener('dragstart', () => {
+        taskWrapper.classList.add('dragging');
+    });
+
+    taskWrapper.addEventListener('dragend', () => {
+        taskWrapper.classList.remove('dragging');
+        saveTasks(); // Guardar el nuevo orden al terminar de arrastrar
+    });
 
     const task = document.createElement('div');
     task.classList.add('task', 'roundBorder', `priority-${priority}`);
     task.addEventListener('click', changeTaskState);
-
-    // La clase `priority-<nivel>` permite aplicar estilos (color/orden)
-    // según la prioridad; el listener anterior cambia el estado "done" al
-    // hacer clic sobre la tarea.
 
     const taskText = document.createElement('span');
     taskText.classList.add('task-text');
@@ -198,17 +204,11 @@ const createTaskElement = (text, date, priority) => {
     editButton.classList.add('edit-button');
     editButton.addEventListener('click', editTask);
 
-    // Botón de editar: cambia el texto a un input editable y muestra
-    // botones para guardar o cancelar la edición.
-
     const deleteButton = document.createElement('button');
     deleteButton.textContent = '❌';
     deleteButton.classList.add('delete-button');
     deleteButton.addEventListener('click', deleteTask);
 
-    // Botón de eliminar: remueve el contenedor de la tarea y actualiza
-    // el almacenamiento local.
-    
     taskWrapper.appendChild(task);
     taskWrapper.appendChild(editButton);
     taskWrapper.appendChild(deleteButton);
@@ -416,9 +416,6 @@ const order = () => {
 /**
  * Renderiza las tareas en el contenedor en el orden correcto (pendientes primero).
  */
-/**
- * Renderiza las tareas en el contenedor en el orden correcto (pendientes primero).
- */
 const renderOrderedTasks = () => {
     order().forEach(el => tasksContainer.appendChild(el));
     saveTasks(); // Guarda el nuevo orden en localStorage.
@@ -439,12 +436,25 @@ const highlightDueTasks = () => {
     });
 };
 
-// Agrega un event listener al botón de ordenar para que llame a renderOrderedTasks.
+/**
+ * Determina qué elemento está inmediatamente después de la posición del cursor durante el arrastre.
+ * @param {HTMLElement} container - El contenedor de las tareas.
+ * @param {number} y - La posición vertical del cursor.
+ * @returns {HTMLElement} El elemento después del cual se debe insertar el elemento arrastrado.
+ */
+const getDragAfterElement = (container, y) => {
+    const draggableElements = [...container.querySelectorAll('.task-wrapper:not(.dragging)')];
 
-// Agrega un event listener al botón de ordenar para que llame a renderOrderedTasks.
-document.querySelector('.orderButton').addEventListener('click', renderOrderedTasks);
-
-// Llama a setDate y loadTasks al cargar el script para inicializar la aplicación.
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+};
 
 // Inicializa la aplicación al cargar el documento: detecta idioma y carga tareas.
 document.addEventListener('DOMContentLoaded', () => {
@@ -452,12 +462,28 @@ document.addEventListener('DOMContentLoaded', () => {
     loadTasks();
     highlightDueTasks();
 
-    // Establece el valor mínimo del input de fecha al día actual en formato
-    // 'YYYY-MM-DD' para evitar que el usuario seleccione fechas pasadas.
+    // Configuración del área de soltar (Drop Zone)
+    tasksContainer.addEventListener('dragover', e => {
+        e.preventDefault(); // Permitir el drop
+        const afterElement = getDragAfterElement(tasksContainer, e.clientY);
+        const draggable = document.querySelector('.dragging');
+        if (draggable) {
+            if (afterElement == null) {
+                tasksContainer.appendChild(draggable);
+            } else {
+                tasksContainer.insertBefore(draggable, afterElement);
+            }
+        }
+    });
+
+    // Event listener para el botón de ordenar
+    document.querySelector('.orderButton').addEventListener('click', renderOrderedTasks);
+
+    // Establece el valor mínimo del input de fecha al día actual
     const taskDateInput = document.getElementById('taskDate');
     const today = new Date();
     const yyyy = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
     const dd = String(today.getDate()).padStart(2, '0');
     taskDateInput.min = `${yyyy}-${mm}-${dd}`;
 
@@ -479,16 +505,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Los botones `.copy-button` copian al portapapeles el valor del input
-    // adyacente. Se utiliza `document.execCommand('copy')` por compatibilidad
-    // amplia, aunque está en desuso en algunos navegadores modernos.
     const copyButtons = document.querySelectorAll('.copy-button');
     copyButtons.forEach(button => {
         button.addEventListener('click', (event) => {
             const input = event.target.previousElementSibling.querySelector('input');
             input.select();
             document.execCommand('copy');
-            // Optional: Add some feedback to the user
             const originalText = button.textContent;
             button.textContent = 'Copied!';
             setTimeout(() => {
