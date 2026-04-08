@@ -524,44 +524,6 @@ const importTasks = (event) => {
 };
 
 /**
- * Inicia el reconocimiento de voz para agregar texto al input de la tarea.
- */
-const startVoiceInput = () => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    
-    if (!SpeechRecognition) {
-        alert(translations[currentLang].voiceNotSupported);
-        return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.lang = currentLang === 'es' ? 'es-ES' : 'en-US';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
-    const voiceBtn = document.querySelector('.voiceButton');
-    voiceBtn.classList.add('voice-active');
-
-    recognition.onresult = (event) => {
-        const text = event.results[0][0].transcript;
-        const input = document.querySelector('input[name="taskText"]');
-        input.value = text;
-        voiceBtn.classList.remove('voice-active');
-    };
-
-    recognition.onerror = () => {
-        alert(translations[currentLang].voiceError);
-        voiceBtn.classList.remove('voice-active');
-    };
-
-    recognition.onend = () => {
-        voiceBtn.classList.remove('voice-active');
-    };
-
-    recognition.start();
-};
-
-/**
  * Determina qué elemento está inmediatamente después de la posición del cursor durante el arrastre.
  * @param {HTMLElement} container - El contenedor de las tareas.
  * @param {number} y - La posición vertical del cursor.
