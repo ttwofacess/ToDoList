@@ -23,7 +23,10 @@
             <div id="dateText"></div>
         </div>
         <form onsubmit="addNewTask(event)">
-            <input type="text" name="taskText" autocomplete="off" placeholder="New Task" class="roundBorder" data-i18n-key="taskPlaceholder">
+            <div class="input-wrapper">
+                <input type="text" name="taskText" autocomplete="off" placeholder="New Task" class="roundBorder" data-i18n-key="taskPlaceholder">
+                <button type="button" class="voiceButton" onclick="startVoiceInput()" data-i18n-key="voiceTitle" title="Voice Input">🎤</button>
+            </div>
             <div class="priority-wrapper">
                 <label for="taskPriority" data-i18n-key="priorityLabel">Prioridad:</label>
                 <select name="taskPriority" id="taskPriority" class="roundBorder">
