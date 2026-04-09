@@ -7,19 +7,24 @@ Una aplicación web simple y elegante para gestionar tus tareas diarias. La inte
 ## ✨ Características
 
 - **Añadir Tareas**: Agrega nuevas tareas fácilmente a través de un campo de entrada intuitivo.
-- **Marcar como Completadas**: Haz clic en una tarea para marcarla como completada.
-- **Edición de Tareas**: Modifica el texto de una tarea existente.
-- **Prioridad de Tareas**: Asigna una prioridad (Alta, Media, Baja) para una mejor organización.
-- **Fecha de Vencimiento**: Asigna una fecha a tus tareas.
-- **Tareas Pendientes de Hoy**: Las tareas que vencen en el día actual se resaltan con una animación para llamar tu atención.
-- **Eliminar Tareas**: Borra tareas que ya no necesites.
-- **Ordenar Tareas**: Reorganiza tu lista para mostrar las tareas pendientes primero.
-- **Persistencia de Datos**: Las tareas se guardan en el `localStorage` de tu navegador.
-- **Diseño Moderno**: Interfaz de usuario actualizada con una paleta de colores agradable y tipografía moderna.
-- **Tema Claro y Oscuro**: La apariencia se adapta automáticamente al tema de tu sistema operativo.
-- **Soporte Multilenguaje**: La interfaz se muestra en español o inglés según el idioma del navegador.
-- **Seguridad**: Utiliza `DOMPurify` para sanitizar las entradas del usuario y prevenir ataques XSS.
-- **Opción de Donar**: Incluye un botón para donar a través de criptomonedas.
+- **Subtareas (Checklist)**: Permite añadir una lista de subtareas dentro de una tarea principal para gestionar proyectos complejos.
+- **Tareas Recurrentes**: Opción para que las tareas se repitan diaria, semanal o mensualmente, con reinicio automático de estado.
+- **Marcar como Completadas**: Haz clic en una tarea o subtarea para marcarla como completada.
+- **Edición de Tareas**: Modifica el texto de una tarea existente en cualquier momento.
+- **Prioridad de Tareas**: Asigna una prioridad (Alta, Media, Baja) con indicadores visuales de color.
+- **Fecha de Vencimiento**: Asigna una fecha a tus tareas para un mejor seguimiento.
+- **Tareas Pendientes de Hoy**: Las tareas que vencen hoy se resaltan con una animación de pulso.
+- **Modo Enfoque**: Filtra la lista para mostrar solo las tareas importantes de hoy.
+- **Arrastrar y Soltar (Drag & Drop)**: Reorganiza manualmente el orden de tus tareas arrastrándolas.
+- **Exportar e Importar**: Guarda una copia de seguridad de tus tareas en un archivo JSON o impórtalas en otro dispositivo.
+- **Eliminar Tareas**: Borra tareas o subtareas que ya no necesites.
+- **Ordenar Tareas**: Reorganiza automáticamente la lista para mostrar las tareas pendientes al principio.
+- **Persistencia de Datos**: Todo se guarda automáticamente en el `localStorage` de tu navegador.
+- **Diseño Moderno y Adaptativo**: Interfaz limpia con una paleta de colores moderna y totalmente responsive.
+- **Tema Claro y Oscuro**: La apariencia se adapta automáticamente a las preferencias de tu sistema.
+- **Soporte Multilenguaje**: Disponible en español e inglés según la configuración de tu navegador.
+- **Seguridad**: Sanitización de entradas con `DOMPurify` para prevenir ataques XSS.
+- **Opción de Donar**: Soporte para donaciones en criptomonedas integrado en la interfaz.
 
 ## 🛠️ Tecnologías Utilizadas
 
