@@ -25,6 +25,8 @@ const translations = {
         importButton: 'Import',
         confirmImport: 'Are you sure? This will replace your current tasks.',
         alertImportError: 'Error importing file. Make sure it is a valid JSON.',
+        addSubtask: 'Add Subtask',
+        subtaskPlaceholder: 'New subtask...',
     },
     es: {
         pageTitle: 'Lista de Tareas',
@@ -51,6 +53,8 @@ const translations = {
         importButton: 'Importar',
         confirmImport: '¿Estás seguro? Esto reemplazará tus tareas actuales.',
         alertImportError: 'Error al importar el archivo. Asegúrate de que sea un JSON válido.',
+        addSubtask: 'Añadir subtarea',
+        subtaskPlaceholder: 'Nueva subtarea...',
     }
 };
 
@@ -77,7 +81,11 @@ const setLanguage = (lang) => {
                 element.placeholder = translation;
             }
         } else {
-            element.textContent = translation;
+            if (element.hasAttribute('title')) {
+                element.title = translation;
+            } else {
+                element.textContent = translation;
+            }
         }
     });
     document.title = translations[lang].pageTitle;
@@ -125,19 +133,27 @@ const setDate = () => {
 const saveTasks = () => {
     try {
         const tasks = [];
-        tasksContainer.childNodes.forEach(el => {
-            if (el.classList.contains('task-wrapper')) {
-                const taskEl = el.querySelector('.task');
-                const taskText = taskEl.querySelector('.task-text').textContent;
-                const taskDate = taskEl.querySelector('.task-date').textContent;
-                const priority = taskEl.classList.contains('priority-high') ? 'high' : taskEl.classList.contains('priority-medium') ? 'medium' : 'low';
-                tasks.push({
-                    text: taskText,
-                    done: taskEl.classList.contains('done'),
-                    date: taskDate,
-                    priority: priority
+        tasksContainer.querySelectorAll('.task-wrapper').forEach(el => {
+            const taskEl = el.querySelector('.task');
+            const taskText = taskEl.querySelector('.task-text').textContent;
+            const taskDate = taskEl.querySelector('.task-date').textContent;
+            const priority = taskEl.classList.contains('priority-high') ? 'high' : taskEl.classList.contains('priority-medium') ? 'medium' : 'low';
+            
+            const subtasks = [];
+            el.querySelectorAll('.subtask-item').forEach(subEl => {
+                subtasks.push({
+                    text: subEl.querySelector('.subtask-text').textContent,
+                    done: subEl.querySelector('.subtask-checkbox').checked
                 });
-            }
+            });
+
+            tasks.push({
+                text: taskText,
+                done: taskEl.classList.contains('done'),
+                date: taskDate,
+                priority: priority,
+                subtasks: subtasks
+            });
         });
         localStorage.setItem('tasks', JSON.stringify(tasks));
     } catch (error) {
@@ -162,7 +178,8 @@ const loadTasks = () => {
             if (typeof task.text === 'string' && typeof task.done === 'boolean') {
                 const date = task.date || new Date().toLocaleDateString(`${currentLang}-${currentLang.toUpperCase()}`, { day: '2-digit', month: '2-digit', year: '2-digit' });
                 const priority = task.priority || 'medium';
-                const taskElement = createTaskElement(task.text, date, priority);
+                const subtasks = task.subtasks || [];
+                const taskElement = createTaskElement(task.text, date, priority, subtasks);
                 if (task.done) {
                     taskElement.querySelector('.task').classList.add('done');
                 }
@@ -179,9 +196,11 @@ const loadTasks = () => {
  * Crea un nuevo elemento de tarea en el DOM.
  * @param {string} text - El texto de la tarea.
  * @param {string} date - La fecha de creación de la tarea.
+ * @param {string} priority - La prioridad de la tarea.
+ * @param {Array} subtasksData - Lista de subtareas (opcional).
  * @returns {HTMLElement} El elemento de tarea (`div.task-wrapper`) creado.
  */
-const createTaskElement = (text, date, priority) => {
+const createTaskElement = (text, date, priority, subtasksData = []) => {
     const taskWrapper = document.createElement('div');
     taskWrapper.classList.add('task-wrapper');
     taskWrapper.draggable = true; // Habilitar arrastre
@@ -194,6 +213,9 @@ const createTaskElement = (text, date, priority) => {
         taskWrapper.classList.remove('dragging');
         saveTasks(); // Guardar el nuevo orden al terminar de arrastrar
     });
+
+    const mainRow = document.createElement('div');
+    mainRow.classList.add('task-main-row');
 
     const task = document.createElement('div');
     task.classList.add('task', 'roundBorder', `priority-${priority}`);
@@ -218,6 +240,16 @@ const createTaskElement = (text, date, priority) => {
     task.appendChild(taskText);
     task.appendChild(taskDate);
 
+    const subtaskButton = document.createElement('button');
+    subtaskButton.textContent = '➕';
+    subtaskButton.classList.add('subtask-button');
+    subtaskButton.setAttribute('data-i18n-key', 'addSubtask');
+    subtaskButton.title = translations[currentLang].addSubtask;
+    subtaskButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        showSubtaskInput(e);
+    });
+
     const editButton = document.createElement('button');
     editButton.textContent = '✏️';
     editButton.classList.add('edit-button');
@@ -228,11 +260,107 @@ const createTaskElement = (text, date, priority) => {
     deleteButton.classList.add('delete-button');
     deleteButton.addEventListener('click', deleteTask);
 
-    taskWrapper.appendChild(task);
-    taskWrapper.appendChild(editButton);
-    taskWrapper.appendChild(deleteButton);
+    mainRow.appendChild(task);
+    mainRow.appendChild(subtaskButton);
+    mainRow.appendChild(editButton);
+    mainRow.appendChild(deleteButton);
+
+    const subtasksContainer = document.createElement('div');
+    subtasksContainer.classList.add('subtasks-container');
+    
+    subtasksData.forEach(sub => {
+        subtasksContainer.appendChild(createSubtaskElement(sub.text, sub.done));
+    });
+
+    taskWrapper.appendChild(mainRow);
+    taskWrapper.appendChild(subtasksContainer);
     
     return taskWrapper;
+};
+
+/**
+ * Crea un elemento DOM para una subtarea.
+ * @param {string} text - El texto de la subtarea.
+ * @param {boolean} done - Si la subtarea está completada.
+ * @returns {HTMLElement} El elemento de la subtarea.
+ */
+const createSubtaskElement = (text, done) => {
+    const subtaskItem = document.createElement('div');
+    subtaskItem.classList.add('subtask-item');
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.classList.add('subtask-checkbox');
+    checkbox.checked = done;
+    checkbox.addEventListener('change', () => {
+        subtaskText.classList.toggle('subtask-done', checkbox.checked);
+        saveTasks();
+    });
+
+    const subtaskText = document.createElement('span');
+    subtaskText.classList.add('subtask-text');
+    subtaskText.textContent = DOMPurify.sanitize(text);
+    if (done) subtaskText.classList.add('subtask-done');
+
+    const deleteSubButton = document.createElement('button');
+    deleteSubButton.textContent = '×';
+    deleteSubButton.classList.add('subtask-delete');
+    deleteSubButton.addEventListener('click', () => {
+        subtaskItem.remove();
+        saveTasks();
+    });
+
+    subtaskItem.appendChild(checkbox);
+    subtaskItem.appendChild(subtaskText);
+    subtaskItem.appendChild(deleteSubButton);
+
+    return subtaskItem;
+};
+
+/**
+ * Muestra el input para añadir una nueva subtarea.
+ * @param {Event} event - El evento de clic.
+ */
+const showSubtaskInput = (event) => {
+    const taskWrapper = event.target.closest('.task-wrapper');
+    const container = taskWrapper.querySelector('.subtasks-container');
+    
+    if (container.querySelector('.subtask-input-wrapper')) return;
+
+    const inputWrapper = document.createElement('div');
+    inputWrapper.classList.add('subtask-input-wrapper');
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = translations[currentLang].subtaskPlaceholder;
+    input.classList.add('subtask-input');
+    input.setAttribute('data-i18n-key', 'subtaskPlaceholder');
+
+    const saveBtn = document.createElement('button');
+    saveBtn.textContent = '✅';
+    saveBtn.addEventListener('click', () => {
+        const text = input.value.trim();
+        if (text) {
+            container.appendChild(createSubtaskElement(text, false));
+            inputWrapper.remove();
+            saveTasks();
+        }
+    });
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.textContent = '❌';
+    cancelBtn.addEventListener('click', () => inputWrapper.remove());
+
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') saveBtn.click();
+        if (e.key === 'Escape') cancelBtn.click();
+    });
+
+    inputWrapper.appendChild(input);
+    inputWrapper.appendChild(saveBtn);
+    inputWrapper.appendChild(cancelBtn);
+    container.appendChild(inputWrapper);
+    input.focus();
 };
 
 /**
@@ -292,7 +420,7 @@ const addNewTask = event => {
         date = new Date().toLocaleDateString(`${currentLang}-${currentLang.toUpperCase()}`, { day: '2-digit', month: '2-digit', year: '2-digit' });
     }
 
-    const task = createTaskElement(value, date, priority);
+    const task = createTaskElement(value, date, priority, []);
     tasksContainer.prepend(task);
     event.target.reset();
     saveTasks();
@@ -303,7 +431,9 @@ const addNewTask = event => {
  * @param {Event} event - El evento de clic.
  */
 const changeTaskState = event => {
-    event.target.closest('.task').classList.toggle('done');
+    const task = event.target.closest('.task');
+    if (!task) return;
+    task.classList.toggle('done');
     saveTasks(); // Guarda el nuevo estado en localStorage.
 };
 
@@ -351,7 +481,7 @@ const cancelEdit = (event, originalText) => {
  */
 const editTask = event => {
     const taskWrapper = event.target.closest('.task-wrapper');
-    const taskTextElement = taskWrapper.querySelector('.task-text');
+    const taskTextElement = taskWrapper.querySelector('.task .task-text');
     const originalText = taskTextElement.textContent;
 
     const input = document.createElement('input');
