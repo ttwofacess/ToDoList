@@ -27,6 +27,11 @@ const translations = {
         alertImportError: 'Error importing file. Make sure it is a valid JSON.',
         addSubtask: 'Add Subtask',
         subtaskPlaceholder: 'New subtask...',
+        recurrenceNone: 'No repeat',
+        recurrenceDaily: 'Daily',
+        recurrenceWeekly: 'Weekly',
+        recurrenceMonthly: 'Monthly',
+        repeatButtonTitle: 'Set recurrence',
     },
     es: {
         pageTitle: 'Lista de Tareas',
@@ -55,11 +60,18 @@ const translations = {
         alertImportError: 'Error al importar el archivo. Asegúrate de que sea un JSON válido.',
         addSubtask: 'Añadir subtarea',
         subtaskPlaceholder: 'Nueva subtarea...',
+        recurrenceNone: 'Sin repetición',
+        recurrenceDaily: 'Diaria',
+        recurrenceWeekly: 'Semanal',
+        recurrenceMonthly: 'Mensual',
+        repeatButtonTitle: 'Establecer repetición',
     }
 };
 
 // Array de prioridades válidas para validación.
 const VALID_PRIORITIES = ['high', 'medium', 'low'];
+// Array de recurrencias válidas para validación.
+const VALID_RECURRENCES = ['none', 'daily', 'weekly', 'monthly'];
 
 // Variable para almacenar el idioma actual. Por defecto es inglés.
 let currentLang = 'en'; // Default language
@@ -72,7 +84,8 @@ const setLanguage = (lang) => {
     currentLang = lang;
     document.querySelectorAll('[data-i18n-key]').forEach(element => {
         const key = element.getAttribute('data-i18n-key');
-        const translation = translations[lang][key];
+        let translation = translations[lang][key];
+        
         if (element.tagName === 'INPUT') {
             if (element.type === 'date') {
                 element.title = translations[lang]['dateTitle'];
@@ -83,7 +96,14 @@ const setLanguage = (lang) => {
         } else {
             if (element.hasAttribute('title')) {
                 element.title = translation;
-            } else {
+            }
+            
+            // Manejo especial para la etiqueta de recurrencia que es dinámica
+            if (key === 'recurrenceBadge' && element.hasAttribute('data-recurrence-value')) {
+                const recurrenceValue = element.getAttribute('data-recurrence-value');
+                const recurrenceKey = `recurrence${recurrenceValue.charAt(0).toUpperCase() + recurrenceValue.slice(1)}`;
+                element.textContent = translations[lang][recurrenceKey];
+            } else if (element.childNodes.length <= 1) {
                 element.textContent = translation;
             }
         }
@@ -139,6 +159,9 @@ const saveTasks = () => {
             const taskDate = taskEl.querySelector('.task-date').textContent;
             const priority = taskEl.classList.contains('priority-high') ? 'high' : taskEl.classList.contains('priority-medium') ? 'medium' : 'low';
             
+            const recurrence = el.getAttribute('data-recurrence') || 'none';
+            const lastCompleted = el.getAttribute('data-last-completed') || null;
+
             const subtasks = [];
             el.querySelectorAll('.subtask-item').forEach(subEl => {
                 subtasks.push({
@@ -152,7 +175,9 @@ const saveTasks = () => {
                 done: taskEl.classList.contains('done'),
                 date: taskDate,
                 priority: priority,
-                subtasks: subtasks
+                subtasks: subtasks,
+                recurrence: recurrence,
+                lastCompleted: lastCompleted
             });
         });
         localStorage.setItem('tasks', JSON.stringify(tasks));
@@ -174,13 +199,47 @@ const loadTasks = () => {
         const tasks = JSON.parse(tasksData);
         if (!Array.isArray(tasks)) return;
 
+        const now = new Date().getTime();
+
         tasks.forEach(task => {
             if (typeof task.text === 'string' && typeof task.done === 'boolean') {
                 const date = task.date || new Date().toLocaleDateString(`${currentLang}-${currentLang.toUpperCase()}`, { day: '2-digit', month: '2-digit', year: '2-digit' });
                 const priority = task.priority || 'medium';
                 const subtasks = task.subtasks || [];
-                const taskElement = createTaskElement(task.text, date, priority, subtasks);
-                if (task.done) {
+                const recurrence = task.recurrence || 'none';
+                let lastCompleted = task.lastCompleted ? parseInt(task.lastCompleted) : null;
+                let done = task.done;
+
+                // Lógica de auto-reinicio para tareas recurrentes
+                if (done && recurrence !== 'none' && lastCompleted) {
+                    const lastDate = new Date(lastCompleted);
+                    const currentDate = new Date();
+                    
+                    let shouldReset = false;
+                    if (recurrence === 'daily') {
+                        // Reset si es un día diferente
+                        shouldReset = lastDate.getDate() !== currentDate.getDate() || 
+                                     lastDate.getMonth() !== currentDate.getMonth() || 
+                                     lastDate.getFullYear() !== currentDate.getFullYear();
+                    } else if (recurrence === 'weekly') {
+                        // Reset si han pasado más de 7 días o es una semana diferente
+                        const diffTime = Math.abs(currentDate - lastDate);
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        shouldReset = diffDays >= 7;
+                    } else if (recurrence === 'monthly') {
+                        // Reset si es un mes diferente
+                        shouldReset = lastDate.getMonth() !== currentDate.getMonth() || 
+                                     lastDate.getFullYear() !== currentDate.getFullYear();
+                    }
+
+                    if (shouldReset) {
+                        done = false;
+                        lastCompleted = null;
+                    }
+                }
+
+                const taskElement = createTaskElement(task.text, date, priority, subtasks, recurrence, lastCompleted);
+                if (done) {
                     taskElement.querySelector('.task').classList.add('done');
                 }
                 tasksContainer.appendChild(taskElement);
@@ -198,12 +257,18 @@ const loadTasks = () => {
  * @param {string} date - La fecha de creación de la tarea.
  * @param {string} priority - La prioridad de la tarea.
  * @param {Array} subtasksData - Lista de subtareas (opcional).
+ * @param {string} recurrence - Tipo de recurrencia (opcional).
+ * @param {number} lastCompleted - Timestamp de la última vez que se completó (opcional).
  * @returns {HTMLElement} El elemento de tarea (`div.task-wrapper`) creado.
  */
-const createTaskElement = (text, date, priority, subtasksData = []) => {
+const createTaskElement = (text, date, priority, subtasksData = [], recurrence = 'none', lastCompleted = null) => {
     const taskWrapper = document.createElement('div');
     taskWrapper.classList.add('task-wrapper');
     taskWrapper.draggable = true; // Habilitar arrastre
+    taskWrapper.setAttribute('data-recurrence', recurrence);
+    if (lastCompleted) {
+        taskWrapper.setAttribute('data-last-completed', lastCompleted);
+    }
 
     taskWrapper.addEventListener('dragstart', () => {
         taskWrapper.classList.add('dragging');
@@ -228,17 +293,43 @@ const createTaskElement = (text, date, priority, subtasksData = []) => {
 
     task.addEventListener('click', changeTaskState);
 
+    const taskContentWrapper = document.createElement('div');
+    taskContentWrapper.classList.add('task-content-wrapper');
+
     const taskText = document.createElement('span');
     taskText.classList.add('task-text');
     // Sanitiza el texto para prevenir ataques XSS.
     taskText.textContent = DOMPurify.sanitize(text);
 
+    const recurrenceBadge = document.createElement('span');
+    recurrenceBadge.classList.add('recurrence-badge');
+    recurrenceBadge.setAttribute('data-i18n-key', 'recurrenceBadge');
+    if (recurrence !== 'none') {
+        const recurrenceKey = `recurrence${recurrence.charAt(0).toUpperCase() + recurrence.slice(1)}`;
+        recurrenceBadge.textContent = translations[currentLang][recurrenceKey];
+        recurrenceBadge.setAttribute('data-recurrence-value', recurrence);
+    }
+
+    taskContentWrapper.appendChild(taskText);
+    taskContentWrapper.appendChild(recurrenceBadge);
+
     const taskDate = document.createElement('span');
     taskDate.classList.add('task-date');
     taskDate.textContent = date;
 
-    task.appendChild(taskText);
+    task.appendChild(taskContentWrapper);
     task.appendChild(taskDate);
+
+    const recurrenceButton = document.createElement('button');
+    recurrenceButton.textContent = '🔁';
+    recurrenceButton.classList.add('recurrence-button');
+    if (recurrence !== 'none') recurrenceButton.classList.add('active');
+    recurrenceButton.setAttribute('data-i18n-key', 'repeatButtonTitle');
+    recurrenceButton.title = translations[currentLang].repeatButtonTitle;
+    recurrenceButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleRecurrence(e);
+    });
 
     const subtaskButton = document.createElement('button');
     subtaskButton.textContent = '➕';
@@ -261,6 +352,7 @@ const createTaskElement = (text, date, priority, subtasksData = []) => {
     deleteButton.addEventListener('click', deleteTask);
 
     mainRow.appendChild(task);
+    mainRow.appendChild(recurrenceButton);
     mainRow.appendChild(subtaskButton);
     mainRow.appendChild(editButton);
     mainRow.appendChild(deleteButton);
@@ -276,6 +368,35 @@ const createTaskElement = (text, date, priority, subtasksData = []) => {
     taskWrapper.appendChild(subtasksContainer);
     
     return taskWrapper;
+};
+
+/**
+ * Cicla entre los tipos de recurrencia para una tarea.
+ * @param {Event} event - El evento de clic en el botón de recurrencia.
+ */
+const toggleRecurrence = (event) => {
+    const taskWrapper = event.target.closest('.task-wrapper');
+    const badge = taskWrapper.querySelector('.recurrence-badge');
+    const button = event.target;
+    
+    let currentRec = taskWrapper.getAttribute('data-recurrence') || 'none';
+    let nextIndex = (VALID_RECURRENCES.indexOf(currentRec) + 1) % VALID_RECURRENCES.length;
+    let nextRec = VALID_RECURRENCES[nextIndex];
+
+    taskWrapper.setAttribute('data-recurrence', nextRec);
+    
+    if (nextRec === 'none') {
+        badge.textContent = '';
+        badge.removeAttribute('data-recurrence-value');
+        button.classList.remove('active');
+    } else {
+        const recurrenceKey = `recurrence${nextRec.charAt(0).toUpperCase() + nextRec.slice(1)}`;
+        badge.textContent = translations[currentLang][recurrenceKey];
+        badge.setAttribute('data-recurrence-value', nextRec);
+        button.classList.add('active');
+    }
+
+    saveTasks();
 };
 
 /**
@@ -420,7 +541,7 @@ const addNewTask = event => {
         date = new Date().toLocaleDateString(`${currentLang}-${currentLang.toUpperCase()}`, { day: '2-digit', month: '2-digit', year: '2-digit' });
     }
 
-    const task = createTaskElement(value, date, priority, []);
+    const task = createTaskElement(value, date, priority, [], 'none', null);
     tasksContainer.prepend(task);
     event.target.reset();
     saveTasks();
@@ -431,9 +552,18 @@ const addNewTask = event => {
  * @param {Event} event - El evento de clic.
  */
 const changeTaskState = event => {
-    const task = event.target.closest('.task');
-    if (!task) return;
-    task.classList.toggle('done');
+    const taskElement = event.target.closest('.task');
+    if (!taskElement) return;
+    
+    const taskWrapper = taskElement.closest('.task-wrapper');
+    const isDone = taskElement.classList.toggle('done');
+    
+    if (isDone) {
+        taskWrapper.setAttribute('data-last-completed', new Date().getTime());
+    } else {
+        taskWrapper.removeAttribute('data-last-completed');
+    }
+    
     saveTasks(); // Guarda el nuevo estado en localStorage.
 };
 

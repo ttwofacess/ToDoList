@@ -272,6 +272,25 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     transition: background-color 0.3s, color 0.3s;
 }
 
+.task-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-grow: 1;
+}
+
+.recurrence-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--primary);
+    opacity: 0.8;
+}
+
+.done .recurrence-badge {
+    color: white;
+}
+
 .done {
     background-color: var(--donetsk);
     color: white;
@@ -283,7 +302,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     opacity: 0.7;
 }
 
-.delete-button, .edit-button, .subtask-button {
+.delete-button, .edit-button, .subtask-button, .recurrence-button {
     background: transparent;
     border: none;
     cursor: pointer;
@@ -296,8 +315,15 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .delete-button { color: #FF6B6B; }
 .edit-button { color: #6C63FF; }
 .subtask-button { color: var(--btnplus); font-size: 1.2em; }
+.recurrence-button { color: #888; font-size: 1.2em; filter: grayscale(1); opacity: 0.5; }
 
-.delete-button:hover, .edit-button:hover, .subtask-button:hover {
+.recurrence-button.active {
+    filter: grayscale(0);
+    opacity: 1;
+    color: var(--primary);
+}
+
+.delete-button:hover, .edit-button:hover, .subtask-button:hover, .recurrence-button:hover {
     transform: scale(1.2);
 }
 
