@@ -8,7 +8,7 @@
     <link rel="icon" href="./assets/favicon.ico" type="image/png">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
-    <script src="script.js" type="text/javascript" defer></script>
+    <script src="./js/main.js" type="module"></script>
 </head>
 <body>
     <div class="list roundBorder">
@@ -22,7 +22,7 @@
             </div>
             <div id="dateText"></div>
         </div>
-        <form onsubmit="addNewTask(event)">
+        <form>
             <input type="text" name="taskText" autocomplete="off" placeholder="New Task" class="roundBorder" data-i18n-key="taskPlaceholder">
             <div class="priority-wrapper">
                 <label for="taskPriority" data-i18n-key="priorityLabel">Prioridad:</label>
@@ -39,13 +39,13 @@
             <button type="submit" class="addTaskButton">+</button>
         </form>
         <div class="orderButton-wrapper">
-            <button type="button" class="orderButton roundBorder" onclick="renderOrderedTasks()" data-i18n-key="orderButton">Order</button>
-            <button type="button" class="filterButton roundBorder" onclick="toggleFilterToday(event)" data-i18n-key="filterButtonToday">Focus Mode</button>
+            <button type="button" class="orderButton roundBorder" data-i18n-key="orderButton">Order</button>
+            <button type="button" class="filterButton roundBorder" data-i18n-key="filterButtonToday">Focus Mode</button>
         </div>
         <div class="actions-wrapper">
-            <button type="button" class="actionButton roundBorder" onclick="exportTasks()" data-i18n-key="exportButton">Export</button>
+            <button type="button" class="actionButton roundBorder" data-action="export" data-i18n-key="exportButton">Export</button>
             <button type="button" class="actionButton roundBorder" onclick="document.getElementById('importInput').click()" data-i18n-key="importButton">Import</button>
-            <input type="file" id="importInput" accept=".json" style="display: none;" onchange="importTasks(event)">
+            <input type="file" id="importInput" accept=".json" style="display: none;">
         </div>
         <div id="tasksContainer"></div>
         <div class="donate-wrapper">
