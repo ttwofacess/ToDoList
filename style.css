@@ -493,6 +493,31 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     cursor: pointer;
 }
 
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.modal-actions button {
+    flex: 1;
+    max-width: 150px;
+}
+
+#editTaskForm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+#editTaskForm input[type="text"] {
+    width: 90%;
+}
+
 .due-today {
     animation: pulse 2s infinite;
 }
