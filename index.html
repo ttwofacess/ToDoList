@@ -85,5 +85,34 @@
             </div>
         </div>
     </div>
+
+    <div id="editModal" class="modal">
+        <div class="modal-content roundBorder">
+            <span class="close-button" id="closeEditModal">&times;</span>
+            <h2 data-i18n-key="editTaskTitle">Edit Task</h2>
+            <form id="editTaskForm">
+                <input type="text" id="editTaskText" placeholder="Task text" class="roundBorder" data-i18n-key="taskPlaceholder">
+                
+                <div class="priority-wrapper">
+                    <label for="editTaskPriority" data-i18n-key="priorityLabel">Priority:</label>
+                    <select id="editTaskPriority" class="roundBorder">
+                        <option value="high" data-i18n-key="priorityHigh">High</option>
+                        <option value="medium" data-i18n-key="priorityMedium">Medium</option>
+                        <option value="low" data-i18n-key="priorityLow">Low</option>
+                    </select>
+                </div>
+                
+                <div class="date-wrapper">
+                    <label for="editTaskDate" data-i18n-key="dateLabel">Date:</label>
+                    <input type="date" id="editTaskDate" class="roundBorder" required>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="submit" class="orderButton roundBorder" data-i18n-key="saveButton">Save</button>
+                    <button type="button" id="cancelEditButton" class="filterButton roundBorder" data-i18n-key="cancelButton">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
 </html>
