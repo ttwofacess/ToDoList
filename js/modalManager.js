@@ -1,28 +1,68 @@
 // ============================================================
 // modalManager.js — Responsabilidad: Control de modales
-//                   (donación y edición de tareas)
 // ============================================================
 
 import { t }                               from './i18n.js';
 import { formatDisplayDate, isoStringToDate,
          isDateInPast, displayDateToIso }  from './dateUtils.js';
 import { persistFromDOM }                  from './storage.js';
+import { changeTaskState, deleteTask }     from './taskActions.js';
+import { toggleRecurrence, showSubtaskInput } from './taskRenderer.js';
 
 let tasksContainer         = null;
 let currentEditingWrapper  = null;
+let currentActionWrapper   = null;
 
-/**
- * @param {HTMLElement} container — tasksContainer del DOM
- */
 export const initModalManager = (container) => { tasksContainer = container; };
+
+// ─── Modal de Acciones de Tarea ────────────────────────────
+
+export const openActionModal = (wrapper) => {
+    currentActionWrapper = wrapper;
+    const taskText = wrapper.querySelector('.task-text').textContent;
+    const taskEmojis = wrapper.querySelector('.task-emojis').textContent;
+    const recurrence = wrapper.getAttribute('data-recurrence') || 'none';
+
+    document.getElementById('actionModalText').textContent = taskText;
+    document.getElementById('actionModalEmojis').textContent = taskEmojis;
+
+    const actionRecurrenceBtn = document.getElementById('actionRecurrence');
+    actionRecurrenceBtn.classList.remove('recurrence-daily', 'recurrence-weekly', 'recurrence-monthly');
+    if (recurrence !== 'none') {
+        actionRecurrenceBtn.classList.add(`recurrence-${recurrence}`);
+    }
+
+    const modalSubContainer = document.getElementById('actionSubtasksContainer');
+    modalSubContainer.innerHTML = '';
+    const subContainer = wrapper.querySelector('.subtasks-container');
+    if (subContainer) {
+        subContainer.style.display = 'flex';
+        modalSubContainer.appendChild(subContainer);
+    }
+    
+    document.getElementById('taskActionModal').style.display = 'block';
+};
+
+export const closeActionModal = () => {
+    if (currentActionWrapper) {
+        const modalSubContainer = document.getElementById('actionSubtasksContainer');
+        const subContainer = modalSubContainer.querySelector('.subtasks-container');
+        if (subContainer) {
+            subContainer.style.display = 'none';
+            currentActionWrapper.appendChild(subContainer);
+        }
+    }
+    document.getElementById('taskActionModal').style.display = 'none';
+    currentActionWrapper = null;
+};
 
 // ─── Modal de nueva tarea ──────────────────────────────────
 
 export const openNewTaskModal = () => {
     document.getElementById('newTaskModal').style.display = 'block';
-    // Enfocar el input automáticamente
     setTimeout(() => {
-        document.querySelector('#newTaskForm input[name="taskText"]').focus();
+        const input = document.querySelector('#newTaskForm input[name="taskText"]');
+        if (input) input.focus();
     }, 10);
 };
 
@@ -32,10 +72,8 @@ export const closeNewTaskModal = () => {
 
 // ─── Modal de edición ──────────────────────────────────────
 
-export const openEditModal = (event) => {
-    const wrapper = event.target.closest('.task-wrapper');
+export const openEditModal = (wrapper) => {
     currentEditingWrapper = wrapper;
-
     const taskEl   = wrapper.querySelector('.task');
     const taskText = wrapper.querySelector('.task-text').textContent;
     const taskDate = wrapper.querySelector('.task-date').textContent;
@@ -77,52 +115,75 @@ export const saveModalChanges = (event) => {
     const dateEl     = taskEl.querySelector('.task-date');
 
     textEl.textContent = DOMPurify.sanitize(newText);
-
     taskEl.classList.remove('priority-high', 'priority-medium', 'priority-low');
     taskEl.classList.add(`priority-${newPriority}`);
 
     const formattedDate = formatDisplayDate(isoStringToDate(newDateValue));
     dateEl.textContent = formattedDate;
 
-    const todayStr = formatDisplayDate(new Date());
-    taskEl.classList.toggle('due-today', formattedDate === todayStr);
-
     persistFromDOM(tasksContainer);
     closeEditModal();
 };
 
-// ─── Modal de donación ─────────────────────────────────────
+// ─── Inicialización de Modales ─────────────────────────────
 
-/**
- * Registra todos los listeners de los modales (donate + edit)
- * y los botones de copiar cripto.
- */
 export const initModals = () => {
-    // New Task
+    const donateModal = document.getElementById('donateModal');
+    const editModal = document.getElementById('editModal');
     const newTaskModal = document.getElementById('newTaskModal');
+    const taskActionModal = document.getElementById('taskActionModal');
+
     document.getElementById('openNewTaskModal').onclick    = openNewTaskModal;
     document.getElementById('closeNewTaskModal').onclick   = closeNewTaskModal;
     document.getElementById('cancelNewTaskButton').onclick = closeNewTaskModal;
 
-    // Donate
-    const donateModal = document.getElementById('donateModal');
-    document.getElementById('donateButton').onclick          = () => donateModal.style.display = 'block';
-    donateModal.querySelector('.close-button').onclick       = () => donateModal.style.display = 'none';
+    document.getElementById('donateButton').onclick = () => donateModal.style.display = 'block';
+    donateModal.querySelector('.close-button').onclick = () => donateModal.style.display = 'none';
 
-    // Edit
-    document.getElementById('closeEditModal').onclick        = closeEditModal;
-    document.getElementById('cancelEditButton').onclick      = closeEditModal;
-    document.getElementById('editTaskForm').onsubmit         = saveModalChanges;
+    document.getElementById('closeEditModal').onclick = closeEditModal;
+    document.getElementById('cancelEditButton').onclick = closeEditModal;
+    document.getElementById('editTaskForm').onsubmit = saveModalChanges;
 
-    // Cerrar al hacer click fuera del modal
-    const editModal = document.getElementById('editModal');
+    document.getElementById('closeActionModal').onclick = closeActionModal;
+    
+    document.getElementById('actionDone').onclick = () => {
+        if (currentActionWrapper) changeTaskState(currentActionWrapper, tasksContainer);
+    };
+    
+    document.getElementById('actionEdit').onclick = () => {
+        if (currentActionWrapper) {
+            const wrapper = currentActionWrapper;
+            closeActionModal();
+            openEditModal(wrapper);
+        }
+    };
+    
+    document.getElementById('actionSubtask').onclick = () => {
+        if (currentActionWrapper) {
+            const modalSubContainer = document.getElementById('actionSubtasksContainer');
+            const subContainer = modalSubContainer.querySelector('.subtasks-container');
+            showSubtaskInput(subContainer);
+        }
+    };
+    
+    document.getElementById('actionRecurrence').onclick = () => {
+        if (currentActionWrapper) toggleRecurrence(currentActionWrapper);
+    };
+    
+    document.getElementById('actionDelete').onclick = () => {
+        if (currentActionWrapper) {
+            deleteTask(currentActionWrapper, tasksContainer);
+            closeActionModal();
+        }
+    };
+
     window.addEventListener('click', (e) => {
-        if (e.target === donateModal)  donateModal.style.display = 'none';
-        if (e.target === editModal)    closeEditModal();
-        if (e.target === newTaskModal) closeNewTaskModal();
+        if (e.target === donateModal)     donateModal.style.display = 'none';
+        if (e.target === editModal)       closeEditModal();
+        if (e.target === newTaskModal)    closeNewTaskModal();
+        if (e.target === taskActionModal) closeActionModal();
     });
 
-    // Botones de copiar cripto
     document.querySelectorAll('.copy-button').forEach(button => {
         button.addEventListener('click', (e) => {
             const input = e.target.previousElementSibling.querySelector('input');

@@ -1,6 +1,5 @@
 // ============================================================
 // main.js — Responsabilidad: Punto de entrada.
-//           Inicializa módulos y registra event listeners globales.
 // ============================================================
 
 import { detectLanguage }                          from './i18n.js';
@@ -9,8 +8,7 @@ import { initTaskManager, addNewTask, loadTasks,
          renderOrderedTasks, highlightDueTasks,
          toggleFilterToday }                       from './taskManager.js';
 import { initDragDrop }                            from './dragDrop.js';
-import { initModals, openEditModal }               from './modalManager.js';
-import { initModalManager }                        from './modalManager.js';
+import { initModals, openActionModal, initModalManager, closeNewTaskModal } from './modalManager.js';
 import { initImportExport, exportTasks,
          importTasks }                             from './importExport.js';
 
@@ -18,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const tasksContainer = document.getElementById('tasksContainer');
 
     // ── 1. Inicializar módulos con sus dependencias ──────────
-    initTaskManager(tasksContainer, openEditModal);
+    initTaskManager(tasksContainer, openActionModal, closeNewTaskModal);
     initModalManager(tasksContainer);
     initImportExport(tasksContainer);
     initDragDrop(tasksContainer);
@@ -52,8 +50,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('importInput')
         ?.addEventListener('change', importTasks);
-
-    // Nota: exportButton e importInput pueden también quedar con
-    // sus atributos onclick en el HTML si se prefiere no usar
-    // data-action. Ambos enfoques son válidos.
 });

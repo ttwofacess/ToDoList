@@ -308,6 +308,106 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     font-weight: 400;
 }
 
+/* Action Modal Styles */
+.task-info-preview {
+    background-color: var(--bckgrndbdy);
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+#actionModalEmojis {
+    font-size: 1.5rem;
+}
+
+#actionModalText {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--maintxt);
+}
+.action-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.action-card-btn {
+    background-color: var(--wrpprbck);
+    border: 1px solid #E0E0E0;
+    padding: 15px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    color: var(--maintxt);
+}
+
+.action-card-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+    border-color: var(--primary);
+}
+
+.action-card-btn .icon {
+    font-size: 1.5rem;
+}
+
+.action-card-btn span:not(.icon) {
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+}
+
+.action-card-btn.delete {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: 100%;
+    max-width: 210px;
+    color: #FF6B6B;
+}
+
+.action-card-btn.delete:hover {
+    border-color: #FF6B6B;
+    background-color: rgba(255, 107, 107, 0.05);
+}
+
+.action-card-btn.recurrence-daily {
+    background-color: #50C878;
+    color: white;
+    border-color: #50C878;
+}
+
+.action-card-btn.recurrence-weekly {
+    background-color: #FFA500;
+    color: white;
+    border-color: #FFA500;
+}
+
+.action-card-btn.recurrence-monthly {
+    background-color: #FFD700;
+    color: white;
+    border-color: #FFD700;
+}
+
+#actionSubtasksContainer {
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 15px;
+    padding-top: 15px;
+}
+
+#actionSubtasksContainer .subtask-item {
+    background-color: var(--bckgrndbdy);
+    margin-bottom: 5px;
+}
+
 .recurrence-badge {
     font-size: 0.7rem;
     font-weight: 700;
