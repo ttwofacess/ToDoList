@@ -65,6 +65,7 @@ export const persistFromDOM = (tasksContainer) => {
             subtasks,
             recurrence: el.getAttribute('data-recurrence') || 'none',
             lastCompleted: el.getAttribute('data-last-completed') || null,
+            createdAt: el.getAttribute('data-created-at') || null,
         });
     });
 

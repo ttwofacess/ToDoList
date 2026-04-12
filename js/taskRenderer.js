@@ -4,7 +4,7 @@
 // ============================================================
 
 import { t, getLang } from './i18n.js';
-import { formatDisplayDate } from './dateUtils.js';
+import { formatDisplayDate, getTaskEmojis } from './dateUtils.js';
 import { persistFromDOM } from './storage.js';
 
 export const VALID_RECURRENCES = ['none', 'daily', 'weekly', 'monthly'];
@@ -139,6 +139,7 @@ export const toggleRecurrence = (event) => {
  * @param {Array}    subtasksData    — [{ text, done }]
  * @param {string}   recurrence      — 'none' | 'daily' | 'weekly' | 'monthly'
  * @param {number|null} lastCompleted — timestamp ms o null
+ * @param {number|null} createdAt     — timestamp ms de creación
  * @param {Function} onToggleDone    — callback(event) al hacer click en la tarea
  * @param {Function} onDelete        — callback(event) al borrar
  * @param {Function} onEdit          — callback(event) al editar
@@ -151,17 +152,22 @@ export const createTaskElement = (
     subtasksData   = [],
     recurrence     = 'none',
     lastCompleted  = null,
+    createdAt      = null,
     onToggleDone,
     onDelete,
     onEdit,
 ) => {
     const todayStr = formatDisplayDate(new Date());
+    // Convertir a número por si viene como string del DOM/Storage
+    const creationTime = createdAt ? Number(createdAt) : Date.now();
+    const emojis = getTaskEmojis(new Date(creationTime));
 
     // ── Wrapper ──
     const taskWrapper = document.createElement('div');
     taskWrapper.classList.add('task-wrapper');
     taskWrapper.draggable = true;
     taskWrapper.setAttribute('data-recurrence', recurrence);
+    taskWrapper.setAttribute('data-created-at', creationTime);
     if (lastCompleted) taskWrapper.setAttribute('data-last-completed', lastCompleted);
 
     // ── Fila principal ──
@@ -178,9 +184,20 @@ export const createTaskElement = (
     const contentWrapper = document.createElement('div');
     contentWrapper.classList.add('task-content-wrapper');
 
+    const taskTextWrapper = document.createElement('div');
+    taskTextWrapper.style.display = 'flex';
+    taskTextWrapper.style.alignItems = 'center';
+    taskTextWrapper.style.gap = '8px';
+
+    const taskEmojis = document.createElement('span');
+    taskEmojis.classList.add('task-emojis');
+    taskEmojis.textContent = emojis;
+
     const taskText = document.createElement('span');
     taskText.classList.add('task-text');
     taskText.textContent = DOMPurify.sanitize(text);
+
+    taskTextWrapper.append(taskEmojis, taskText);
 
     const badge = document.createElement('span');
     badge.classList.add('recurrence-badge');
@@ -191,13 +208,13 @@ export const createTaskElement = (
         badge.setAttribute('data-recurrence-value', recurrence);
     }
 
-    contentWrapper.append(taskText, badge);
-
     const taskDateEl = document.createElement('span');
     taskDateEl.classList.add('task-date');
     taskDateEl.textContent = date;
 
-    task.append(contentWrapper, taskDateEl);
+    contentWrapper.append(taskTextWrapper, badge, taskDateEl);
+
+    task.append(contentWrapper);
 
     // ── Botones de acción ──
     const recurrenceBtn = document.createElement('button');
