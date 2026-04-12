@@ -36,6 +36,9 @@ export const translations = {
         editTaskTitle: 'Edit Task',
         saveButton: 'Save',
         cancelButton: 'Cancel',
+        newTaskButton: 'New Task',
+        newTaskTitle: 'New Task',
+        addButton: 'Add',
     },
     es: {
         pageTitle: 'Lista de Tareas',
@@ -70,6 +73,9 @@ export const translations = {
         editTaskTitle: 'Editar Tarea',
         saveButton: 'Guardar',
         cancelButton: 'Cancelar',
+        newTaskButton: 'Nueva Tarea',
+        newTaskTitle: 'Nueva Tarea',
+        addButton: 'Añadir',
     }
 };
 

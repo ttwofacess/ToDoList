@@ -8,6 +8,7 @@ import { formatDisplayDate, isoStringToDate,
          isDateInPast, shouldResetRecurringTask } from './dateUtils.js';
 import { readTasks, persistFromDOM }        from './storage.js';
 import { createTaskElement, initRenderer }  from './taskRenderer.js';
+import { closeNewTaskModal }                from './modalManager.js';
 
 export const VALID_PRIORITIES = ['high', 'medium', 'low'];
 
@@ -82,6 +83,7 @@ export const addNewTask = (event) => {
     tasksContainer.prepend(buildTaskElement(value.trim(), date, priority, [], 'none', null));
     event.target.reset();
     persistFromDOM(tasksContainer);
+    closeNewTaskModal();
 };
 
 /**

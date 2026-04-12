@@ -22,22 +22,11 @@
             </div>
             <div id="dateText"></div>
         </div>
-        <form>
-            <input type="text" name="taskText" autocomplete="off" placeholder="New Task" class="roundBorder" data-i18n-key="taskPlaceholder">
-            <div class="priority-wrapper">
-                <label for="taskPriority" data-i18n-key="priorityLabel">Prioridad:</label>
-                <select name="taskPriority" id="taskPriority" class="roundBorder">
-                    <option value="high" data-i18n-key="priorityHigh">High</option>
-                    <option value="medium" selected data-i18n-key="priorityMedium">Medium</option>
-                    <option value="low" data-i18n-key="priorityLow">Low</option>
-                </select>
-            </div>
-            <div class="date-wrapper">
-                <label for="taskDate" data-i18n-key="dateLabel">Fecha:</label>
-                <input type="date" name="taskDate" id="taskDate" class="roundBorder" data-i18n-key="datePlaceholder" required>
-            </div>
-            <button type="submit" class="addTaskButton">+</button>
-        </form>
+        <div class="new-task-button-wrapper">
+            <button type="button" id="openNewTaskModal" class="newTaskMainButton roundBorder">
+                <span class="plus-icon">+</span> <span data-i18n-key="newTaskButton">New Task</span>
+            </button>
+        </div>
         <div class="orderButton-wrapper">
             <button type="button" class="orderButton roundBorder" data-i18n-key="orderButton">Order</button>
             <button type="button" class="filterButton roundBorder" data-i18n-key="filterButtonToday">Focus Mode</button>
@@ -50,6 +39,32 @@
         <div id="tasksContainer"></div>
         <div class="donate-wrapper">
             <button type="button" id="donateButton" class="roundBorder" data-i18n-key="donateButton">Donate</button>
+        </div>
+    </div>
+
+    <div id="newTaskModal" class="modal">
+        <div class="modal-content roundBorder">
+            <span class="close-button" id="closeNewTaskModal">&times;</span>
+            <h2 data-i18n-key="newTaskTitle">New Task</h2>
+            <form id="newTaskForm">
+                <input type="text" name="taskText" autocomplete="off" placeholder="New Task" class="roundBorder" data-i18n-key="taskPlaceholder">
+                <div class="priority-wrapper">
+                    <label for="taskPriority" data-i18n-key="priorityLabel">Priority:</label>
+                    <select name="taskPriority" id="taskPriority" class="roundBorder">
+                        <option value="high" data-i18n-key="priorityHigh">High</option>
+                        <option value="medium" selected data-i18n-key="priorityMedium">Medium</option>
+                        <option value="low" data-i18n-key="priorityLow">Low</option>
+                    </select>
+                </div>
+                <div class="date-wrapper">
+                    <label for="taskDate" data-i18n-key="dateLabel">Date:</label>
+                    <input type="date" name="taskDate" id="taskDate" class="roundBorder" data-i18n-key="datePlaceholder" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="orderButton roundBorder" data-i18n-key="addButton">Add</button>
+                    <button type="button" id="cancelNewTaskButton" class="filterButton roundBorder" data-i18n-key="cancelButton">Cancel</button>
+                </div>
+            </form>
         </div>
     </div>
 
