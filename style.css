@@ -330,7 +330,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 .action-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 12px;
     margin-bottom: 20px;
 }
@@ -368,7 +368,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .action-card-btn.delete {
     grid-column: 1 / -1;
     justify-self: center;
-    min-width: 110px;
+    width: 100%;
+    max-width: 210px;
     color: #FF6B6B;
 }
 
