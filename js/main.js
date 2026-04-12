@@ -8,7 +8,7 @@ import { initTaskManager, addNewTask, loadTasks,
          renderOrderedTasks, highlightDueTasks,
          toggleFilterToday }                       from './taskManager.js';
 import { initDragDrop }                            from './dragDrop.js';
-import { initModals, openActionModal, initModalManager } from './modalManager.js';
+import { initModals, openActionModal, initModalManager, closeNewTaskModal } from './modalManager.js';
 import { initImportExport, exportTasks,
          importTasks }                             from './importExport.js';
 
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const tasksContainer = document.getElementById('tasksContainer');
 
     // ── 1. Inicializar módulos con sus dependencias ──────────
-    initTaskManager(tasksContainer, openActionModal);
+    initTaskManager(tasksContainer, openActionModal, closeNewTaskModal);
     initModalManager(tasksContainer);
     initImportExport(tasksContainer);
     initDragDrop(tasksContainer);
