@@ -7,6 +7,7 @@ import { formatDisplayDate, isoStringToDate,
          isDateInPast, shouldResetRecurringTask } from './dateUtils.js';
 import { readTasks, persistFromDOM }        from './storage.js';
 import { createTaskElement, initRenderer }  from './taskRenderer.js';
+import { attachDragListeners }              from './dragDrop.js';
 
 export const VALID_PRIORITIES = ['high', 'medium', 'low'];
 
@@ -23,11 +24,14 @@ export const initTaskManager = (container, actionCallback, closeNewTaskCallback)
 
 // ─── Helpers internos ──────────────────────────────────────
 
-const buildTaskElement = (text, date, priority, subtasks, recurrence, lastCompleted, createdAt) =>
-    createTaskElement(
+const buildTaskElement = (text, date, priority, subtasks, recurrence, lastCompleted, createdAt) => {
+    const taskEl = createTaskElement(
         text, date, priority, subtasks, recurrence, lastCompleted, createdAt,
         (wrapper) => onOpenActionModal?.(wrapper)
     );
+    attachDragListeners(taskEl, tasksContainer);
+    return taskEl;
+};
 
 // ─── API pública ───────────────────────────────────────────
 
