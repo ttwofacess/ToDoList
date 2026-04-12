@@ -158,7 +158,8 @@ export const createTaskElement = (
     onEdit,
 ) => {
     const todayStr = formatDisplayDate(new Date());
-    const creationTime = createdAt || Date.now();
+    // Convertir a número por si viene como string del DOM/Storage
+    const creationTime = createdAt ? Number(createdAt) : Date.now();
     const emojis = getTaskEmojis(new Date(creationTime));
 
     // ── Wrapper ──
@@ -207,13 +208,13 @@ export const createTaskElement = (
         badge.setAttribute('data-recurrence-value', recurrence);
     }
 
-    contentWrapper.append(taskTextWrapper, badge);
-
     const taskDateEl = document.createElement('span');
     taskDateEl.classList.add('task-date');
     taskDateEl.textContent = date;
 
-    task.append(contentWrapper, taskDateEl);
+    contentWrapper.append(taskTextWrapper, badge, taskDateEl);
+
+    task.append(contentWrapper);
 
     // ── Botones de acción ──
     const recurrenceBtn = document.createElement('button');

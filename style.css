@@ -298,8 +298,14 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .task-content-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
     flex-grow: 1;
+}
+
+.task-date {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    font-weight: 400;
 }
 
 .recurrence-badge {
