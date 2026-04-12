@@ -101,3 +101,32 @@ export const shouldResetRecurringTask = (recurrence, lastCompleted) => {
     }
     return false;
 };
+
+/**
+ * Genera dos emojis basados en una fecha (semilla).
+ * Rango: U+1F600 a U+1F637 (emoticonos).
+ * @param {Date} date
+ * @returns {string} - Cadena con dos emojis.
+ */
+export const getTaskEmojis = (date) => {
+    const h = date.getHours() + 1;
+    const m = date.getMinutes() + 1;
+    const s = date.getSeconds() + 1;
+    const d = date.getDate() + 1;
+    
+    // Semilla según fórmula del usuario
+    const seed = h * m * s * d;
+    
+    // Rango U+1F600 (128512) a U+1F637 (128567) -> 56 emojis
+    const start = 0x1F600;
+    const count = 56;
+    
+    const idx1 = seed % count;
+    // Para el segundo emoji, alteramos la semilla ligeramente para que sea distinto
+    const idx2 = (seed + h + m + s + d) % count;
+    
+    const emoji1 = String.fromCodePoint(start + idx1);
+    const emoji2 = String.fromCodePoint(start + idx2);
+    
+    return `${emoji1}${emoji2}`;
+};

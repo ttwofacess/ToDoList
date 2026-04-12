@@ -28,9 +28,9 @@ export const initTaskManager = (container, editCallback) => {
 
 // ─── Helpers internos ──────────────────────────────────────
 
-const buildTaskElement = (text, date, priority, subtasks, recurrence, lastCompleted) =>
+const buildTaskElement = (text, date, priority, subtasks, recurrence, lastCompleted, createdAt) =>
     createTaskElement(
-        text, date, priority, subtasks, recurrence, lastCompleted,
+        text, date, priority, subtasks, recurrence, lastCompleted, createdAt,
         changeTaskState,
         deleteTask,
         (e) => onEditRequest?.(e),
@@ -80,7 +80,7 @@ export const addNewTask = (event) => {
         ? formatDisplayDate(isoStringToDate(dateValue))
         : formatDisplayDate(new Date());
 
-    tasksContainer.prepend(buildTaskElement(value.trim(), date, priority, [], 'none', null));
+    tasksContainer.prepend(buildTaskElement(value.trim(), date, priority, [], 'none', null, Date.now()));
     event.target.reset();
     persistFromDOM(tasksContainer);
     closeNewTaskModal();
@@ -110,7 +110,7 @@ export const loadTasks = () => {
             }
         }
 
-        const taskEl = buildTaskElement(task.text, date, priority, subtasks, recurrence, lastCompleted);
+        const taskEl = buildTaskElement(task.text, date, priority, subtasks, recurrence, lastCompleted, task.createdAt);
         if (done) taskEl.querySelector('.task').classList.add('done');
         tasksContainer.appendChild(taskEl);
     });
