@@ -16,6 +16,20 @@ let currentEditingWrapper  = null;
  */
 export const initModalManager = (container) => { tasksContainer = container; };
 
+// ─── Modal de nueva tarea ──────────────────────────────────
+
+export const openNewTaskModal = () => {
+    document.getElementById('newTaskModal').style.display = 'block';
+    // Enfocar el input automáticamente
+    setTimeout(() => {
+        document.querySelector('#newTaskForm input[name="taskText"]').focus();
+    }, 10);
+};
+
+export const closeNewTaskModal = () => {
+    document.getElementById('newTaskModal').style.display = 'none';
+};
+
 // ─── Modal de edición ──────────────────────────────────────
 
 export const openEditModal = (event) => {
@@ -84,6 +98,12 @@ export const saveModalChanges = (event) => {
  * y los botones de copiar cripto.
  */
 export const initModals = () => {
+    // New Task
+    const newTaskModal = document.getElementById('newTaskModal');
+    document.getElementById('openNewTaskModal').onclick    = openNewTaskModal;
+    document.getElementById('closeNewTaskModal').onclick   = closeNewTaskModal;
+    document.getElementById('cancelNewTaskButton').onclick = closeNewTaskModal;
+
     // Donate
     const donateModal = document.getElementById('donateModal');
     document.getElementById('donateButton').onclick          = () => donateModal.style.display = 'block';
@@ -97,8 +117,9 @@ export const initModals = () => {
     // Cerrar al hacer click fuera del modal
     const editModal = document.getElementById('editModal');
     window.addEventListener('click', (e) => {
-        if (e.target === donateModal) donateModal.style.display = 'none';
-        if (e.target === editModal)   closeEditModal();
+        if (e.target === donateModal)  donateModal.style.display = 'none';
+        if (e.target === editModal)    closeEditModal();
+        if (e.target === newTaskModal) closeNewTaskModal();
     });
 
     // Botones de copiar cripto

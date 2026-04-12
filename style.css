@@ -89,6 +89,51 @@ body {
     font-family: 'Poppins', sans-serif;
 }
 
+.new-task-button-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 25px;
+}
+
+.newTaskMainButton {
+    background-color: var(--btnplus);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
+    box-shadow: 0 4px 15px rgba(255, 101, 132, 0.3);
+}
+
+.newTaskMainButton:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 6px 20px rgba(255, 101, 132, 0.4);
+    background-color: #ff4d70;
+}
+
+.newTaskMainButton .plus-icon {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+#newTaskForm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+#newTaskForm input[name="taskText"] {
+    width: 90%;
+}
+
 #dateNumber {
     font-size: 3.5rem;
     font-weight: 700;
@@ -159,28 +204,6 @@ input:focus {
 
 input[type="date"]::-webkit-calendar-picker-indicator {
     filter: invert(1);
-}
-
-/* Botón flotante para agregar tarea */
-.addTaskButton {
-    background-color: var(--btnplus);
-    color: white;
-    font-size: 24px;
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 10px;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.addTaskButton:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 10px rgba(0,0,0,0.15);
 }
 
 /* Contenedores de botones */

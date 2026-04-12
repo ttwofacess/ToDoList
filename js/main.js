@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (editDateInput) editDateInput.min = minDate;
 
     // ── 5. Event listeners del formulario y botones globales ─
-    document.querySelector('form').addEventListener('submit', addNewTask);
+    document.getElementById('newTaskForm').addEventListener('submit', addNewTask);
 
     document.querySelector('.orderButton')
         .addEventListener('click', renderOrderedTasks);
