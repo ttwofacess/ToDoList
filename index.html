@@ -129,5 +129,44 @@
             </form>
         </div>
     </div>
+
+    <div id="taskActionModal" class="modal">
+        <div class="modal-content roundBorder">
+            <span class="close-button" id="closeActionModal">&times;</span>
+            <h2 id="actionModalTitle">Task Actions</h2>
+            
+            <div class="task-info-preview">
+                <div id="actionModalEmojis"></div>
+                <div id="actionModalText"></div>
+            </div>
+
+            <div class="action-grid">
+                <button type="button" id="actionDone" class="action-card-btn">
+                    <span class="icon">✅</span>
+                    <span data-i18n-key="actionDone">Done/Undone</span>
+                </button>
+                <button type="button" id="actionEdit" class="action-card-btn">
+                    <span class="icon">✏️</span>
+                    <span data-i18n-key="editTaskTitle">Edit</span>
+                </button>
+                <button type="button" id="actionSubtask" class="action-card-btn">
+                    <span class="icon">➕</span>
+                    <span data-i18n-key="addSubtask">Subtasks</span>
+                </button>
+                <button type="button" id="actionRecurrence" class="action-card-btn">
+                    <span class="icon">🔁</span>
+                    <span data-i18n-key="repeatButtonTitle">Repeat</span>
+                </button>
+                <button type="button" id="actionDelete" class="action-card-btn delete">
+                    <span class="icon">🗑️</span>
+                    <span data-i18n-key="deleteButton">Delete</span>
+                </button>
+            </div>
+
+            <div id="actionSubtasksContainer" class="subtasks-container">
+                <!-- Subtasks will be moved here when modal opens -->
+            </div>
+        </div>
+    </div>
 </body>
 </html>
