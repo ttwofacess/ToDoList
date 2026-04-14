@@ -34,11 +34,11 @@
 }
 
 .actionButton {
-    background-color: #50C878;
+    background-color: #6DB37A;
 }
 
 .actionButton:hover {
-    background-color: #45b36b;
+    background-color: #5a9a66;
 }
 
 .filterButton.filter-active {
