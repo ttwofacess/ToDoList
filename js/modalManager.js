@@ -59,7 +59,12 @@ export const closeActionModal = () => {
 // ─── Modal de nueva tarea ──────────────────────────────────
 
 export const openNewTaskModal = () => {
-    document.getElementById('newTaskModal').style.display = 'block';
+    const modal = document.getElementById('newTaskModal');
+    const content = modal.querySelector('.modal-content');
+    modal.style.display = 'block';
+    content.classList.remove('tornado-animate');
+    void content.offsetWidth; // force reflow
+    content.classList.add('tornado-animate');
     setTimeout(() => {
         const input = document.querySelector('#newTaskForm input[name="taskText"]');
         if (input) input.focus();
@@ -67,7 +72,10 @@ export const openNewTaskModal = () => {
 };
 
 export const closeNewTaskModal = () => {
-    document.getElementById('newTaskModal').style.display = 'none';
+    const modal = document.getElementById('newTaskModal');
+    const content = modal.querySelector('.modal-content');
+    content.classList.remove('tornado-animate');
+    modal.style.display = 'none';
 };
 
 // ─── Modal de edición ──────────────────────────────────────

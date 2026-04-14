@@ -558,11 +558,34 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     margin-top: 20px;
 }
 
+/* Tornado entrance animation for modals */
+@keyframes tornado-in {
+    0% {
+        transform: scale(0) rotate(-720deg) translateY(40px);
+        opacity: 0;
+    }
+    40% {
+        opacity: 0.7;
+        transform: scale(0.85) rotate(-180deg) translateY(10px);
+    }
+    70% {
+        transform: scale(1.05) rotate(-30deg) translateY(-5px);
+    }
+    100% {
+        transform: scale(1) rotate(0deg) translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-content.tornado-animate {
+    animation: tornado-in 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
 /* Modal Styles */
 .modal {
-    display: none; 
-    position: fixed; 
-    z-index: 100; 
+    display: none;
+    position: fixed;
+    z-index: 100;
     left: 0;
     top: 0;
     width: 100%;
