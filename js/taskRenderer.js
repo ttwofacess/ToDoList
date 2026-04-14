@@ -147,9 +147,11 @@ export const createTaskElement = (
     contentWrapper.classList.add('task-content-wrapper');
 
     const taskTextWrapper = document.createElement('div');
+    taskTextWrapper.classList.add('task-text-wrapper');
     taskTextWrapper.style.display = 'flex';
     taskTextWrapper.style.alignItems = 'center';
-    taskTextWrapper.style.gap = '8px';
+    taskTextWrapper.style.justifyContent = 'center';
+    taskTextWrapper.style.position = 'relative';
 
     const taskEmojis = document.createElement('span');
     taskEmojis.classList.add('task-emojis');

@@ -49,6 +49,24 @@
     flex-direction: column;
     gap: 6px;
     flex-grow: 1;
+    font-size: 1.12em;
+}
+
+.task-text-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.task-emojis {
+    flex-shrink: 0;
+    margin-right: 8px;
+}
+
+.task-text {
+    font-size: 1.12em;
+    text-align: center;
+    flex-grow: 1;
 }
 
 .task-date {
