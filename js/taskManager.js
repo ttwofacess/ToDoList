@@ -81,6 +81,8 @@ export const loadTasks = () => {
             if (shouldResetRecurringTask(recurrence, lastCompleted)) {
                 done = false;
                 lastCompleted = null;
+                // Update date to today for recurring tasks that are being reset
+                task.date = formatDisplayDate(new Date());
             }
         }
 
