@@ -1,0 +1,100 @@
+/* forms.css — Formularios e inputs */
+
+.new-task-button-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 25px;
+}
+
+.newTaskMainButton {
+    background-color: var(--btnplus);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
+    box-shadow: 0 4px 15px rgba(255, 101, 132, 0.3);
+}
+
+.newTaskMainButton:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 6px 20px rgba(255, 101, 132, 0.4);
+    background-color: #ff4d70;
+}
+
+.newTaskMainButton .plus-icon {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+#newTaskForm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+#newTaskForm input[name="taskText"] {
+    width: 90%;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin: 20px 0;
+    width: 100%;
+}
+
+form > input[name="taskText"] {
+    width: 80%;
+}
+
+.priority-wrapper, .date-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 80%;
+}
+
+.priority-wrapper label, .date-wrapper label {
+    color: var(--maintxt);
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    text-align: right;
+    width: 30%;
+}
+
+.priority-wrapper select, .date-wrapper input[type="date"] {
+    width: 70%;
+}
+
+input, select {
+    background-color: var(--bckgrndbdy);
+    border: 2px solid transparent;
+    color: var(--maintxt);
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    padding: 10px 15px;
+    border-radius: 10px;
+    transition: border-color 0.3s;
+    width: 80%;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+}

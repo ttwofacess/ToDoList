@@ -1,0 +1,28 @@
+/* header.css — Fecha del header */
+
+.date {
+    align-items: center;
+    color: var(--maintxt);
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    font-family: 'Poppins', sans-serif;
+}
+
+#dateNumber {
+    font-size: 3.5rem;
+    font-weight: 700;
+}
+
+#dateText {
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+#dateMonth,
+#dateYear {
+    font-size: 1.2rem;
+    margin-left: 10px;
+}
