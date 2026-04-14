@@ -1,0 +1,20 @@
+/* task-priority.css — Prioridades y estado completado */
+
+.priority-high { border-left: 5px solid #FF6B6B; }
+.priority-medium { border-left: 5px solid #FFA500; }
+.priority-low { border-left: 5px solid #6DB37A; }
+
+.done {
+    background-color: var(--donetsk);
+    color: white;
+    border-color: var(--donetsk);
+}
+
+.done .task-text {
+    text-decoration: line-through;
+    opacity: 0.7;
+}
+
+.done .recurrence-badge {
+    color: white;
+}

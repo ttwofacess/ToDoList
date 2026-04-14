@@ -1,0 +1,18 @@
+/* layout.css — Contenedores principales */
+
+.list {
+    background-color: var(--wrpprbck);
+    margin: 25px auto;
+    max-width: 450px;
+    padding: 30px;
+    width: 100%;
+    box-shadow: var(--shadow);
+    border-radius: 15px;
+}
+
+/* Donate Button Wrapper */
+.donate-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}

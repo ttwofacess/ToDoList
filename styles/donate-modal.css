@@ -1,0 +1,40 @@
+/* donate-modal.css — Modal de donaciones */
+
+.crypto-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.crypto-option {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.crypto-info {
+    flex-grow: 1;
+}
+
+.crypto-info input {
+    width: 100%;
+    background-color: var(--bckgrndbdy);
+    color: var(--maintxt);
+}
+
+@media (prefers-color-scheme: dark) {
+    .crypto-info input {
+        color: var(--maintxt);
+        background-color: var(--bckgrndbdy);
+    }
+}
+
+.copy-button {
+    background-color: var(--btnplus);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 10px;
+    cursor: pointer;
+}

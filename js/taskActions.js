@@ -2,6 +2,7 @@
 // taskActions.js — Responsabilidad: Acciones de estado de tareas
 // ============================================================
 
+import { formatDisplayDate } from './dateUtils.js';
 import { persistFromDOM } from './storage.js';
 
 /**
@@ -13,8 +14,20 @@ export const changeTaskState = (wrapper, tasksContainer) => {
     const taskEl = wrapper.querySelector('.task');
     const isDone = taskEl.classList.toggle('done');
 
-    if (isDone) wrapper.setAttribute('data-last-completed', Date.now());
-    else        wrapper.removeAttribute('data-last-completed');
+    if (isDone) {
+        wrapper.setAttribute('data-last-completed', Date.now());
+    } else {
+        // When reactivating a recurring task, update the date to today
+        const recurrence = wrapper.getAttribute('data-recurrence') || 'none';
+        if (recurrence !== 'none') {
+            const dateEl = wrapper.querySelector('.task-date');
+            const todayStr = formatDisplayDate(new Date());
+            if (dateEl) {
+                dateEl.textContent = todayStr;
+            }
+        }
+        wrapper.removeAttribute('data-last-completed');
+    }
 
     persistFromDOM(tasksContainer);
 };

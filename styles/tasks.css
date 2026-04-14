@@ -1,0 +1,109 @@
+/* tasks.css — Estructura principal de tareas */
+
+.task-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    margin-bottom: 15px;
+    cursor: grab;
+}
+
+.task-wrapper:active {
+    cursor: grabbing;
+}
+
+.task-wrapper.dragging {
+    opacity: 0.4;
+    transform: scale(0.98);
+}
+
+.task-wrapper.dragging .task {
+    border: 2px dashed var(--primary);
+}
+
+.task-main-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.task {
+    background-color: var(--wrpprbck);
+    opacity: 0.8;
+    border: 1px solid #E0E0E0;
+    color: var(--maintxt);
+    cursor: pointer;
+    flex-grow: 1;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 10px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.task-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex-grow: 1;
+    font-size: 1.12em;
+}
+
+.task-text-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.task-emojis {
+    flex-shrink: 0;
+    margin-right: 8px;
+}
+
+.task-text {
+    font-size: 1.12em;
+    text-align: center;
+    flex-grow: 1;
+}
+
+.task-date {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    font-weight: 400;
+}
+
+.recurrence-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--primary);
+    opacity: 0.8;
+}
+
+.delete-button, .edit-button, .subtask-button, .recurrence-button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1.5em;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+    padding: 5px;
+}
+
+.delete-button { color: #FF6B6B; }
+.edit-button { color: #6C63FF; }
+.subtask-button { color: var(--btnplus); font-size: 1.2em; }
+.recurrence-button { color: #888; font-size: 1.2em; filter: grayscale(1); opacity: 0.5; }
+
+.recurrence-button.active {
+    filter: grayscale(0);
+    opacity: 1;
+    color: var(--primary);
+}
+
+.delete-button:hover, .edit-button:hover, .subtask-button:hover, .recurrence-button:hover {
+    transform: scale(1.2);
+}

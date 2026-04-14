@@ -1,0 +1,46 @@
+/* buttons.css — Botones de acción globales */
+
+/* Contenedores de botones */
+.orderButton-wrapper, .actions-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+/* Estilo unificado para botones de acción */
+.orderButton, .filterButton, .actionButton, #donateButton {
+    background-color: var(--btnordr);
+    color: white;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    min-width: 120px;
+    min-height: 40px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.orderButton:hover, .filterButton:hover, .actionButton:hover, #donateButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.actionButton {
+    background-color: #6B8FAD;
+}
+
+.actionButton:hover {
+    background-color: #5a7f9d;
+}
+
+.filterButton.filter-active {
+    background-color: var(--btnplus);
+}

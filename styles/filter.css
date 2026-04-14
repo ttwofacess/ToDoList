@@ -1,0 +1,9 @@
+/* filter.css — Lógica de filtrado */
+
+#tasksContainer.filter-today-active .task-wrapper {
+    display: none;
+}
+#tasksContainer.filter-today-active .task-wrapper:has(.due-today),
+#tasksContainer.filter-today-active .task-wrapper:has(.priority-high:not(.done)) {
+    display: flex;
+}
