@@ -29,6 +29,7 @@
 
 .task {
     background-color: var(--wrpprbck);
+    opacity: 0.8;
     border: 1px solid #E0E0E0;
     color: var(--maintxt);
     cursor: pointer;
