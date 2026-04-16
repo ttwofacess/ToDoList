@@ -19,7 +19,7 @@ export const getLocaleKey = () => {
  * @returns {string}
  */
 export const formatDisplayDate = (date) =>
-    date.toLocaleDateString(getLocaleKey(), { day: '2-digit', month: '2-digit', year: '2-digit' });
+    date.toLocaleDateString(getLocaleKey(), { day: '2-digit', month: '2-digit', year: 'numeric' });
 
 /**
  * Convierte el string ISO de un <input type="date"> ('yyyy-mm-dd')
@@ -52,7 +52,7 @@ export const isDateInPast = (date) => {
 export const displayDateToIso = (displayDate) => {
     const parts = displayDate.split('/');
     if (parts.length !== 3) return '';
-    const year = '20' + parts[2];
+    const year = parts[2];
     const lang = getLang();
     const [day, month] = lang === 'es'
         ? [parts[0].padStart(2, '0'), parts[1].padStart(2, '0')]
