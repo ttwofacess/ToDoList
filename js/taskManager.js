@@ -70,7 +70,7 @@ export const loadTasks = () => {
     tasks.forEach(task => {
         if (typeof task.text !== 'string' || typeof task.done !== 'boolean') return;
 
-        const date      = task.date ?? formatDisplayDate(new Date());
+        let date      = task.date ?? formatDisplayDate(new Date());
         const priority  = task.priority ?? 'medium';
         const subtasks  = task.subtasks ?? [];
         const recurrence = task.recurrence ?? 'none';
@@ -82,7 +82,8 @@ export const loadTasks = () => {
                 done = false;
                 lastCompleted = null;
                 // Update date to today for recurring tasks that are being reset
-                task.date = formatDisplayDate(new Date());
+                date = formatDisplayDate(new Date());
+                task.date = date;
             }
         }
 
