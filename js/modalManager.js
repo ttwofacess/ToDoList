@@ -19,6 +19,7 @@ export const initModalManager = (container) => { tasksContainer = container; };
 
 export const openActionModal = (wrapper) => {
     currentActionWrapper = wrapper;
+    currentActionWrapper.setAttribute('data-active-modal', 'true');
     const taskText = wrapper.querySelector('.task-text').textContent;
     const taskEmojis = wrapper.querySelector('.task-emojis').textContent;
     const recurrence = wrapper.getAttribute('data-recurrence') || 'none';
@@ -45,6 +46,7 @@ export const openActionModal = (wrapper) => {
 
 export const closeActionModal = () => {
     if (currentActionWrapper) {
+        currentActionWrapper.removeAttribute('data-active-modal');
         const modalSubContainer = document.getElementById('actionSubtasksContainer');
         const subContainer = modalSubContainer.querySelector('.subtasks-container');
         if (subContainer) {

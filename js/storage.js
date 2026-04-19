@@ -52,7 +52,12 @@ export const persistFromDOM = (tasksContainer) => {
             : taskEl.classList.contains('priority-medium') ? 'medium'
             : 'low';
 
-        const subtasks = [...el.querySelectorAll('.subtask-item')].map(subEl => ({
+        const isActiveInModal = el.getAttribute('data-active-modal') === 'true';
+        const searchRoot = isActiveInModal 
+            ? document.getElementById('actionSubtasksContainer') 
+            : el;
+
+        const subtasks = [...searchRoot.querySelectorAll('.subtask-item')].map(subEl => ({
             text: subEl.querySelector('.subtask-text').textContent,
             done: subEl.querySelector('.subtask-checkbox').checked,
         }));
