@@ -66,6 +66,7 @@ export const addNewTask = (event) => {
 export const loadTasks = () => {
     const tasks = readTasks();
     tasksContainer.innerHTML = '';
+    let changed = false;
 
     tasks.forEach(task => {
         if (typeof task.text !== 'string' || typeof task.done !== 'boolean') return;
@@ -84,6 +85,11 @@ export const loadTasks = () => {
                 // Update date to today for recurring tasks that are being reset
                 date = formatDisplayDate(new Date());
                 task.date = date;
+                // Also reset subtasks for recurring tasks
+                if (Array.isArray(task.subtasks)) {
+                    task.subtasks.forEach(sub => sub.done = false);
+                }
+                changed = true;
             }
         }
 
@@ -91,6 +97,8 @@ export const loadTasks = () => {
         if (done) taskEl.querySelector('.task').classList.add('done');
         tasksContainer.appendChild(taskEl);
     });
+
+    if (changed) persistFromDOM(tasksContainer);
 };
 
 export const renderOrderedTasks = () => {
