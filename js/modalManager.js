@@ -50,7 +50,9 @@ export const closeActionModal = () => {
         const modalSubContainer = document.getElementById('actionSubtasksContainer');
         const subContainer = modalSubContainer.querySelector('.subtasks-container');
         if (subContainer) {
-            subContainer.style.display = 'none';
+            // Restore visibility: only show if there are subtasks
+            const hasSubtasks = subContainer.querySelectorAll('.subtask-item').length > 0;
+            subContainer.style.display = hasSubtasks ? 'flex' : 'none';
             currentActionWrapper.appendChild(subContainer);
         }
     }
