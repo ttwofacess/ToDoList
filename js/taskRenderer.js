@@ -176,13 +176,15 @@ export const createTaskElement = (
     taskDateEl.textContent = date;
 
     contentWrapper.append(taskTextWrapper, badge, taskDateEl);
-    task.append(contentWrapper);
 
     const subtasksContainer = document.createElement('div');
     subtasksContainer.classList.add('subtasks-container');
-    subtasksContainer.style.display = subtasksData.length > 0 ? 'flex' : 'none';
+    subtasksContainer.style.display = 'none'; 
     subtasksData.forEach(sub => subtasksContainer.appendChild(createSubtaskElement(sub.text, sub.done)));
 
-    taskWrapper.append(task, subtasksContainer);
+    contentWrapper.append(subtasksContainer);
+    task.append(contentWrapper);
+
+    taskWrapper.append(task);
     return taskWrapper;
 };
