@@ -89,10 +89,13 @@
 }
 
 #actionSubtasksContainer {
-    max-height: 200px;
-    overflow-y: auto;
     margin-top: 15px;
     padding-top: 15px;
+}
+
+#actionSubtasksContainer .subtasks-container {
+    max-height: 200px; /* Allow more height in the modal */
+    margin-left: 0;   /* Remove margin when in modal to use full width */
 }
 
 #actionSubtasksContainer .subtask-item {

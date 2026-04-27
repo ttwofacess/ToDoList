@@ -6,6 +6,29 @@
     flex-direction: column;
     gap: 5px;
     margin-top: 5px;
+    max-height: 150px;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+/* Custom scrollbar for subtasks */
+.subtasks-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.subtasks-container::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+}
+
+.subtasks-container::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 10px;
+    opacity: 0.5;
+}
+
+.subtasks-container::-webkit-scrollbar-thumb:hover {
+    background: var(--btnplus);
 }
 
 .subtask-item {

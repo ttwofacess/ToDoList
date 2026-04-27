@@ -180,7 +180,7 @@ export const createTaskElement = (
 
     const subtasksContainer = document.createElement('div');
     subtasksContainer.classList.add('subtasks-container');
-    subtasksContainer.style.display = 'none'; // Oculto en la card principal
+    subtasksContainer.style.display = subtasksData.length > 0 ? 'flex' : 'none';
     subtasksData.forEach(sub => subtasksContainer.appendChild(createSubtaskElement(sub.text, sub.done)));
 
     taskWrapper.append(task, subtasksContainer);
