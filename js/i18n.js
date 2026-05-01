@@ -41,6 +41,7 @@ export const translations = {
         addButton: 'Add',
         deleteButton: 'Delete',
         actionDone: 'Done/Undone',
+        actionModalTitle: 'Task Actions',
     },
     es: {
         pageTitle: 'Lista de Tareas',
@@ -80,6 +81,7 @@ export const translations = {
         addButton: 'Añadir',
         deleteButton: 'Eliminar',
         actionDone: 'Hecho/Deshacer',
+        actionModalTitle: 'Acciones de la Tarea',
     },
     pt: {
         pageTitle: 'Lista de Tarefas',
@@ -90,7 +92,7 @@ export const translations = {
         priorityMedium: 'Média',
         priorityLow: 'Baixa',
         orderButton: 'Ordenar',
-        alertTaskTooLong: 'O texto da tarefa é muito longo. Máximo de 500 caracteres.',
+        alertTaskTooLong: 'O texto da tarefa é muy longo. Máximo de 500 caracteres.',
         alertMaxTasks: 'Número máximo de tarefas atingido.',
         alertEmptyTask: 'A tarefa não pode estar vazia.',
         donateButton: 'Doar',
@@ -119,6 +121,7 @@ export const translations = {
         addButton: 'Adicionar',
         deleteButton: 'Excluir',
         actionDone: 'Concluído/Desfazer',
+        actionModalTitle: 'Ações da Tarefa',
     }
 };
 
