@@ -10,7 +10,12 @@ import { getLang } from './i18n.js';
  */
 export const getLocaleKey = () => {
     const lang = getLang();
-    return `${lang}-${lang.toUpperCase()}`;
+    const locales = {
+        en: 'en-US',
+        es: 'es-ES',
+        pt: 'pt-BR'
+    };
+    return locales[lang] || 'en-US';
 };
 
 /**
@@ -54,7 +59,7 @@ export const displayDateToIso = (displayDate) => {
     if (parts.length !== 3) return '';
     const year = parts[2];
     const lang = getLang();
-    const [day, month] = lang === 'es'
+    const [day, month] = (lang === 'es' || lang === 'pt')
         ? [parts[0].padStart(2, '0'), parts[1].padStart(2, '0')]
         : [parts[1].padStart(2, '0'), parts[0].padStart(2, '0')];
     return `${year}-${month}-${day}`;
