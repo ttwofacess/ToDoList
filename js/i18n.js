@@ -39,6 +39,8 @@ export const translations = {
         newTaskButton: 'New Task',
         newTaskTitle: 'New Task',
         addButton: 'Add',
+        deleteButton: 'Delete',
+        actionDone: 'Done/Undone',
     },
     es: {
         pageTitle: 'Lista de Tareas',
@@ -76,6 +78,47 @@ export const translations = {
         newTaskButton: 'Nueva Tarea',
         newTaskTitle: 'Nueva Tarea',
         addButton: 'Añadir',
+        deleteButton: 'Eliminar',
+        actionDone: 'Hecho/Deshacer',
+    },
+    pt: {
+        pageTitle: 'Lista de Tarefas',
+        taskPlaceholder: 'Nova tarefa',
+        priorityLabel: 'Prioridade:',
+        dateLabel: 'Data:',
+        priorityHigh: 'Alta',
+        priorityMedium: 'Média',
+        priorityLow: 'Baixa',
+        orderButton: 'Ordenar',
+        alertTaskTooLong: 'O texto da tarefa é muito longo. Máximo de 500 caracteres.',
+        alertMaxTasks: 'Número máximo de tarefas atingido.',
+        alertEmptyTask: 'A tarefa não pode estar vazia.',
+        donateButton: 'Doar',
+        donateTitle: 'Doar',
+        copyButton: 'Copiar',
+        alertPastDate: 'A data da tarefa não pode ser anterior à atual.',
+        alertInvalidPriority: 'Valor de prioridade inválido.',
+        filterButtonToday: 'Modo Foco',
+        filterButtonAll: 'Mostrar Tudo',
+        exportButton: 'Exportar',
+        importButton: 'Importar',
+        confirmImport: 'Tem certeza? Isso substituirá suas tarefas atuais.',
+        alertImportError: 'Erro ao importar arquivo. Certifique-se de que é um JSON válido.',
+        addSubtask: 'Adicionar subtarefa',
+        subtaskPlaceholder: 'Nova subtarefa...',
+        recurrenceNone: 'Sem repetição',
+        recurrenceDaily: 'Diária',
+        recurrenceWeekly: 'Semanal',
+        recurrenceMonthly: 'Mensal',
+        repeatButtonTitle: 'Definir repetição',
+        editTaskTitle: 'Editar Tarefa',
+        saveButton: 'Salvar',
+        cancelButton: 'Cancelar',
+        newTaskButton: 'Nova Tarefa',
+        newTaskTitle: 'Nova Tarefa',
+        addButton: 'Adicionar',
+        deleteButton: 'Excluir',
+        actionDone: 'Concluído/Desfazer',
     }
 };
 
@@ -121,5 +164,7 @@ export const setLanguage = (lang, onAfterSet = null) => {
  */
 export const detectLanguage = (onAfterSet = null) => {
     const browserLang = navigator.language.split('-')[0];
-    setLanguage(browserLang === 'es' ? 'es' : 'en', onAfterSet);
+    const supportedLangs = ['en', 'es', 'pt'];
+    const langToUse = supportedLangs.includes(browserLang) ? browserLang : 'en';
+    setLanguage(langToUse, onAfterSet);
 };
