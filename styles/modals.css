@@ -21,6 +21,8 @@
     max-width: 500px;
     border-radius: 15px;
     position: relative;
+    max-height: 85vh;
+    overflow-y: auto;
 }
 
 @media (prefers-color-scheme: dark) {
