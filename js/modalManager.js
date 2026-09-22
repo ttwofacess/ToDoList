@@ -41,7 +41,7 @@ export const openActionModal = (wrapper) => {
         modalSubContainer.appendChild(subContainer);
     }
     
-    document.getElementById('taskActionModal').style.display = 'block';
+    document.getElementById('taskActionModal').style.display = 'flex';
 };
 
 export const closeActionModal = () => {
@@ -63,7 +63,7 @@ export const closeActionModal = () => {
 export const openNewTaskModal = () => {
     const modal = document.getElementById('newTaskModal');
     const content = modal.querySelector('.modal-content');
-    modal.style.display = 'block';
+    modal.style.display = 'flex';
     content.classList.remove('tornado-animate');
     void content.offsetWidth; // force reflow
     content.classList.add('tornado-animate');
@@ -96,7 +96,7 @@ export const openEditModal = (wrapper) => {
     document.getElementById('editTaskPriority').value = priority;
     document.getElementById('editTaskDate').value     = displayDateToIso(taskDate);
 
-    document.getElementById('editModal').style.display = 'block';
+    document.getElementById('editModal').style.display = 'flex';
 };
 
 export const closeEditModal = () => {
@@ -147,7 +147,7 @@ export const initModals = () => {
     document.getElementById('closeNewTaskModal').onclick   = closeNewTaskModal;
     document.getElementById('cancelNewTaskButton').onclick = closeNewTaskModal;
 
-    document.getElementById('donateButton').onclick = () => donateModal.style.display = 'block';
+    document.getElementById('donateButton').onclick = () => donateModal.style.display = 'flex';
     donateModal.querySelector('.close-button').onclick = () => donateModal.style.display = 'none';
 
     document.getElementById('closeEditModal').onclick = closeEditModal;
