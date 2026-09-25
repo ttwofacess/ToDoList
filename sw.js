@@ -37,6 +37,7 @@ const APP_SHELL = [
   './js/modalManager.js',
   './js/dragDrop.js',
   './js/importExport.js',
+  './js/pwa.js',
   './assets/vendor/purify.min.js',
 
   // Fuentes
