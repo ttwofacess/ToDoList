@@ -44,3 +44,8 @@
 .filterButton.filter-active {
     background-color: var(--btnplus);
 }
+
+/* El botón Instalar solo aparece cuando la instalación es posible */
+#installButton[hidden] {
+    display: none !important;
+}
