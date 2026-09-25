@@ -2,10 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title data-i18n-key="pageTitle">To-Do List</title>
 
     <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="manifest.webmanifest">
+
+    <!-- Color de la barra del sistema, acorde al tema claro/oscuro -->
+    <meta name="theme-color" content="#6C63FF">
+
+    <!-- iOS -->
+    <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="ToDo">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="stylesheet" href="styles/base.css">
     <link rel="stylesheet" href="styles/layout.css">
     <link rel="stylesheet" href="styles/header.css">
@@ -20,7 +31,7 @@
     <link rel="stylesheet" href="styles/donate-modal.css">
     <link rel="stylesheet" href="styles/filter.css">
     <link rel="stylesheet" href="styles/animations.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    <script src="./assets/vendor/purify.min.js"></script>
     <script src="./js/main.js" type="module"></script>
 </head>
 <body>
@@ -48,6 +59,7 @@
             <button type="button" class="actionButton roundBorder" data-action="export" data-i18n-key="exportButton">Export</button>
             <button type="button" class="actionButton roundBorder" onclick="document.getElementById('importInput').click()" data-i18n-key="importButton">Import</button>
             <input type="file" id="importInput" accept=".json" style="display: none;">
+            <button type="button" id="installButton" class="actionButton roundBorder" data-i18n-key="installButton" hidden>Install</button>
         </div>
         <div id="tasksContainer"></div>
         <div class="donate-wrapper">

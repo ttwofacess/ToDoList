@@ -11,6 +11,7 @@ import { initDragDrop }                            from './dragDrop.js';
 import { initModals, openActionModal, initModalManager, closeNewTaskModal } from './modalManager.js';
 import { initImportExport, exportTasks,
          importTasks }                             from './importExport.js';
+import { initPWA }                                 from './pwa.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const tasksContainer = document.getElementById('tasksContainer');
@@ -50,4 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('importInput')
         ?.addEventListener('change', importTasks);
+
+    // ── 6. PWA: Service Worker + botón Instalar ──────────────
+    initPWA();
 });

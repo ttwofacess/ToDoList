@@ -42,6 +42,8 @@ export const translations = {
         deleteButton: 'Delete',
         actionDone: 'Done/Undone',
         actionModalTitle: 'Task Actions',
+        installButton: 'Install',
+        installIosHint: 'To install: tap the Share button, then "Add to Home Screen".',
     },
     es: {
         pageTitle: 'Lista de Tareas',
@@ -82,6 +84,8 @@ export const translations = {
         deleteButton: 'Eliminar',
         actionDone: 'Hecho/Deshacer',
         actionModalTitle: 'Acciones de la Tarea',
+        installButton: 'Instalar',
+        installIosHint: 'Para instalar: tocá el botón Compartir y luego "Añadir a pantalla de inicio".',
     },
     pt: {
         pageTitle: 'Lista de Tarefas',
@@ -122,6 +126,8 @@ export const translations = {
         deleteButton: 'Excluir',
         actionDone: 'Concluído/Desfazer',
         actionModalTitle: 'Ações da Tarefa',
+        installButton: 'Instalar',
+        installIosHint: 'Para instalar: toque no botão Compartilhar e depois em "Adicionar à Tela de Início".',
     }
 };
 
