@@ -1,0 +1,23 @@
+{
+  "name": "todolist-pwa",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "PWA de lista de tareas minimalista con subtareas, prioridades, recurrencia y modo enfoque.",
+  "scripts": {
+    "test": "pnpm run test:unit && pnpm run test:integration",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
+    "test:integration": "playwright test",
+    "test:integration:headed": "playwright test --headed",
+    "test:report": "playwright show-report",
+    "serve": "node tests/helpers/static-server.js",
+    "setup:browsers": "playwright install chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.1",
+    "jsdom": "^25.0.1",
+    "vitest": "^2.1.8"
+  },
+  "packageManager": "pnpm@12.6.0"
+}
