@@ -13,6 +13,7 @@ import { initImportExport, exportTasks,
          importTasks }                             from './importExport.js';
 import { initPWA }                                 from './pwa.js';
 import { initUpdateNotifier }                       from './updateNotifier.js';
+import { initUndoManager }                          from './undoManager.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const tasksContainer = document.getElementById('tasksContainer');
@@ -20,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── 1. Inicializar módulos con sus dependencias ──────────
     initTaskManager(tasksContainer, openActionModal, closeNewTaskModal);
     initModalManager(tasksContainer);
+    initUndoManager(tasksContainer);
     initImportExport(tasksContainer);
     initDragDrop(tasksContainer);
     initModals();
