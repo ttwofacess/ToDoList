@@ -25,6 +25,7 @@ const APP_SHELL = [
   './styles/donate-modal.css',
   './styles/filter.css',
   './styles/animations.css',
+  './styles/toast.css',
 
   // Scripts
   './js/main.js',
@@ -38,6 +39,7 @@ const APP_SHELL = [
   './js/dragDrop.js',
   './js/importExport.js',
   './js/pwa.js',
+  './js/updateNotifier.js',
   './assets/vendor/purify.min.js',
 
   // Fuentes
