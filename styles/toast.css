@@ -1,0 +1,35 @@
+/* toast.css — Aviso de nueva versión disponible */
+
+.toast {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    transform: translate(-50%, 120%);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 20px;
+    background-color: var(--wrpprbck);
+    color: var(--maintxt);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    z-index: 1000;
+    transition: transform 0.3s ease;
+    max-width: 90vw;
+}
+
+/* .toast[hidden] conserva display:flex para poder animar la entrada */
+.toast[hidden] {
+    display: flex;
+    pointer-events: none;
+}
+
+.toast--visible {
+    transform: translate(-50%, 0);
+}
+
+#updateReloadButton {
+    background-color: var(--primary);
+    color: #fff;
+    white-space: nowrap;
+}
