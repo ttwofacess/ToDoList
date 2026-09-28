@@ -44,6 +44,8 @@ export const translations = {
         actionModalTitle: 'Task Actions',
         installButton: 'Install',
         installIosHint: 'To install: tap the Share button, then "Add to Home Screen".',
+        updateAvailableMessage: 'A new version is available.',
+        reloadButton: 'Reload',
     },
     es: {
         pageTitle: 'Lista de Tareas',
@@ -86,6 +88,8 @@ export const translations = {
         actionModalTitle: 'Acciones de la Tarea',
         installButton: 'Instalar',
         installIosHint: 'Para instalar: tocá el botón Compartir y luego "Añadir a pantalla de inicio".',
+        updateAvailableMessage: 'Hay una nueva versión disponible.',
+        reloadButton: 'Recargar',
     },
     pt: {
         pageTitle: 'Lista de Tarefas',
@@ -128,6 +132,8 @@ export const translations = {
         actionModalTitle: 'Ações da Tarefa',
         installButton: 'Instalar',
         installIosHint: 'Para instalar: toque no botão Compartilhar e depois em "Adicionar à Tela de Início".',
+        updateAvailableMessage: 'Há uma nova versão disponível.',
+        reloadButton: 'Recarregar',
     }
 };
 

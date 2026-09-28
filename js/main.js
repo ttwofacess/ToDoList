@@ -12,6 +12,7 @@ import { initModals, openActionModal, initModalManager, closeNewTaskModal } from
 import { initImportExport, exportTasks,
          importTasks }                             from './importExport.js';
 import { initPWA }                                 from './pwa.js';
+import { initUpdateNotifier }                       from './updateNotifier.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const tasksContainer = document.getElementById('tasksContainer');
@@ -54,4 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── 6. PWA: Service Worker + botón Instalar ──────────────
     initPWA();
+
+    // ── 7. Aviso de nueva versión del Service Worker ─────────
+    initUpdateNotifier();
 });

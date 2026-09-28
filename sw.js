@@ -2,7 +2,7 @@
 // sw.js — Service Worker: caché offline del app shell
 // ============================================================
 
-const CACHE_VERSION = 'v1';                 // ← subir al cambiar archivos precacheados
+const CACHE_VERSION = 'v2';                 // ← subir en cada deploy con cambios relevantes
 const CACHE_NAME = `todolist-${CACHE_VERSION}`;
 
 const APP_SHELL = [
@@ -25,6 +25,7 @@ const APP_SHELL = [
   './styles/donate-modal.css',
   './styles/filter.css',
   './styles/animations.css',
+  './styles/toast.css',
 
   // Scripts
   './js/main.js',
@@ -38,6 +39,7 @@ const APP_SHELL = [
   './js/dragDrop.js',
   './js/importExport.js',
   './js/pwa.js',
+  './js/updateNotifier.js',
   './assets/vendor/purify.min.js',
 
   // Fuentes
@@ -55,13 +57,22 @@ const APP_SHELL = [
   './assets/icons/apple-touch-icon.png',
 ];
 
-// 1) Instalación: precachear todo el app shell
+// 1) Instalación: precachear todo el app shell.
+//    NO se llama a self.skipWaiting() aquí a propósito: el nuevo SW queda en
+//    estado "waiting" hasta que el frontend envíe el mensaje 'SKIP_WAITING'
+//    (el usuario pulsa "Recargar" en el toast de nueva versión).
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => cache.addAll(APP_SHELL))
-      .then(() => self.skipWaiting())
   );
+});
+
+// 1-bis) Mensajes del frontend: activar el SW en espera cuando el usuario lo confirma
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 // 2) Activación: borrar cachés de versiones anteriores
