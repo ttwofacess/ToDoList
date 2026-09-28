@@ -33,11 +33,45 @@ export const changeTaskState = (wrapper, tasksContainer) => {
 };
 
 /**
- * Elimina una tarea.
+ * @typedef {Object} DeleteSnapshot
+ * @property {HTMLElement} wrapper       Nodo eliminado (se reinserta tal cual).
+ * @property {number} index              Posición que tenía entre los hijos del contenedor (-1 si no estaba).
+ * @property {HTMLElement|null} nextSibling Vecino siguiente en el momento del borrado (null si era la última).
+ */
+
+/**
+ * Elimina una tarea y devuelve un snapshot para poder deshacerla.
  * @param {HTMLElement} wrapper
  * @param {HTMLElement} tasksContainer
+ * @returns {DeleteSnapshot}
  */
 export const deleteTask = (wrapper, tasksContainer) => {
+    const index = [...tasksContainer.children].indexOf(wrapper); // -1 si no estaba
+    const nextSibling = wrapper.nextElementSibling;             // null si era la última
     wrapper.remove();
     persistFromDOM(tasksContainer);
+    return { wrapper, index, nextSibling };
+};
+
+/**
+ * Reinserta una tarea borrada en su posición original y persiste.
+ * @param {DeleteSnapshot} snapshot
+ * @param {HTMLElement} tasksContainer
+ * @returns {'restored'|'already-restored'}
+ */
+export const restoreTask = ({ wrapper, index, nextSibling }, tasksContainer) => {
+    if (wrapper.isConnected) return 'already-restored';
+
+    if (nextSibling && nextSibling.parentNode === tasksContainer) {
+        tasksContainer.insertBefore(wrapper, nextSibling);       // caso normal
+    } else if (nextSibling === null) {
+        tasksContainer.appendChild(wrapper);                     // era la última
+    } else {
+        // el vecino ya no existe: usar el índice original acotado
+        const ref = tasksContainer.children[index] ?? null;
+        tasksContainer.insertBefore(wrapper, ref);
+    }
+
+    persistFromDOM(tasksContainer);
+    return 'restored';
 };
