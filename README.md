@@ -18,11 +18,12 @@ Una aplicación web simple y elegante para gestionar tus tareas diarias. La inte
 - **Arrastrar y Soltar (Drag & Drop)**: Reorganiza manualmente el orden de tus tareas arrastrándolas.
 - **Exportar e Importar**: Guarda una copia de seguridad de tus tareas en un archivo JSON o impórtalas en otro dispositivo.
 - **Eliminar Tareas**: Borra tareas o subtareas que ya no necesites.
+- **Deshacer borrado**: Tras eliminar una tarea aparece un aviso de 5 segundos con un botón para recuperarla en su posición original. Si no lo pulsas, el borrado queda definitivo. Aplica solo a tareas, no a subtareas.
 - **Ordenar Tareas**: Reorganiza automáticamente la lista para mostrar las tareas pendientes al principio.
 - **Persistencia de Datos**: Todo se guarda automáticamente en el `localStorage` de tu navegador.
 - **Diseño Moderno y Adaptativo**: Interfaz limpia con una paleta de colores moderna y totalmente responsive.
 - **Tema Claro y Oscuro**: La apariencia se adapta automáticamente a las preferencias de tu sistema.
-- **Soporte Multilenguaje**: Disponible en español e inglés según la configuración de tu navegador.
+- **Soporte Multilenguaje**: Disponible en español, inglés y portugués según la configuración de tu navegador.
 - **Seguridad**: Sanitización de entradas con `DOMPurify` para prevenir ataques XSS.
 - **Opción de Donar**: Soporte para donaciones en criptomonedas integrado en la interfaz.
 
