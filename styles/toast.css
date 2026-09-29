@@ -28,8 +28,50 @@
     transform: translate(-50%, 0);
 }
 
-#updateReloadButton {
+#updateReloadButton,
+#undoButton {
     background-color: var(--primary);
     color: #fff;
     white-space: nowrap;
+}
+
+/* ── Toast de deshacer ───────────────────────────────── */
+.toast--undo {
+    bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    overflow: hidden;              /* recorta la barra de progreso al borde redondeado */
+}
+
+/* Si el aviso de actualización está visible, apilar encima de él */
+#updateToast.toast--visible ~ #undoToast {
+    bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Al ocultarse, sacarlo también del árbol de accesibilidad */
+.toast--undo[hidden] {
+    visibility: hidden;
+    transition: transform 0.3s ease, visibility 0s linear 0.3s;
+}
+
+/* Barra de cuenta regresiva */
+.toast-progress {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 3px;
+    width: 100%;
+    background-color: var(--primary);
+    transform-origin: left center;
+}
+
+.toast-progress.is-running {
+    animation: toast-countdown var(--undo-duration, 5000ms) linear forwards;
+}
+
+@keyframes toast-countdown {
+    from { transform: scaleX(1); }
+    to   { transform: scaleX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .toast { transition: none; }
 }

@@ -5,3 +5,7 @@ blob-report/
 .playwright/
 coverage/
 *.log
+PWApp.md
+Notice.md
+Undo.md
+Solucion.md

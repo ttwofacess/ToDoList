@@ -4,6 +4,29 @@
 
 import { test, expect } from '@playwright/test';
 import { gotoApp, addTask, readStorage, seedStorage } from '../helpers/e2e.js';
+import fs   from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+// El nombre de la caché lo define sw.js (CACHE_VERSION). Se lee de ahí en vez
+// de hardcodearlo: si no, cada bump de versión rompe estos tests.
+const ROOT    = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const SW_SRC  = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
+const VERSION = SW_SRC.match(/const CACHE_VERSION\s*=\s*'([^']+)'/)?.[1];
+const CACHE   = `todolist-${VERSION}`;
+if (!VERSION) throw new Error('No se pudo leer CACHE_VERSION de sw.js');
+
+/** Espera a que el SW haya precacheado el app shell en la caché vigente. */
+const waitForPrecache = async (page, min = 20) => {
+  await page.waitForFunction(
+    async ([cache, min]) => {
+      if (!(await caches.keys()).includes(cache)) return false;
+      return (await (await caches.open(cache)).keys()).length > min;
+    },
+    [CACHE, min],
+    { timeout: 15000 },
+  );
+};
 
 /** Espera a que el Service Worker esté activo y controlando la página. */
 const waitForServiceWorker = async (page) => {
@@ -95,22 +118,15 @@ test.describe('Service Worker', () => {
     expect(state.scope).toMatch(/^http:\/\/localhost:\d+\/$/);
   });
 
-  test('precachea el app shell en la caché "todolist-v1"', async ({ page }) => {
+  test(`precachea el app shell en la caché "${CACHE}"`, async ({ page }) => {
     await gotoApp(page);
     await waitForServiceWorker(page);
+    await waitForPrecache(page);
 
-    // Espera a que termine el precacheo
-    await page.waitForFunction(async () => {
-      const keys = await caches.keys();
-      if (!keys.includes('todolist-v1')) return false;
-      const cache = await caches.open('todolist-v1');
-      return (await cache.keys()).length > 20;
-    }, null, { timeout: 15000 });
-
-    const cached = await page.evaluate(async () => {
-      const cache = await caches.open('todolist-v1');
-      return (await cache.keys()).map(r => new URL(r.url).pathname);
-    });
+    const cached = await page.evaluate(async (cache) => {
+      const c = await caches.open(cache);
+      return (await c.keys()).map(r => new URL(r.url).pathname);
+    }, CACHE);
 
     // El shell esencial debe estar precacheado.
     // OJO: sw.js NO se precachea a sí mismo (correcto: el SW gestiona su
@@ -132,20 +148,13 @@ test.describe('Service Worker', () => {
   test('no duplica entradas en la caché', async ({ page }) => {
     await gotoApp(page);
     await waitForServiceWorker(page);
-    await page.waitForFunction(async () => {
-      const keys = await caches.keys();
-      if (!keys.includes('todolist-v1')) return false;
-      return (await (await caches.open('todolist-v1')).keys()).length > 0;
-    }, null, { timeout: 15000 });
+    await waitForPrecache(page, 0);
 
-    const unique = await page.evaluate(async () => {
-      const cache = await caches.open('todolist-v1');
-      return new Set((await cache.keys()).map(r => r.url)).size;
-    });
-    const total = await page.evaluate(async () => {
-      const cache = await caches.open('todolist-v1');
-      return (await cache.keys()).length;
-    });
+    const { unique, total } = await page.evaluate(async (cache) => {
+      const c = await caches.open(cache);
+      const reqs = await c.keys();
+      return { unique: new Set(reqs.map(r => r.url)).size, total: reqs.length };
+    }, CACHE);
 
     expect(total).toBe(unique);
   });
@@ -154,37 +163,53 @@ test.describe('Service Worker', () => {
     await gotoApp(page);
     await waitForServiceWorker(page);
 
-    // Inyecta una caché vieja de la app y fuerza una re-activación
-    await page.evaluate(async () => {
-      const old = await caches.open('todolist-v0');
+    // CACHÉ OBSOLETA: el nombre deriva de CACHE_VERSION + sufijo, así que
+    // nunca colisiona con la vigente. El SW la borra porque empieza por
+    // 'todolist-' y no es la caché actual.
+    const STALE = `${CACHE}-obsoleta`;
+    await page.evaluate(async (stale) => {
+      const old = await caches.open(stale);
       await old.put('/old', new Response('obsoleto'));
-      // Fuerza al SW a reinstalarse
-      const reg = await navigator.serviceWorker.getRegistration();
-      await reg.update();
+    }, STALE);
+    expect(await page.evaluate((s) => caches.keys().then(k => k.includes(s)), STALE)).toBe(true);
+
+    // Forzamos una re-activación real. sw.js NO hace skipWaiting() en
+    // 'install' (a propósito: el nuevo SW espera a que el usuario confirme),
+    // así que hay que activarlo a mano como hace el botón "Recargar".
+    await page.evaluate(async () => {
+      const reg = await navigator.serviceWorker.register(`./sw.js?bust=${Date.now()}`);
+      await new Promise((resolve) => {
+        const tick = setInterval(() => {
+          if (!reg.waiting) return;
+          clearInterval(tick);
+          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+          resolve();
+        }, 50);
+      });
+      await new Promise((resolve) => {
+        navigator.serviceWorker.addEventListener('controllerchange', resolve, { once: true });
+      });
     });
 
-    await page.waitForFunction(async () => {
-      const keys = await caches.keys();
-      return !keys.includes('todolist-v0');
-    }, null, { timeout: 15000 }).catch(() => {
-      // Si el SW no se reinstala (ya está actualizado), sólo verificamos el estado
-    });
+    await expect.poll(
+      () => page.evaluate((s) => caches.keys().then(k => k.includes(s)), STALE),
+      { timeout: 15000 },
+    ).toBe(false);
 
     const keys = await page.evaluate(() => caches.keys());
-    expect(keys).toContain('todolist-v1');
+    expect(keys).toContain(CACHE);
+    expect(keys).not.toContain(STALE);
   });
 
   test('no cachea peticiones de otros orígenes', async ({ page }) => {
     await gotoApp(page);
     await waitForServiceWorker(page);
-    await page.waitForFunction(async () =>
-      (await caches.keys()).includes('todolist-v1'), null, { timeout: 15000 });
+    await waitForPrecache(page, 0);
 
-    const hasForeign = await page.evaluate(async () => {
-      const cache = await caches.open('todolist-v1');
-      const keys = await cache.keys();
-      return keys.some(r => !r.url.startsWith(location.origin));
-    });
+    const hasForeign = await page.evaluate(async (cache) => {
+      const c = await caches.open(cache);
+      return (await c.keys()).some(r => !r.url.startsWith(location.origin));
+    }, CACHE);
 
     expect(hasForeign).toBe(false);
   });
@@ -194,11 +219,7 @@ test.describe('Modo offline', () => {
   test('la app carga sin red desde la caché del Service Worker', async ({ page, context }) => {
     await gotoApp(page);
     await waitForServiceWorker(page);
-    await page.waitForFunction(async () => {
-      const keys = await caches.keys();
-      return keys.includes('todolist-v1') &&
-        (await (await caches.open('todolist-v1')).keys()).length > 20;
-    }, null, { timeout: 15000 });
+    await waitForPrecache(page);
 
     // Cortar la red
     await context.setOffline(true);
@@ -215,11 +236,7 @@ test.describe('Modo offline', () => {
   test('se pueden crear y leer tareas sin red', async ({ page, context }) => {
     await gotoApp(page);
     await waitForServiceWorker(page);
-    await page.waitForFunction(async () => {
-      const keys = await caches.keys();
-      return keys.includes('todolist-v1') &&
-        (await (await caches.open('todolist-v1')).keys()).length > 20;
-    }, null, { timeout: 15000 });
+    await waitForPrecache(page);
 
     await context.setOffline(true);
     await page.reload();
@@ -238,11 +255,7 @@ test.describe('Modo offline', () => {
   test('navegar a una ruta sin caché cae al index.html (fallback SPA)', async ({ page, context }) => {
     await gotoApp(page);
     await waitForServiceWorker(page);
-    await page.waitForFunction(async () => {
-      const keys = await caches.keys();
-      return keys.includes('todolist-v1') &&
-        (await (await caches.open('todolist-v1')).keys()).length > 20;
-    }, null, { timeout: 15000 });
+    await waitForPrecache(page);
 
     await context.setOffline(true);
 

@@ -11,6 +11,9 @@ import { attachDragListeners }              from './dragDrop.js';
 
 export const VALID_PRIORITIES = ['high', 'medium', 'low'];
 
+/** Límite de tareas simultáneas (aplica también al deshacer de un borrado). */
+export const MAX_TASKS = 100;
+
 let tasksContainer = null;
 let onOpenActionModal = null;
 let onCloseNewTaskModal = null; // Inyectado para evitar ciclos
@@ -43,7 +46,7 @@ export const addNewTask = (event) => {
 
     if (!value.trim())                    { alert(t('alertEmptyTask'));    return; }
     if (value.length > 500)               { alert(t('alertTaskTooLong')); return; }
-    if (tasksContainer.childNodes.length >= 100) { alert(t('alertMaxTasks')); return; }
+    if (tasksContainer.childNodes.length >= MAX_TASKS) { alert(t('alertMaxTasks')); return; }
 
     if (dateValue && isDateInPast(isoStringToDate(dateValue))) {
         alert(t('alertPastDate'));

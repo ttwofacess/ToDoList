@@ -6,6 +6,7 @@
 import { t }                         from './i18n.js';
 import { readTasks, writeTasks }     from './storage.js';
 import { loadTasks, highlightDueTasks } from './taskManager.js';
+import { dismissUndo }                from './undoManager.js';
 
 let tasksContainer = null;
 
@@ -41,6 +42,7 @@ export const importTasks = (event) => {
             const tasks = JSON.parse(e.target.result);
             if (!confirm(t('confirmImport'))) return;
 
+            dismissUndo();             // evita reinsertar una tarea vieja sobre el import
             writeTasks(tasks);
             tasksContainer.innerHTML = '';
             loadTasks();

@@ -8,6 +8,7 @@ import { formatDisplayDate, isoStringToDate,
 import { persistFromDOM }                  from './storage.js';
 import { changeTaskState, deleteTask }     from './taskActions.js';
 import { toggleRecurrence, showSubtaskInput } from './taskRenderer.js';
+import { showUndoToast }                     from './undoManager.js';
 
 let tasksContainer         = null;
 let currentEditingWrapper  = null;
@@ -182,8 +183,10 @@ export const initModals = () => {
     
     document.getElementById('actionDelete').onclick = () => {
         if (currentActionWrapper) {
-            deleteTask(currentActionWrapper, tasksContainer);
-            closeActionModal();
+            const wrapper = currentActionWrapper;   // capturar antes de cerrar (luego queda en null)
+            closeActionModal();                     // 1) devuelve las subtareas al wrapper
+            const snapshot = deleteTask(wrapper, tasksContainer); // 2) borra y persiste
+            showUndoToast(snapshot);                // 3) toast + temporizador de 5 s
         }
     };
 
