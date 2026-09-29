@@ -45,9 +45,21 @@ const watchRegistration = (registration) => {
     });
 };
 
-/** Recargar automáticamente una única vez cuando el nuevo SW toma el control. */
-const watchControllerChange = () => {
+/**
+ * Recargar automáticamente una única vez cuando un NUEVO SW toma el control.
+ *
+ * OJO: `controllerchange` también se dispara en la PRIMERA visita, cuando el
+ * SW recién instalado hace `clients.claim()`. Ahí no hay nada que recargar: la
+ * navegación inicial la sirvió la red, así que la página ya tiene los archivos
+ * actuales. Recargar ahí solo wastea una descarga y puede abortar la
+ * navegación o el click que el usuario tenía en curso.
+ *
+ * Por eso guardamos si la página ya estaba controlada ANTES de que el evento
+ * ocurriera: sólo entonces el SW que toma el relevo es una versión nueva.
+ */
+const watchControllerChange = (wasControlledAtLoad) => {
     navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!wasControlledAtLoad) return;  // primer control: no hay versión nueva
         if (refreshing) return;
         refreshing = true;
         window.location.reload();
@@ -70,10 +82,14 @@ const pollForUpdates = (registration) => {
 export const initUpdateNotifier = () => {
     if (!('serviceWorker' in navigator)) return;
 
+    // ¿La página ya estaba controlada por un SW al cargar? Si no, el
+    // próximo `controllerchange` será el claim inicial y no debe recargar.
+    const wasControlledAtLoad = !!navigator.serviceWorker.controller;
+
     navigator.serviceWorker.ready.then((registration) => {
         watchRegistration(registration);
         pollForUpdates(registration);
     });
 
-    watchControllerChange();
+    watchControllerChange(wasControlledAtLoad);
 };
