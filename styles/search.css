@@ -51,6 +51,17 @@
 }
 .search-empty[hidden] { display: none; }
 
+/* Pista de por qué coincide: la subtarea que coincidió. El texto viene de
+   attr(), o sea texto plano — sin riesgo de XSS. */
+.task-wrapper[data-search-hint]::after {
+    content: attr(data-search-hint);
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.75rem;
+    color: var(--maintxt);
+    opacity: 0.7;
+    padding: 4px 15px 0;
+}
+
 .visually-hidden {
     position: absolute;
     width: 1px; height: 1px;

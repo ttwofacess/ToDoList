@@ -63,6 +63,17 @@ export const applySearch = () => {
             || matchesQuery(getSearchableText(wrapper), tokens);
         wrapper.classList.toggle('search-hidden', !keep);
         if (keep) matches++;
+
+        // Pista: si el título NO contiene todos los términos, mostrar la primera subtarea que coincida
+        delete wrapper.dataset.searchHint;
+        if (active && keep && !isModalActive(wrapper)) {
+            const title = normalize(wrapper.querySelector('.task-text')?.textContent);
+            if (!matchesQuery(title, tokens)) {
+                const hit = [...wrapper.querySelectorAll('.subtask-text')]
+                    .find((el) => tokens.some((tok) => normalize(el.textContent).includes(tok)));
+                if (hit) wrapper.dataset.searchHint = `↳ ${hit.textContent}`;
+            }
+        }
     });
 
     tasksContainer.classList.toggle('search-active', active);
