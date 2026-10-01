@@ -93,7 +93,7 @@ export const initSearch = (container) => {
     input    = document.getElementById('taskSearch');
     clearBtn = document.getElementById('taskSearchClear');
     emptyEl  = document.getElementById('searchEmpty');
-    if (!input) return;
+    if (!input || !container) return;
 
     // Debe llamarse DESPUÉS de detectLanguage() para que t() ya use el idioma correcto
     if (clearBtn) {

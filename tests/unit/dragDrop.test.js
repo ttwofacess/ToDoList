@@ -72,6 +72,17 @@ describe('dragDrop', () => {
       task.dispatchEvent(new window.Event('dragstart'));
       expect(readTasks()).toEqual([]);
     });
+
+    it('con búsqueda activa cancela el dragstart y no añade .dragging', () => {
+      const task = addTask('A');
+      container.classList.add('search-active');
+      const ev = new window.Event('dragstart', { cancelable: true });
+
+      task.dispatchEvent(ev);
+
+      expect(ev.defaultPrevented).toBe(true);
+      expect(task.classList.contains('dragging')).toBe(false);
+    });
   });
 
   describe('initDragDrop() — dragover', () => {
