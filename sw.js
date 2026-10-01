@@ -2,7 +2,7 @@
 // sw.js — Service Worker: caché offline del app shell
 // ============================================================
 
-const CACHE_VERSION = 'v3';                 // ← subir en cada deploy con cambios relevantes
+const CACHE_VERSION = 'v4';                 // ← subir en cada deploy con cambios relevantes
 const CACHE_NAME = `todolist-${CACHE_VERSION}`;
 
 const APP_SHELL = [
@@ -24,6 +24,7 @@ const APP_SHELL = [
   './styles/edit-modal.css',
   './styles/donate-modal.css',
   './styles/filter.css',
+  './styles/search.css',
   './styles/animations.css',
   './styles/toast.css',
 
@@ -41,6 +42,7 @@ const APP_SHELL = [
   './js/pwa.js',
   './js/updateNotifier.js',
   './js/undoManager.js',
+  './js/search.js',
   './assets/vendor/purify.min.js',
 
   // Fuentes

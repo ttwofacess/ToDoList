@@ -14,6 +14,7 @@ import { initImportExport, exportTasks,
 import { initPWA }                                 from './pwa.js';
 import { initUpdateNotifier }                       from './updateNotifier.js';
 import { initUndoManager }                          from './undoManager.js';
+import { initSearch }                                from './search.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const tasksContainer = document.getElementById('tasksContainer');
@@ -32,6 +33,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── 3. Cargar y decorar tareas ───────────────────────────
     loadTasks();
     highlightDueTasks();
+
+    // ── 3-bis. Búsqueda (después de detectLanguage para t() correcto) ──
+    initSearch(tasksContainer);
 
     // ── 4. Establecer fecha mínima en los date pickers ───────
     const minDate = new Date().toISOString().split('T')[0];

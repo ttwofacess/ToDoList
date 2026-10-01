@@ -48,6 +48,10 @@ export const translations = {
         installIosHint: 'To install: tap the Share button, then "Add to Home Screen".',
         updateAvailableMessage: 'A new version is available.',
         reloadButton: 'Reload',
+        searchLabel: 'Search',
+        searchPlaceholder: 'Search tasks and subtasks…',
+        searchClear: 'Clear search',
+        searchNoResults: 'No tasks match your search.',
     },
     es: {
         pageTitle: 'Lista de Tareas',
@@ -94,6 +98,10 @@ export const translations = {
         installIosHint: 'Para instalar: tocá el botón Compartir y luego "Añadir a pantalla de inicio".',
         updateAvailableMessage: 'Hay una nueva versión disponible.',
         reloadButton: 'Recargar',
+        searchLabel: 'Buscar',
+        searchPlaceholder: 'Buscar en tareas y subtareas…',
+        searchClear: 'Borrar búsqueda',
+        searchNoResults: 'Ninguna tarea coincide con tu búsqueda.',
     },
     pt: {
         pageTitle: 'Lista de Tarefas',
@@ -140,6 +148,10 @@ export const translations = {
         installIosHint: 'Para instalar: toque no botão Compartilhar e depois em "Adicionar à Tela de Início".',
         updateAvailableMessage: 'Há uma nova versão disponível.',
         reloadButton: 'Recarregar',
+        searchLabel: 'Buscar',
+        searchPlaceholder: 'Buscar em tarefas e subtarefas…',
+        searchClear: 'Limpar busca',
+        searchNoResults: 'Nenhuma tarefa corresponde à sua busca.',
     }
 };
 

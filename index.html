@@ -30,6 +30,7 @@
     <link rel="stylesheet" href="styles/edit-modal.css">
     <link rel="stylesheet" href="styles/donate-modal.css">
     <link rel="stylesheet" href="styles/filter.css">
+    <link rel="stylesheet" href="styles/search.css">
     <link rel="stylesheet" href="styles/animations.css">
     <link rel="stylesheet" href="styles/toast.css">
     <script src="./assets/vendor/purify.min.js"></script>
@@ -62,6 +63,18 @@
             <input type="file" id="importInput" accept=".json" style="display: none;">
             <button type="button" id="installButton" class="actionButton roundBorder" data-i18n-key="installButton" hidden>Install</button>
         </div>
+        <div class="search-wrapper" role="search">
+            <label for="taskSearch" class="visually-hidden" data-i18n-key="searchLabel">Search</label>
+            <input type="search" id="taskSearch" class="roundBorder"
+                   placeholder="Search tasks and subtasks…"
+                   data-i18n-key="searchPlaceholder"
+                   autocomplete="off" spellcheck="false" maxlength="100" enterkeyhint="search">
+            <button type="button" id="taskSearchClear" class="search-clear" hidden>
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <p id="searchEmpty" class="search-empty" role="status" aria-live="polite"
+           data-i18n-key="searchNoResults" hidden>No tasks match your search.</p>
         <div id="tasksContainer"></div>
         <div class="donate-wrapper">
             <button type="button" id="donateButton" class="roundBorder" data-i18n-key="donateButton">Donate</button>
