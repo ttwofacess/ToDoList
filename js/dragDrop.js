@@ -31,7 +31,15 @@ const getDragAfterElement = (container, y) => {
  * @param {HTMLElement} tasksContainer
  */
 export const attachDragListeners = (taskWrapper, tasksContainer) => {
-    taskWrapper.addEventListener('dragstart', () => taskWrapper.classList.add('dragging'));
+    taskWrapper.addEventListener('dragstart', (e) => {
+        // Con una búsqueda activa la lista está parcialmente oculta:
+        // reordenar sería ambiguo (y getBoundingClientRect de un display:none da 0).
+        if (tasksContainer.classList.contains('search-active')) {
+            e.preventDefault();
+            return;
+        }
+        taskWrapper.classList.add('dragging');
+    });
     taskWrapper.addEventListener('dragend', () => {
         taskWrapper.classList.remove('dragging');
         persistFromDOM(tasksContainer);
