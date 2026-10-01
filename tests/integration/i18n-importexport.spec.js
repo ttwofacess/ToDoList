@@ -128,7 +128,10 @@ test.describe('i18n — coherencia con el resto de la app', () => {
       await page.waitForFunction(() => document.getElementById('dateYear')?.textContent?.length > 0);
 
       await addTask(page, { text: 'Con fecha', date: '2030-06-15' });
-      expect(await page.textContent('.task-date'), `locale ${locale}`).toBe(expected);
+      // Con expect() y no textContent(): el render ocurre en el submit, pero
+      // leer el DOM en el acto es una carrera que falla bajo carga (al correr
+      // también el proyecto mobile-chrome hay el doble de tests en paralelo).
+      await expect(page.locator('.task-date'), `locale ${locale}`).toHaveText(expected);
       await ctx.close();
     }
   });
