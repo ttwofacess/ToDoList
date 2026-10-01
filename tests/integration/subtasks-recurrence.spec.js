@@ -212,6 +212,18 @@ test.describe('Recurrencia', () => {
 test.describe('Reset de tareas recurrentes', () => {
   const DAY = 86400000;
 
+  /**
+   * Timestamp del día 1 del mes actual a las 12:00 UTC.
+   * Necesario para decir "completada ESTE mes" sin depender del día del mes:
+   * con `Date.now() - 2 * DAY` el 1 y el 2 de cada mes la fecha cae en el mes
+   * anterior y la mensual sí que toca resetear.
+   * Se construye en UTC porque playwright.config.js fija timezoneId: 'UTC'.
+   */
+  const firstOfThisMonth = () => {
+    const now = new Date();
+    return String(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 12));
+  };
+
   test('una diaria completada ayer se resetea al cargar', async ({ page }) => {
     const lastCompleted = String(Date.now() - DAY);
     await seedStorage(page, [{
@@ -258,7 +270,7 @@ test.describe('Reset de tareas recurrentes', () => {
   test('una mensual completada este mes NO se resetea', async ({ page }) => {
     await seedStorage(page, [{
       text: 'Mensual al día', done: true, date: '01/01/2020', priority: 'high',
-      subtasks: [], recurrence: 'monthly', lastCompleted: String(Date.now() - 2 * DAY),
+      subtasks: [], recurrence: 'monthly', lastCompleted: firstOfThisMonth(),
       createdAt: String(Date.now() - 20 * DAY),
     }]);
     await page.reload();
