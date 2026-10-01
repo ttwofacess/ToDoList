@@ -15,6 +15,7 @@ Una aplicación web simple y elegante para gestionar tus tareas diarias. La inte
 - **Fecha de Vencimiento**: Asigna una fecha a tus tareas para un mejor seguimiento.
 - **Tareas Pendientes de Hoy**: Las tareas que vencen hoy se resaltan con una animación de pulso.
 - **Modo Enfoque**: Filtra la lista para mostrar solo las tareas importantes de hoy.
+- **Búsqueda por Texto**: Filtra la lista en vivo por el texto de la tarea y el de sus subtareas, sin distinguir mayúsculas ni tildes. Se pueden escribir varias palabras a la vez (deben coincidir todas, aunque estén repartidas entre el título y las subtareas) y se indica qué subtarea hizo coincidir la tarea. Se combina con el Modo Enfoque: sólo se ven las tareas que cumplen ambos filtros. La búsqueda no se guarda al cerrar la app y, mientras está activa, el arrastre de tareas queda desactivado.
 - **Arrastrar y Soltar (Drag & Drop)**: Reorganiza manualmente el orden de tus tareas arrastrándolas.
 - **Exportar e Importar**: Guarda una copia de seguridad de tus tareas en un archivo JSON o impórtalas en otro dispositivo.
 - **Eliminar Tareas**: Borra tareas o subtareas que ya no necesites.
