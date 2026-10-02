@@ -104,6 +104,18 @@ test.describe('Eliminar una tarea', () => {
 });
 
 test.describe('Deshacer', () => {
+  // El aviso de deshacer dura 5 s. En WebKit el setup de estos tests tarda
+  // más que eso, así que sin congelar el reloj el aviso expira antes de
+  // llegar al click y #undoButton llega invisible (y el click se queda 30 s
+  // esperando a que aparezca). install() solo NO basta: el reloj sigue
+  // avanzando con el tiempo real, hay que pausarlo con pauseAt().
+  // El temporizador en sí lo prueba el describe 'El aviso expira a los 5
+  // segundos', que usa fastForward() sobre este mismo reloj.
+  test.beforeEach(async ({ page }) => {
+    await page.clock.install();
+    await page.clock.pauseAt(Date.now());
+  });
+
   test('el botón restaura la tarea y la vuelve a persistir', async ({ page }) => {
     await addTask(page, { text: 'Vuelve' });
 
@@ -202,6 +214,13 @@ test.describe('Deshacer', () => {
 });
 
 test.describe('Varios borrados seguidos', () => {
+  // Mismo motivo que en el describe 'Deshacer': sin pausar el reloj el aviso
+  // expira durante el setup en WebKit.
+  test.beforeEach(async ({ page }) => {
+    await page.clock.install();
+    await page.clock.pauseAt(Date.now());
+  });
+
   test('el aviso sólo deshace el último borrado', async ({ page }) => {
     await addTask(page, { text: 'A' });
     await addTask(page, { text: 'B' });
