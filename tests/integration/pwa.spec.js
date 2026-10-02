@@ -233,7 +233,16 @@ test.describe('Service Worker', () => {
 });
 
 test.describe('Modo offline', () => {
-  test('la app carga sin red desde la caché del Service Worker', async ({ page, context }) => {
+  // Playwright no permite cortar la red en WebKit: con la página ya cargada,
+  // `context.setOffline(true)` + reload lanza "WebKit encountered an internal
+  // error", y la alternativa de abortar cada request da "Blocked by Web
+  // Inspector". No es un fallo de la app: el resto del Service Worker
+  // (registro, precache, borrado de cachés) sí funciona en WebKit y se prueba
+  // más arriba. La capacidad offline se cubre en chromium y mobile-chrome.
+  const OFFLINE_UNSUPPORTED = 'no se puede emular offline en WebKit';
+
+  test('la app carga sin red desde la caché del Service Worker', async ({ page, context, browserName }) => {
+    test.skip(browserName === 'webkit', OFFLINE_UNSUPPORTED);
     await gotoApp(page);
     await waitForServiceWorker(page);
     await waitForPrecache(page);
@@ -250,7 +259,8 @@ test.describe('Modo offline', () => {
     await context.setOffline(false);
   });
 
-  test('se pueden crear y leer tareas sin red', async ({ page, context }) => {
+  test('se pueden crear y leer tareas sin red', async ({ page, context, browserName }) => {
+    test.skip(browserName === 'webkit', OFFLINE_UNSUPPORTED);
     await gotoApp(page);
     await waitForServiceWorker(page);
     await waitForPrecache(page);
@@ -269,7 +279,8 @@ test.describe('Modo offline', () => {
     await context.setOffline(false);
   });
 
-  test('navegar a una ruta sin caché cae al index.html (fallback SPA)', async ({ page, context }) => {
+  test('navegar a una ruta sin caché cae al index.html (fallback SPA)', async ({ page, context, browserName }) => {
+    test.skip(browserName === 'webkit', OFFLINE_UNSUPPORTED);
     await gotoApp(page);
     await waitForServiceWorker(page);
     await waitForPrecache(page);
@@ -283,7 +294,8 @@ test.describe('Modo offline', () => {
     await context.setOffline(false);
   });
 
-  test('las tareas guardadas sobreviven a un ciclo online → offline → online', async ({ page, context }) => {
+  test('las tareas guardadas sobreviven a un ciclo online → offline → online', async ({ page, context, browserName }) => {
+    test.skip(browserName === 'webkit', OFFLINE_UNSUPPORTED);
     await gotoApp(page);
     await seedStorage(page, [{
       text: 'Persistente offline', done: false, date: '01/01/2030', priority: 'high',
