@@ -54,12 +54,28 @@ const watchRegistration = (registration) => {
  * actuales. Recargar ahí solo wastea una descarga y puede abortar la
  * navegación o el click que el usuario tenía en curso.
  *
- * Por eso guardamos si la página ya estaba controlada ANTES de que el evento
- * ocurriera: sólo entonces el SW que toma el relevo es una versión nueva.
+ * Ese claim inicial es SIEMPRE el primer `controllerchange` de la página, y solo
+ * ocurre si al cargar no había ningún SW controlando. Por eso no vale con mirar
+ * `wasControlledAtLoad`: es una foto del instante de carga y se queda obsoleta
+ * en cuanto el SW reclama. Si nos limitáramos a comprobarla, una actualización
+ * que llegase más tarde en esa misma sesión (p. ej. el usuario vuelve a la
+ * pestaña y pollForUpdates encuentra un sw.js nuevo) actualizaba el SW pero NO
+ * recargaba la página: el botón "Recargar" no hacía nada y el usuario seguía
+ * con el código viejo hasta que recargara a mano.
+ *
+ * Con el contador, en cambio, sólo se ignora ese primer evento; cualquier
+ * `controllerchange` posterior significa que un SW distinto al que ya controlaba
+ * acaba de tomar el relevo, y eso sí es una versión nueva.
  */
 const watchControllerChange = (wasControlledAtLoad) => {
+    let changes = 0;
+
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!wasControlledAtLoad) return;  // primer control: no hay versión nueva
+        changes++;
+
+        // Claim inicial del SW recién instalado: no hay versión nueva.
+        if (!wasControlledAtLoad && changes === 1) return;
+
         if (refreshing) return;
         refreshing = true;
         window.location.reload();

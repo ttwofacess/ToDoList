@@ -28,6 +28,24 @@ const waitForPrecache = async (page, min = 20) => {
   );
 };
 
+/**
+ * ¿Existe una caché con ese nombre?
+ *
+ * Devuelve `undefined` mientras la página se está recargando: al activarse el
+ * SW nuevo, updateNotifier.js recarga la página (para quien ya tenía la app, o
+ * desde el fix de la misma sesión que la primera visita, es una actualización
+ * real) y cualquier `page.evaluate` que caiga en plena navegación falla con
+ * "Execution context was destroyed". Devolver undefined hace que expect.poll
+ * reintente sobre la página ya asentada.
+ */
+const cacheExists = async (page, name) => {
+  try {
+    return await page.evaluate((n) => caches.keys().then((k) => k.includes(n)), name);
+  } catch {
+    return undefined;
+  }
+};
+
 /** Espera a que el Service Worker esté activo y controlando la página. */
 const waitForServiceWorker = async (page) => {
   await page.waitForFunction(
@@ -171,11 +189,14 @@ test.describe('Service Worker', () => {
       const old = await caches.open(stale);
       await old.put('/old', new Response('obsoleto'));
     }, STALE);
-    expect(await page.evaluate((s) => caches.keys().then(k => k.includes(s)), STALE)).toBe(true);
+    expect(await cacheExists(page, STALE)).toBe(true);
 
     // Forzamos una re-activación real. sw.js NO hace skipWaiting() en
     // 'install' (a propósito: el nuevo SW espera a que el usuario confirme),
     // así que hay que activarlo a mano como hace el botón "Recargar".
+    // Esto hace que el SW nuevo tome el control y, con ello, que la app se
+    // recargue: es el comportamiento correcto y por eso cacheExists() tolera
+    // la navegación en curso.
     await page.evaluate(async () => {
       const reg = await navigator.serviceWorker.register(`./sw.js?bust=${Date.now()}`);
       await new Promise((resolve) => {
@@ -191,14 +212,10 @@ test.describe('Service Worker', () => {
       });
     });
 
-    await expect.poll(
-      () => page.evaluate((s) => caches.keys().then(k => k.includes(s)), STALE),
-      { timeout: 15000 },
-    ).toBe(false);
+    await expect.poll(() => cacheExists(page, STALE), { timeout: 15000 }).toBe(false);
 
-    const keys = await page.evaluate(() => caches.keys());
-    expect(keys).toContain(CACHE);
-    expect(keys).not.toContain(STALE);
+    await expect.poll(() => cacheExists(page, CACHE), { timeout: 15000 }).toBe(true);
+    expect(await cacheExists(page, STALE)).toBe(false);
   });
 
   test('no cachea peticiones de otros orígenes', async ({ page }) => {
