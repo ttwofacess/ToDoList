@@ -5,7 +5,7 @@
 // ============================================================
 
 import { test, expect } from '@playwright/test';
-import { gotoApp } from '../helpers/e2e.js';
+import { gotoApp, addTask } from '../helpers/e2e.js';
 
 /**
  * Espera a que el SW esté activo y controlando la página.
@@ -258,17 +258,33 @@ test.describe('Actualización con la app ya instalada', () => {
     expect(stored[0].subtasks).toHaveLength(1);
   });
 
-  test('el aviso desaparece tras recargar con la versión nueva', async ({ page }) => {
+  test('tras recargar, la versión nueva es la que está activa y sirviendo', async ({ page }) => {
     await gotoAppAsReturningUser(page);
     await triggerUpdate(page);
     await page.click('#updateReloadButton');
     await waitForAppReady(page);
 
-    expect(await toastOnScreenPx(page)).toBe(0);
-    expect(await toastVisibility(page)).toBe('hidden');
-    const waiting = await page.evaluate(async () =>
-      (await navigator.serviceWorker.getRegistration())?.waiting ?? null);
-    expect(waiting).toBeNull();
+    // OJO: aquí NO se comprueba que el aviso siga oculto, porque no es estable.
+    // Al recargar, pwa.js vuelve a registrar './sw.js', que es una URL distinta
+    // de la activa './sw.js?bust=…', así que el navegador lo instala y lo deja
+    // en 'waiting' → el aviso vuelve a salir. Es un artefacto de cómo este test
+    // simula la versión nueva (en producción la URL siempre es './sw.js'), y la
+    // app hace bien en avisar. Se comprobó que ocurre igual en chromium y
+    // webkit; en chromium la aserción original solo pasaba por suerte de timing.
+    // El estado "aviso oculto, 0 px, visibility:hidden" ya lo cubren los tests
+    // de primera visita de arriba.
+    await expect.poll(
+      () => page.evaluate(() => !!navigator.serviceWorker.controller?.scriptURL.includes('bust='))
+        // Tras pulsar "Recargar" la navegación y la lectura compiten: un
+        // evaluate que cae en plena navegación lanza "Execution context was
+        // destroyed". Devolviendo undefined, expect.poll reintenta.
+        .catch(() => undefined),
+      { timeout: 20000 },
+    ).toBe(true);
+
+    // Y la app sigue funcionando con la versión nueva.
+    await addTask(page, { text: 'Tras actualizar' });
+    await expect(page.locator('.task-text')).toHaveText('Tras actualizar');
   });
 });
 
