@@ -4,7 +4,7 @@
 
 import { test, expect } from '@playwright/test';
 import {
-  gotoApp, addTask, taskTexts, readStorage, seedStorage, captureDialogs,
+  gotoApp, addTask, taskTexts, readStorage, seedStorage, captureDialogs, waitForDialog,
 } from '../helpers/e2e.js';
 
 test.beforeEach(async ({ page }) => {
@@ -88,7 +88,8 @@ test.describe('i18n — coherencia con el resto de la app', () => {
       await page.waitForFunction(() => document.getElementById('dateYear')?.textContent?.length > 0);
 
       await addTask(page, { text: '  ' });
-      expect(dialogs[0].message, `locale ${locale}`).toBe(expected);
+      const dialog = await waitForDialog(dialogs);
+      expect(dialog.message, `locale ${locale}`).toBe(expected);
       await ctx.close();
     }
   });
@@ -231,8 +232,9 @@ test.describe('Importar', () => {
       lastCompleted: null, createdAt: '1' }]);
 
     await expect(page.locator('.task-wrapper')).toHaveCount(1);
-    expect(dialogs[0].type).toBe('confirm');
-    expect(dialogs[0].message).toContain('reemplazará');
+    const dialog = await waitForDialog(dialogs);
+    expect(dialog.type).toBe('confirm');
+    expect(dialog.message).toContain('reemplazará');
   });
 
   test('si se cancela la confirmación no se importa nada', async ({ page }) => {
@@ -260,6 +262,7 @@ test.describe('Importar', () => {
 
     await expect(page.locator('.task-wrapper')).toHaveCount(1);
     expect(await taskTexts(page)).toEqual(['Intacta']);
+    await waitForDialog(dialogs);
     expect(dialogs.some(d => d.message.includes('Error al importar'))).toBe(true);
   });
 

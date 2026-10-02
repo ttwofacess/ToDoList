@@ -17,11 +17,17 @@ import {
 const visibleTexts = (page) =>
   page.locator('#tasksContainer .task-wrapper:visible .task-text').allTextContents();
 
-/** Espera a que la app esté estable (el SW puede recargar al tomar el control). */
+/**
+ * Espera a que la app haya pintado.
+ *
+ * Antes esperaba además a `navigator.serviceWorker.controller`, por si el SW
+ * recargaba la página al reclamar el control. Ya no hace falta: el claim
+ * inicial no recarga (updateNotifier.js ignora el primer `controllerchange`) y
+ * estos tests no generan ninguna actualización. Se va porque era un punto de
+ * espera que, bajo carga, podía bloquear hasta 15 s y cargar los timeouts.
+ */
 const waitForApp = async (page) => {
   await page.waitForFunction(() => document.getElementById('dateYear')?.textContent?.length > 0);
-  await page.waitForFunction(() => navigator.serviceWorker?.controller != null, null,
-    { timeout: 15000 }).catch(() => {});
 };
 
 /** Siembra tareas y recarga para que loadTasks() las renderice. */
