@@ -271,3 +271,50 @@ test.describe('Actualización con la app ya instalada', () => {
     expect(waiting).toBeNull();
   });
 });
+
+// Este es el grupo que captura la regresión corregida: `wasControlledAtLoad`
+// se leía una sola vez, al cargar. Con la app recién instalada ese flag
+// quedaba en false para el resto de la sesión, así que una actualización
+// posterior (el usuario vuelve a la pestaña, pollForUpdates encuentra un
+// sw.js nuevo y pulsa "Recargar") activaba el SW pero NO recargaba la página:
+// el botón no hacía nada y el usuario se quedaba con el código viejo.
+test.describe('Actualización en la misma sesión que la primera visita', () => {
+  test('el botón Recargar sí recarga aunque el SW se acabara de instalar', async ({ page }) => {
+    await gotoApp(page);                 // primera visita: el SW se instala aquí
+    await waitForController(page);
+    expect(await countLoads(page)).toBe(1);
+
+    await triggerUpdate(page);
+    await toastVisible(page);
+
+    await page.click('#updateReloadButton');
+
+    await waitForNewController(page);
+    await waitForLoadCount(page, 2);    // ← antes se quedaba en 1 y no recargaba
+  });
+
+  test('recarga una sola vez, no en bucle', async ({ page }) => {
+    await gotoApp(page);
+    await waitForController(page);
+    await triggerUpdate(page);
+    await toastVisible(page);
+
+    await page.click('#updateReloadButton');
+    await waitForNewController(page);
+    await waitForLoadCount(page, 2);
+
+    await page.waitForTimeout(2000);
+    expect(await countLoads(page)).toBe(2);
+  });
+
+  test('la primera visita sigue sin recargar por el claim inicial', async ({ page }) => {
+    await gotoApp(page);
+    await waitForController(page);
+
+    // Este es el claim inicial: es lo que el contador tiene que seguir
+    // ignorando. Si se colgara, la app entraría en bucle de recargas.
+    await page.waitForTimeout(2500);
+
+    expect(await countLoads(page)).toBe(1);
+  });
+});
