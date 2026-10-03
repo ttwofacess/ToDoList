@@ -30,6 +30,10 @@
 }
 
 :root {
+    /* La app sigue al tema del sistema, así que los widgets nativos (indicador
+       del date picker, popup del time picker, scrollbars) se adaptan solos con
+       color-scheme en vez de tener que invertir sus iconos a mano. */
+    color-scheme: light dark;
     --bckgrndbdy: #F0F2F5;
     --btnordr: #6C63FF;
     --btnplus: #FF6584;

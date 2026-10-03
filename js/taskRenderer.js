@@ -4,7 +4,7 @@
 // ============================================================
 
 import { t } from './i18n.js';
-import { formatDisplayDate, getTaskEmojis } from './dateUtils.js';
+import { formatDisplayDate, formatDisplayTime, getTaskEmojis, isValidTime } from './dateUtils.js';
 import { persistFromDOM } from './storage.js';
 
 export const VALID_RECURRENCES = ['none', 'daily', 'weekly', 'monthly'];
@@ -125,6 +125,7 @@ export const createTaskElement = (
     lastCompleted  = null,
     createdAt      = null,
     onOpenActions,
+    time           = '',
 ) => {
     const todayStr = formatDisplayDate(new Date());
     const creationTime = createdAt ? Number(createdAt) : Date.now();
@@ -136,6 +137,9 @@ export const createTaskElement = (
     taskWrapper.setAttribute('data-recurrence', recurrence);
     taskWrapper.setAttribute('data-created-at', creationTime);
     if (lastCompleted) taskWrapper.setAttribute('data-last-completed', lastCompleted);
+    // Sólo se guarda el atributo si hay una hora válida: persistFromDOM lo lee
+    // de aquí, igual que data-recurrence.
+    if (isValidTime(time)) taskWrapper.setAttribute('data-time', time);
 
     const task = document.createElement('div');
     task.classList.add('task', 'roundBorder', `priority-${priority}`);
@@ -175,7 +179,14 @@ export const createTaskElement = (
     taskDateEl.classList.add('task-date');
     taskDateEl.textContent = date;
 
-    contentWrapper.append(taskTextWrapper, badge, taskDateEl);
+    // Span siempre presente para que la edición no tenga que crearlo; vacío si
+    // la tarea no tiene hora. Va aparte de .task-date porque ese texto se usa
+    // como clave de comparación (highlightDueTasks, displayDateToIso).
+    const taskTimeEl = document.createElement('span');
+    taskTimeEl.classList.add('task-time');
+    taskTimeEl.textContent = formatDisplayTime(time);
+
+    contentWrapper.append(taskTextWrapper, badge, taskDateEl, taskTimeEl);
 
     const subtasksContainer = document.createElement('div');
     subtasksContainer.classList.add('subtasks-container');

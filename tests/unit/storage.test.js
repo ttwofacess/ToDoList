@@ -111,9 +111,10 @@ describe('storage', () => {
 
     const addTaskToDom = (text, { done = false, priority = 'low', date = '15/06/2025',
                                    recurrence = 'none', lastCompleted = null,
-                                   createdAt = '1700000000000', subtasks = [] } = {}) => {
+                                   createdAt = '1700000000000', subtasks = [],
+                                   time = '' } = {}) => {
       const el = createTaskElement(text, date, priority, subtasks, recurrence,
-                                   lastCompleted, createdAt, () => {});
+                                   lastCompleted, createdAt, () => {}, time);
       if (done) el.querySelector('.task').classList.add('done');
       container.appendChild(el);
       return el;
@@ -172,6 +173,41 @@ describe('storage', () => {
       const [task] = readTasks();
       expect(task.recurrence).toBe('weekly');
       expect(task.lastCompleted).toBe('1750000000000');
+    });
+
+    describe('hora de vencimiento', () => {
+      it('guarda la hora del atributo data-time', () => {
+        addTaskToDom('Con hora', { time: '14:30' });
+        persistFromDOM(container);
+        expect(readTasks()[0].time).toBe('14:30');
+      });
+
+      it('guarda string vacío si la tarea no tiene hora', () => {
+        addTaskToDom('Sin hora');
+        persistFromDOM(container);
+        expect(readTasks()[0].time).toBe('');
+      });
+
+      it('la hora no se guarda dentro de date', () => {
+        addTaskToDom('Con hora', { date: '20/06/2025', time: '09:05' });
+        persistFromDOM(container);
+        const [task] = readTasks();
+        expect(task.date).toBe('20/06/2025');
+        expect(task.time).toBe('09:05');
+      });
+
+      it('sobrevive al round-trip DOM → storage → DOM', () => {
+        addTaskToDom('Con hora', { time: '23:59' });
+        persistFromDOM(container);
+
+        container.innerHTML = '';
+        readTasks().forEach(t => {
+          container.appendChild(createTaskElement(t.text, t.date, t.priority, t.subtasks,
+            t.recurrence, t.lastCompleted, t.createdAt, () => {}, t.time));
+        });
+        persistFromDOM(container);
+        expect(readTasks()[0].time).toBe('23:59');
+      });
     });
 
     it('lee las subtareas desde el modal cuando data-active-modal="true"', () => {

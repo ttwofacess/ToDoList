@@ -78,6 +78,38 @@ form > input[name="taskText"] {
     width: 70%;
 }
 
+/* La hora es opcional: el input va con su botón "×" en un contenedor propio
+   para que el 70% sea el del conjunto y no el del input solo. */
+.time-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 70%;
+}
+
+.time-input-wrapper input[type="time"] {
+    width: 100%;
+    min-width: 0;
+}
+
+.clear-time {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--maintxt);
+    font-size: 1.3rem;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0.6;
+}
+
+.clear-time:hover {
+    opacity: 1;
+}
+
 input, select {
     background-color: var(--bckgrndbdy);
     border: 2px solid transparent;
@@ -95,6 +127,6 @@ input:focus {
     border-color: var(--primary);
 }
 
-input[type="date"]::-webkit-calendar-picker-indicator {
-    filter: invert(1);
-}
+/* Los iconos de los pickers nativos (calendario y reloj) se adaptan solos con
+   color-scheme en base.css: invertirlos a mano los dejaba blancos sobre el
+   fondo claro. Ver styles/base.css. */

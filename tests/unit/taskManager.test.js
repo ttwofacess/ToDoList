@@ -23,12 +23,15 @@ describe('taskManager', () => {
   let closeNewTaskModal;
 
   /** Crea un evento de submit falso con los valores del formulario. */
-  const submitEvent = ({ text = 'Nueva tarea', priority = 'medium', date = '' }) => ({
+  const submitEvent = ({ text = 'Nueva tarea', priority = 'medium', date = '', time }) => ({
     preventDefault: vi.fn(),
     target: {
       taskText:      { value: text },
       taskPriority:  { value: priority },
       taskDate:      { value: date },
+      // taskTime sólo se incluye si el test lo pide: el resto sigue ejercitando
+      // el caso de un event.target sin el input de hora.
+      ...(time === undefined ? {} : { taskTime: { value: time } }),
       reset:         vi.fn(),
     },
   });
@@ -176,6 +179,79 @@ describe('taskManager', () => {
       initTaskManager(container, vi.fn(), null);
       expect(() => addNewTask(submitEvent({ text: 'T' }))).not.toThrow();
     });
+
+    // El reloj del beforeEach está en 15/06/2025 10:00
+    describe('hora de vencimiento', () => {
+      it('guarda la hora en data-time y la muestra en .task-time', () => {
+        addNewTask(submitEvent({ text: 'T', date: TODAY_ISO, time: '14:30' }));
+        const wrapper = container.querySelector('.task-wrapper');
+        expect(wrapper.getAttribute('data-time')).toBe('14:30');
+        expect(wrapper.querySelector('.task-time').textContent).toBe('14:30');
+      });
+
+      it('persiste la hora', () => {
+        addNewTask(submitEvent({ text: 'T', date: TODAY_ISO, time: '14:30' }));
+        expect(readTasks()[0].time).toBe('14:30');
+      });
+
+      it('sin hora no pone data-time ni texto', () => {
+        addNewTask(submitEvent({ text: 'T', date: TODAY_ISO, time: '' }));
+        const wrapper = container.querySelector('.task-wrapper');
+        expect(wrapper.hasAttribute('data-time')).toBe(false);
+        expect(wrapper.querySelector('.task-time').textContent).toBe('');
+        expect(readTasks()[0].time).toBe('');
+      });
+
+      it('funciona sin el input de hora en el evento (formularios viejos)', () => {
+        expect(() => addNewTask(submitEvent({ text: 'T', date: TODAY_ISO }))).not.toThrow();
+        expect(container.querySelector('.task-wrapper').hasAttribute('data-time')).toBe(false);
+      });
+
+      it('la fecha mostrada no cambia por la hora', () => {
+        addNewTask(submitEvent({ text: 'T', date: TODAY_ISO, time: '14:30' }));
+        expect(container.querySelector('.task-date').textContent).toBe('15/06/2025');
+      });
+
+      it('acepta hoy con una hora que todavía no llegó', () => {
+        addNewTask(submitEvent({ text: 'T', date: TODAY_ISO, time: '11:00' }));
+        expect(container.querySelectorAll('.task-wrapper')).toHaveLength(1);
+        expect(window.alert).not.toHaveBeenCalled();
+      });
+
+      it('rechaza hoy con una hora que ya pasó', () => {
+        addNewTask(submitEvent({ text: 'T', date: TODAY_ISO, time: '09:00' }));
+        expect(container.querySelectorAll('.task-wrapper')).toHaveLength(0);
+        expect(window.alert).toHaveBeenCalledWith(
+          'La fecha y la hora de la tarea no pueden ser anteriores al momento actual.');
+      });
+
+      it('rechaza una fecha pasada con hora aunque la hora sea válida', () => {
+        addNewTask(submitEvent({ text: 'T', date: '2020-01-01', time: '14:30' }));
+        expect(container.querySelectorAll('.task-wrapper')).toHaveLength(0);
+        expect(window.alert).toHaveBeenCalledWith(
+          'La fecha y la hora de la tarea no pueden ser anteriores al momento actual.');
+      });
+
+      it('sin hora sigue avisando sólo con la fecha', () => {
+        addNewTask(submitEvent({ text: 'T', date: '2020-01-01', time: '' }));
+        expect(window.alert).toHaveBeenCalledWith(
+          'La fecha de la tarea no puede ser anterior a la fecha actual.');
+      });
+
+      it('una hora basura se ignora en lugar de aceptarse como válida', () => {
+        addNewTask(submitEvent({ text: 'T', date: TODAY_ISO, time: 'basura' }));
+        const wrapper = container.querySelector('.task-wrapper');
+        expect(container.querySelectorAll('.task-wrapper')).toHaveLength(1);
+        expect(wrapper.hasAttribute('data-time')).toBe(false);
+        expect(window.alert).not.toHaveBeenCalled();
+      });
+
+      it('el aviso de fecha y hora pasada está traducido', () => {
+        setLanguage('en');
+        addNewTask(submitEvent({ text: 'T', date: TODAY_ISO, time: '09:00' }));
+        expect(window.alert).toHaveBeenCalledWith('Task date and time cannot be in the past.');
+      });
+    });
   });
 
   // ── loadTasks ──────────────────────────────────────────────
@@ -248,6 +324,36 @@ describe('taskManager', () => {
       initTaskManager(null, vi.fn(), vi.fn());
       expect(() => loadTasks()).toThrow();
       initTaskManager(container, vi.fn(), closeNewTaskModal);
+    });
+
+    describe('hora de vencimiento', () => {
+      it('restaura la hora guardada', () => {
+        writeTasks([{ text: 'Con hora', done: false, time: '14:30' }]);
+        loadTasks();
+        const wrapper = container.querySelector('.task-wrapper');
+        expect(wrapper.getAttribute('data-time')).toBe('14:30');
+        expect(wrapper.querySelector('.task-time').textContent).toBe('14:30');
+      });
+
+      it('las tareas viejas sin time siguen cargando', () => {
+        writeTasks([{ text: 'Sin time', done: false }]);
+        loadTasks();
+        const wrapper = container.querySelector('.task-wrapper');
+        expect(container.querySelectorAll('.task-wrapper')).toHaveLength(1);
+        expect(wrapper.hasAttribute('data-time')).toBe(false);
+        expect(wrapper.querySelector('.task-time').textContent).toBe('');
+      });
+
+      it.each(['24:00', '9:05', '14:30:00', 'basura', 930, null, {}])(
+        'descarta la hora inválida %s',
+        (time) => {
+          writeTasks([{ text: 'Corrupta', done: false, time }]);
+          loadTasks();
+          const wrapper = container.querySelector('.task-wrapper');
+          expect(wrapper.hasAttribute('data-time')).toBe(false);
+          expect(wrapper.querySelector('.task-time').textContent).toBe('');
+        },
+      );
     });
   });
 
@@ -324,6 +430,16 @@ describe('taskManager', () => {
                     lastCompleted: String(new Date(2020, 0, 1).getTime()) }]);
       loadTasks();
       expect(container.querySelector('.task').classList.contains('done')).toBe(false);
+    });
+
+    it('al resetear conserva la hora de vencimiento', () => {
+      const ayer = new Date(2025, 5, 14, 10, 0, 0).getTime();
+      writeTasks([{ ...doneRecurring('daily', String(ayer)), time: '09:00' }]);
+      loadTasks();
+      const wrapper = container.querySelector('.task-wrapper');
+      expect(wrapper.getAttribute('data-time')).toBe('09:00');
+      expect(wrapper.querySelector('.task-time').textContent).toBe('09:00');
+      expect(readTasks()[0].time).toBe('09:00');
     });
   });
 

@@ -110,6 +110,23 @@ for (const { name, width, height } of WIDTHS) {
       await expect(page.locator('#newTaskModal')).toBeHidden();
     });
 
+    test('la fila de hora del modal se puede usar y cabe en el ancho', async ({ page }) => {
+      await page.click('#openNewTaskModal');
+      const content = page.locator('#newTaskModal .modal-content');
+      await settle(page, '#newTaskModal .modal-content');
+
+      // La fila más estrecha es la última: si el input no cabe, el botón "×"
+      // se sale del modal y la hora se vuelve inusable.
+      const box = await page.locator('#newTaskModal .time-input-wrapper').boundingBox();
+      expect(box.x).toBeGreaterThanOrEqual(0);
+      expect(box.x + box.width).toBeLessThanOrEqual(width + 1);
+
+      await page.fill('#taskTime', '14:30');
+      await expect(page.locator('#taskTime')).toHaveValue('14:30');
+      await page.click('#clearTaskTime');
+      await expect(page.locator('#taskTime')).toHaveValue('');
+    });
+
     test('el modal de acciones de una tarea cabe en el ancho', async ({ page }) => {
       await page.click('.task-wrapper .task');
       const content = page.locator('#taskActionModal .modal-content');

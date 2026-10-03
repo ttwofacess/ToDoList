@@ -8,6 +8,8 @@ export const translations = {
         taskPlaceholder: 'New task',
         priorityLabel: 'Priority:',
         dateLabel: 'Date:',
+        timeLabel: 'Time:',
+        clearTime: 'Clear time',
         priorityHigh: 'High',
         priorityMedium: 'Medium',
         priorityLow: 'Low',
@@ -19,6 +21,7 @@ export const translations = {
         donateTitle: 'Donate',
         copyButton: 'Copy',
         alertPastDate: 'Task date cannot be in the past.',
+        alertPastTime: 'Task date and time cannot be in the past.',
         alertInvalidPriority: 'Invalid priority value submitted.',
         filterButtonToday: 'Focus Mode',
         filterButtonAll: 'Show All',
@@ -58,6 +61,8 @@ export const translations = {
         taskPlaceholder: 'Nueva tarea',
         priorityLabel: 'Prioridad:',
         dateLabel: 'Fecha:',
+        timeLabel: 'Hora:',
+        clearTime: 'Borrar la hora',
         priorityHigh: 'Alta',
         priorityMedium: 'Media',
         priorityLow: 'Baja',
@@ -69,6 +74,7 @@ export const translations = {
         donateTitle: 'Donar',
         copyButton: 'Copiar',
         alertPastDate: 'La fecha de la tarea no puede ser anterior a la fecha actual.',
+        alertPastTime: 'La fecha y la hora de la tarea no pueden ser anteriores al momento actual.',
         alertInvalidPriority: 'Valor de prioridad inválido.',
         filterButtonToday: 'Modo Enfoque',
         filterButtonAll: 'Ver Todo',
@@ -108,6 +114,8 @@ export const translations = {
         taskPlaceholder: 'Nova tarefa',
         priorityLabel: 'Prioridade:',
         dateLabel: 'Data:',
+        timeLabel: 'Hora:',
+        clearTime: 'Limpar a hora',
         priorityHigh: 'Alta',
         priorityMedium: 'Média',
         priorityLow: 'Baixa',
@@ -119,6 +127,7 @@ export const translations = {
         donateTitle: 'Doar',
         copyButton: 'Copiar',
         alertPastDate: 'A data da tarefa não pode ser anterior à atual.',
+        alertPastTime: 'A data e a hora da tarefa não podem ser anteriores ao momento atual.',
         alertInvalidPriority: 'Valor de prioridade inválido.',
         filterButtonToday: 'Modo Foco',
         filterButtonAll: 'Mostrar Tudo',
@@ -186,6 +195,16 @@ export const setLanguage = (lang, onAfterSet = null) => {
                 el.textContent = translation;
             }
         }
+    });
+
+    // Botones que sólo muestran un glifo (×): su texto visible no se puede
+    // traducir porque sería el glifo, así que se traducen title y aria-label.
+    document.querySelectorAll('[data-i18n-label]').forEach(el => {
+        const translation = translations[lang][el.getAttribute('data-i18n-label')];
+        if (!translation) return;
+
+        el.title = translation;
+        el.setAttribute('aria-label', translation);
     });
 
     document.title = translations[lang].pageTitle;

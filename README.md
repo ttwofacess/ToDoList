@@ -12,8 +12,8 @@ Una aplicación web simple y elegante para gestionar tus tareas diarias. La inte
 - **Marcar como Completadas**: Haz clic en una tarea o subtarea para marcarla como completada.
 - **Edición de Tareas**: Modifica el texto de una tarea existente en cualquier momento.
 - **Prioridad de Tareas**: Asigna una prioridad (Alta, Media, Baja) con indicadores visuales de color.
-- **Fecha de Vencimiento**: Asigna una fecha a tus tareas para un mejor seguimiento.
-- **Tareas Pendientes de Hoy**: Las tareas que vencen hoy se resaltan con una animación de pulso.
+- **Fecha de Vencimiento**: Asigna una fecha a tus tareas para un mejor seguimiento. Puedes añadir también una **hora opcional**: si la rellenas, la tarea vence en ese momento concreto y no se puede crear en el pasado. El botón `×` la deja vacía. Se muestra en 24 h o 12 h según el idioma y, en las copias de seguridad, se guarda como `HH:mm`.
+- **Tareas Pendientes de Hoy**: Las tareas que vencen hoy se resaltan con una animación de pulso (según la fecha, no según la hora).
 - **Modo Enfoque**: Filtra la lista para mostrar solo las tareas importantes de hoy.
 - **Búsqueda por Texto**: Filtra la lista en vivo por el texto de la tarea y el de sus subtareas, sin distinguir mayúsculas ni tildes. Se pueden escribir varias palabras a la vez (deben coincidir todas, aunque estén repartidas entre el título y las subtareas) y se indica qué subtarea hizo coincidir la tarea. Se combina con el Modo Enfoque: sólo se ven las tareas que cumplen ambos filtros. La búsqueda no se guarda al cerrar la app y, mientras está activa, el arrastre de tareas queda desactivado.
 - **Arrastrar y Soltar (Drag & Drop)**: Reorganiza manualmente el orden de tus tareas arrastrándolas.
