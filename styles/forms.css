@@ -127,7 +127,6 @@ input:focus {
     border-color: var(--primary);
 }
 
-input[type="date"]::-webkit-calendar-picker-indicator,
-input[type="time"]::-webkit-calendar-picker-indicator {
-    filter: invert(1);
-}
+/* Los iconos de los pickers nativos (calendario y reloj) se adaptan solos con
+   color-scheme en base.css: invertirlos a mano los dejaba blancos sobre el
+   fondo claro. Ver styles/base.css. */
