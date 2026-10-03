@@ -48,11 +48,13 @@ export const todayISO = async (page) =>
  * OJO: #taskDate es `required` en index.html, así que sin fecha el navegador
  * bloquea el submit por validación nativa. Por defecto usamos hoy.
  */
-export const addTask = async (page, { text, priority, date } = {}) => {
+export const addTask = async (page, { text, priority, date, time } = {}) => {
   await page.click('#openNewTaskModal');
   await page.fill('#newTaskForm input[name="taskText"]', text ?? '');
   if (priority) await page.selectOption('#taskPriority', priority);
   await page.fill('#taskDate', date ?? (await todayISO(page)));
+  // La hora es opcional: si no se pasa, el input se deja como está (vacío).
+  if (time) await page.fill('#taskTime', time);
   await page.click('#newTaskForm button[type="submit"]');
 };
 

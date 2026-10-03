@@ -266,9 +266,10 @@ describe('modalManager', () => {
         expect($(id).title).toBe('Borrar la hora');
         expect($(id).textContent).toBe('×');
       }
+      // setLanguage los retraduce: initModals corre antes de detectar el idioma
       setLanguage('en');
-      initModals();
       expect($('clearTaskTime').getAttribute('aria-label')).toBe('Clear time');
+      expect($('clearTaskTime').title).toBe('Clear time');
       expect($('clearTaskTime').textContent).toBe('×');
     });
   });
