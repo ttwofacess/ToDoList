@@ -197,6 +197,16 @@ export const setLanguage = (lang, onAfterSet = null) => {
         }
     });
 
+    // Botones que sólo muestran un glifo (×): su texto visible no se puede
+    // traducir porque sería el glifo, así que se traducen title y aria-label.
+    document.querySelectorAll('[data-i18n-label]').forEach(el => {
+        const translation = translations[lang][el.getAttribute('data-i18n-label')];
+        if (!translation) return;
+
+        el.title = translation;
+        el.setAttribute('aria-label', translation);
+    });
+
     document.title = translations[lang].pageTitle;
     onAfterSet?.();
 };

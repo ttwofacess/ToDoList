@@ -177,13 +177,13 @@ export const initModals = () => {
 
     // Vaciar la hora: una vez escrito un <input type="time"> no hay forma
     // obvia de dejarlo vacío, y en los formularios la hora es opcional.
-    // El texto accesible se pone desde JS para no sobrescribir el glifo "×".
+    // El nombre accesible lo pone setLanguage() vía data-i18n-label, porque
+    // initModals() corre antes de detectar el idioma.
     [['clearTaskTime', 'taskTime'], ['clearEditTaskTime', 'editTaskTime']].forEach(
         ([buttonId, inputId]) => {
-            const button = document.getElementById(buttonId);
-            button.setAttribute('aria-label', t('clearTime'));
-            button.title = t('clearTime');
-            button.onclick = () => { document.getElementById(inputId).value = ''; };
+            document.getElementById(buttonId).onclick = () => {
+                document.getElementById(inputId).value = '';
+            };
         }
     );
 
