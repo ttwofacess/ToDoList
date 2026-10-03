@@ -48,6 +48,68 @@ export const isDateInPast = (date) => {
     return date < today;
 };
 
+// Regex de una hora canónica de 24 h tal como la entrega <input type="time">: 'HH:mm'.
+const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+/**
+ * Indica si el string es una hora válida de 24 h ('HH:mm').
+ * El string vacío no es una hora válida (significa "sin hora").
+ * @param {*} s
+ * @returns {boolean}
+ */
+export const isValidTime = (s) => typeof s === 'string' && TIME_RE.test(s);
+
+/**
+ * Convierte una hora 'HH:mm' en minutos desde medianoche.
+ * @param {string} timeStr — Ej: '14:30'
+ * @returns {number} — Ej: 870
+ */
+export const timeToMinutes = (timeStr) => {
+    const [h, m] = timeStr.split(':').map(Number);
+    return h * 60 + m;
+};
+
+/**
+ * Formatea una hora 'HH:mm' según el idioma activo (12 h en inglés,
+ * 24 h en español/portugués). Devuelve '' si no hay hora válida.
+ * @param {string} timeStr — Ej: '14:30'
+ * @returns {string} — Ej: '14:30' (es/pt) | '02:30 PM' (en)
+ */
+export const formatDisplayTime = (timeStr) => {
+    if (!isValidTime(timeStr)) return '';
+    return new Date(2000, 0, 1, ...timeStr.split(':').map(Number))
+        .toLocaleTimeString(getLocaleKey(), { hour: '2-digit', minute: '2-digit' });
+};
+
+/**
+ * Combina la fecha ISO de un <input type="date"> con la hora 'HH:mm' de un
+ * <input type="time"> en una única Date local.
+ * Sin hora válida devuelve medianoche del día indicado.
+ * @param {string} isoDate — Ej: '2025-06-15'
+ * @param {string} [timeStr] — Ej: '14:30'
+ * @returns {Date}
+ */
+export const isoStringToDateTime = (isoDate, timeStr = '') => {
+    const date = isoStringToDate(isoDate);
+    if (isValidTime(timeStr)) {
+        const [h, m] = timeStr.split(':').map(Number);
+        date.setHours(h, m, 0, 0);
+    }
+    return date;
+};
+
+/**
+ * Devuelve true si la fecha/hora de vencimiento ya pasó.
+ * Sin hora válida aplica la regla habitual: anterior a hoy (ignora la hora).
+ * @param {string} isoDate — Fecha ISO del <input type="date"> ('2025-06-15')
+ * @param {string} [timeStr] — Hora 'HH:mm' del <input type="time">, o '' si no hay
+ * @returns {boolean}
+ */
+export const isDateTimeInPast = (isoDate, timeStr = '') =>
+    isValidTime(timeStr)
+        ? isoStringToDateTime(isoDate, timeStr) < new Date()
+        : isDateInPast(isoStringToDate(isoDate));
+
 /**
  * Convierte la fecha en formato display ('dd/mm/aa' o 'mm/dd/aa')
  * de vuelta al string ISO que requiere <input type="date">.
