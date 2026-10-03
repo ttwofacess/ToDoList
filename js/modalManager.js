@@ -155,6 +155,18 @@ export const initModals = () => {
     document.getElementById('cancelEditButton').onclick = closeEditModal;
     document.getElementById('editTaskForm').onsubmit = saveModalChanges;
 
+    // Vaciar la hora: una vez escrito un <input type="time"> no hay forma
+    // obvia de dejarlo vacío, y en los formularios la hora es opcional.
+    // El texto accesible se pone desde JS para no sobrescribir el glifo "×".
+    [['clearTaskTime', 'taskTime'], ['clearEditTaskTime', 'editTaskTime']].forEach(
+        ([buttonId, inputId]) => {
+            const button = document.getElementById(buttonId);
+            button.setAttribute('aria-label', t('clearTime'));
+            button.title = t('clearTime');
+            button.onclick = () => { document.getElementById(inputId).value = ''; };
+        }
+    );
+
     document.getElementById('closeActionModal').onclick = closeActionModal;
     
     document.getElementById('actionDone').onclick = () => {

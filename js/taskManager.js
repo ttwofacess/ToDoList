@@ -4,7 +4,8 @@
 
 import { t }                               from './i18n.js';
 import { formatDisplayDate, isoStringToDate,
-         isDateInPast, shouldResetRecurringTask } from './dateUtils.js';
+         isDateTimeInPast, isValidTime,
+         shouldResetRecurringTask }         from './dateUtils.js';
 import { readTasks, persistFromDOM }        from './storage.js';
 import { createTaskElement, initRenderer }  from './taskRenderer.js';
 import { attachDragListeners }              from './dragDrop.js';
@@ -27,10 +28,11 @@ export const initTaskManager = (container, actionCallback, closeNewTaskCallback)
 
 // ─── Helpers internos ──────────────────────────────────────
 
-const buildTaskElement = (text, date, priority, subtasks, recurrence, lastCompleted, createdAt) => {
+const buildTaskElement = (text, date, priority, subtasks, recurrence, lastCompleted, createdAt, time) => {
     const taskEl = createTaskElement(
         text, date, priority, subtasks, recurrence, lastCompleted, createdAt,
-        (wrapper) => onOpenActionModal?.(wrapper)
+        (wrapper) => onOpenActionModal?.(wrapper),
+        time,
     );
     attachDragListeners(taskEl, tasksContainer);
     return taskEl;
@@ -43,13 +45,17 @@ export const addNewTask = (event) => {
     const { value }    = event.target.taskText;
     const priority     = event.target.taskPriority.value;
     const dateValue    = event.target.taskDate.value;
+    // Opcional: si el input de hora no está, la tarea vence sólo por fecha.
+    const timeValue    = event.target.taskTime?.value ?? '';
 
     if (!value.trim())                    { alert(t('alertEmptyTask'));    return; }
     if (value.length > 500)               { alert(t('alertTaskTooLong')); return; }
     if (tasksContainer.childNodes.length >= MAX_TASKS) { alert(t('alertMaxTasks')); return; }
 
-    if (dateValue && isDateInPast(isoStringToDate(dateValue))) {
-        alert(t('alertPastDate'));
+    const hasTime = isValidTime(timeValue);
+
+    if (dateValue && isDateTimeInPast(dateValue, timeValue)) {
+        alert(t(hasTime ? 'alertPastTime' : 'alertPastDate'));
         return;
     }
 
@@ -57,7 +63,7 @@ export const addNewTask = (event) => {
         ? formatDisplayDate(isoStringToDate(dateValue))
         : formatDisplayDate(new Date());
 
-    const taskEl = buildTaskElement(value.trim(), date, priority, [], 'none', null, Date.now());
+    const taskEl = buildTaskElement(value.trim(), date, priority, [], 'none', null, Date.now(), hasTime ? timeValue : '');
     tasksContainer.prepend(taskEl);
     event.target.reset();
     persistFromDOM(tasksContainer);
@@ -80,6 +86,9 @@ export const loadTasks = () => {
         const recurrence = task.recurrence ?? 'none';
         let lastCompleted = task.lastCompleted ? parseInt(task.lastCompleted) : null;
         let done          = task.done;
+        // Una hora inválida (JSON editado a mano o importado) se descarta en
+        // lugar de renderizar basura. Las tareas viejas sin time dan ''.
+        const time = isValidTime(task.time) ? task.time : '';
 
         if (done && recurrence !== 'none' && lastCompleted) {
             if (shouldResetRecurringTask(recurrence, lastCompleted)) {
@@ -96,7 +105,7 @@ export const loadTasks = () => {
             }
         }
 
-        const taskEl = buildTaskElement(task.text, date, priority, subtasks, recurrence, lastCompleted, task.createdAt);
+        const taskEl = buildTaskElement(task.text, date, priority, subtasks, recurrence, lastCompleted, task.createdAt, time);
         if (done) taskEl.querySelector('.task').classList.add('done');
         tasksContainer.appendChild(taskEl);
     });
