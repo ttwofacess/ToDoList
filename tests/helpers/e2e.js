@@ -2,7 +2,16 @@
 // Helpers compartidos para los tests de integración
 // ============================================================
 
-/** Captura los diálogos nativos (alert/confirm) y los registra. */
+import { expect } from '@playwright/test';
+
+/**
+ * Captura los diálogos nativos (alert/confirm) y los registra.
+ *
+ * Devuelve un array que se rellena SOLO de forma asíncrona: Playwright
+ * despacha el evento 'dialog' en una tarea aparte de la del click que lo
+ * provocó, así que al volver de `page.click()` el array puede seguir vacío.
+ * Usa waitForDialog() antes de inspeccionarlo.
+ */
 export const captureDialogs = (page) => {
   const dialogs = [];
   page.on('dialog', async (dialog) => {
@@ -10,6 +19,14 @@ export const captureDialogs = (page) => {
     await dialog.accept();
   });
   return dialogs;
+};
+
+/** Espera a que se haya capturado el diálogo `index` y lo devuelve. */
+export const waitForDialog = async (dialogs, index = 0) => {
+  await expect
+    .poll(() => dialogs.length, { timeout: 10000 })
+    .toBeGreaterThan(index);
+  return dialogs[index];
 };
 
 /** Abre la app y espera a que main.js haya renderizado la fecha del header. */

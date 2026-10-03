@@ -6,7 +6,7 @@
 import { test, expect } from '@playwright/test';
 import {
   gotoApp, addTask, taskTexts, readStorage, seedStorage,
-  captureDialogs, todayISO,
+  captureDialogs, waitForDialog, todayISO,
 } from '../helpers/e2e.js';
 
 test.beforeEach(async ({ page }) => {
@@ -132,8 +132,11 @@ test.describe('Validaciones al crear', () => {
     await gotoApp(page);
     await addTask(page, { text: '   ' });
 
+    // La espera va ANTES de mirar el array: leerlo en el acto es justo la
+    // carrera que hacía fallar este test de forma intermitente.
+    const dialog = await waitForDialog(dialogs);
     expect(dialogs).toHaveLength(1);
-    expect(dialogs[0].message).toBe('La tarea no puede estar vacía.');
+    expect(dialog.message).toBe('La tarea no puede estar vacía.');
     await expect(page.locator('.task-wrapper')).toHaveCount(0);
   });
 
@@ -142,7 +145,8 @@ test.describe('Validaciones al crear', () => {
     await gotoApp(page);
     await addTask(page, { text: 'a'.repeat(501) });
 
-    expect(dialogs[0].message).toContain('500 caracteres');
+    const dialog = await waitForDialog(dialogs);
+    expect(dialog.message).toContain('500 caracteres');
     await expect(page.locator('.task-wrapper')).toHaveCount(0);
   });
 
@@ -167,7 +171,8 @@ test.describe('Validaciones al crear', () => {
     });
     await page.click('#newTaskForm button[type="submit"]');
 
-    expect(dialogs[0].message).toContain('no puede ser anterior');
+    const dialog = await waitForDialog(dialogs);
+    expect(dialog.message).toContain('no puede ser anterior');
     await expect(page.locator('.task-wrapper')).toHaveCount(0);
   });
 
@@ -184,7 +189,8 @@ test.describe('Validaciones al crear', () => {
     await expect(page.locator('.task-wrapper')).toHaveCount(100);
 
     await addTask(page, { text: 'Una más' });
-    expect(dialogs[0].message).toBe('Número máximo de tareas alcanzado.');
+    const dialog = await waitForDialog(dialogs);
+    expect(dialog.message).toBe('Número máximo de tareas alcanzado.');
     await expect(page.locator('.task-wrapper')).toHaveCount(100);
   });
 });
@@ -275,7 +281,8 @@ test.describe('Completar / editar / eliminar', () => {
     await page.fill('#editTaskText', '  ');
     await page.click('#editTaskForm button[type="submit"]');
 
-    expect(dialogs[0].message).toBe('La tarea no puede estar vacía.');
+    const dialog = await waitForDialog(dialogs);
+    expect(dialog.message).toBe('La tarea no puede estar vacía.');
     await expect(page.locator('#editModal')).toBeVisible();
   });
 

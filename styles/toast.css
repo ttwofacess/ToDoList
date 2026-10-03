@@ -24,6 +24,19 @@
     pointer-events: none;
 }
 
+/* El aviso de nueva versión se retira DE VERDAD cuando se oculta, a diferencia
+   del de deshacer (que ya lo resolvía más abajo con visibility: hidden):
+   - visibility: hidden lo saca de la pantalla y del árbol de accesibilidad,
+     para que un lector de pantalla no anuncie "Nueva versión disponible" en la
+     primera visita. Hace falta visibility y no display:none para poder animar
+     la entrada con transform.
+   - El + 24px compensa el `bottom` del toast: bajándolo solo un 100% de su
+     altura dejaba ~10px asomando por el borde inferior de la ventana. */
+#updateToast[hidden] {
+    visibility: hidden;
+    transform: translate(-50%, calc(100% + 24px));
+}
+
 .toast--visible {
     transform: translate(-50%, 0);
 }

@@ -9,10 +9,13 @@
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
     "test:integration": "playwright test",
+    "test:integration:desktop": "playwright test --project=chromium",
+    "test:integration:mobile": "playwright test --project=mobile-chrome",
+    "test:integration:webkit": "PW_PROJECTS=webkit playwright test",
     "test:integration:headed": "playwright test --headed",
     "test:report": "playwright show-report",
     "serve": "node tests/helpers/static-server.js",
-    "setup:browsers": "playwright install chromium"
+    "setup:browsers": "playwright install --with-deps chromium"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.1",

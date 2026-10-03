@@ -68,6 +68,28 @@ const deleteTask = async (page, text) => {
   await expect(page.locator('#taskActionModal')).toBeHidden();
 };
 
+/**
+ * Congela los temporizadores de la página.
+ *
+ * El aviso de deshacer dura 5 s (UNDO_TIMEOUT_MS) y en WebKit el setup de
+ * estos tests tarda más que eso, así que sin congelar el reloj el aviso
+ * expira antes de llegar al click y #undoButton llega invisible.
+ *
+ * install() por sí solo no congela: el reloj sigue corriendo con el tiempo
+ * real. Hay que pausarlo con pauseAt(). El +1 s es de margen, porque
+ * pauseAt(Date.now()) falla a veces con "Cannot fast-forward to the past"
+ * (el reloj fake ya ha avanzado respecto al Date.now() de Node). Adelantar
+ * 1 s es inofensivo: en este punto todavía no hay ningún temporizador de
+ * 5 s pendiente.
+ *
+ * El temporizador en sí lo prueba el describe 'El aviso expira a los 5
+ * segundos', que conduce este mismo reloj con fastForward().
+ */
+const freezeClock = async (page) => {
+  await page.clock.install();
+  await page.clock.pauseAt(Date.now() + 1000);
+};
+
 /** El toast de deshacer, con su estado de visibilidad. */
 const undoToast = (page) => page.locator('#undoToast');
 
@@ -104,6 +126,10 @@ test.describe('Eliminar una tarea', () => {
 });
 
 test.describe('Deshacer', () => {
+  test.beforeEach(async ({ page }) => {
+    await freezeClock(page);
+  });
+
   test('el botón restaura la tarea y la vuelve a persistir', async ({ page }) => {
     await addTask(page, { text: 'Vuelve' });
 
@@ -202,6 +228,10 @@ test.describe('Deshacer', () => {
 });
 
 test.describe('Varios borrados seguidos', () => {
+  test.beforeEach(async ({ page }) => {
+    await freezeClock(page);
+  });
+
   test('el aviso sólo deshace el último borrado', async ({ page }) => {
     await addTask(page, { text: 'A' });
     await addTask(page, { text: 'B' });
