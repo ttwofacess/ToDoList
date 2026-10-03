@@ -9,6 +9,11 @@ import {
   isoStringToDate,
   isDateInPast,
   displayDateToIso,
+  isValidTime,
+  timeToMinutes,
+  formatDisplayTime,
+  isoStringToDateTime,
+  isDateTimeInPast,
   renderHeaderDate,
   shouldResetRecurringTask,
   getTaskEmojis,
@@ -120,6 +125,155 @@ describe('dateUtils', () => {
 
     it('hoy a las 00:00 tampoco cuenta como pasado', () => {
       expect(isDateInPast(new Date(2025, 5, 15, 0, 0, 0))).toBe(false);
+    });
+  });
+
+  describe('isValidTime()', () => {
+    it.each(['00:00', '09:05', '14:30', '23:59'])('acepta la hora válida %s', (time) => {
+      expect(isValidTime(time)).toBe(true);
+    });
+
+    it.each([
+      ['', 'string vacío'],
+      ['24:00', 'hora fuera de rango'],
+      ['23:60', 'minuto fuera de rango'],
+      ['9:05', 'hora sin cero inicial'],
+      ['09:5', 'minuto sin cero inicial'],
+      ['14:30:00', 'con segundos'],
+      ['14-30', 'separador incorrecto'],
+      ['14:3a', 'no numérico'],
+      [' hola ', 'con espacios'],
+    ])('rechaza %s (%s)', (time) => {
+      expect(isValidTime(time)).toBe(false);
+    });
+
+    it.each([undefined, null, 0, 930, {}, ['14:30']])(
+      'rechaza el valor no-string %s',
+      (value) => {
+        expect(isValidTime(value)).toBe(false);
+      },
+    );
+  });
+
+  describe('timeToMinutes()', () => {
+    it.each([
+      ['00:00', 0],
+      ['09:05', 545],
+      ['14:30', 870],
+      ['23:59', 1439],
+    ])('convierte %s en %i minutos', (time, expected) => {
+      expect(timeToMinutes(time)).toBe(expected);
+    });
+  });
+
+  describe('formatDisplayTime()', () => {
+    it('devuelve string vacío si no hay hora', () => {
+      expect(formatDisplayTime('')).toBe('');
+      expect(formatDisplayTime(undefined)).toBe('');
+      expect(formatDisplayTime(null)).toBe('');
+      expect(formatDisplayTime('24:00')).toBe('');
+      expect(formatDisplayTime('basura')).toBe('');
+    });
+
+    it('formatea en 24 h en español', () => {
+      setLanguage('es');
+      expect(formatDisplayTime('14:30')).toBe('14:30');
+    });
+
+    it('formatea en 24 h en portugués', () => {
+      setLanguage('pt');
+      expect(formatDisplayTime('14:30')).toBe('14:30');
+    });
+
+    it('formatea en 12 h en inglés', () => {
+      setLanguage('en');
+      // El separador y el cero inicial varían según el ICU del runtime.
+      expect(formatDisplayTime('14:30')).toMatch(/^0?2:30\s?PM$/i);
+      expect(formatDisplayTime('09:05')).toMatch(/^0?9:05\s?AM$/i);
+    });
+
+    it('no distingue la mañana de la tarde en español/portugués', () => {
+      setLanguage('es');
+      expect(formatDisplayTime('09:05')).toBe('09:05');
+      expect(formatDisplayTime('21:05')).toBe('21:05');
+    });
+
+    it('respeta el cambio de idioma en caliente', () => {
+      setLanguage('es');
+      const es = formatDisplayTime('14:30');
+      setLanguage('en');
+      const en = formatDisplayTime('14:30');
+      expect(es).not.toBe(en);
+    });
+  });
+
+  describe('isoStringToDateTime()', () => {
+    it('combina fecha y hora', () => {
+      const d = isoStringToDateTime('2025-06-15', '14:30');
+      expect(d.getFullYear()).toBe(2025);
+      expect(d.getMonth()).toBe(5);
+      expect(d.getDate()).toBe(15);
+      expect(d.getHours()).toBe(14);
+      expect(d.getMinutes()).toBe(30);
+    });
+
+    it('pone los segundos y milisegundos a cero', () => {
+      const d = isoStringToDateTime('2025-06-15', '09:05');
+      expect(d.getSeconds()).toBe(0);
+      expect(d.getMilliseconds()).toBe(0);
+    });
+
+    it('sin hora devuelve medianoche local', () => {
+      expect(isoStringToDateTime('2025-06-15').getHours()).toBe(0);
+      expect(isoStringToDateTime('2025-06-15', '').getHours()).toBe(0);
+    });
+
+    it('ignora una hora inválida en vez de romper', () => {
+      expect(isoStringToDateTime('2025-06-15', '99:99').getHours()).toBe(0);
+    });
+  });
+
+  describe('isDateTimeInPast()', () => {
+    // Reloj del beforeEach: 15/06/2025 10:30
+
+    it('hoy con hora ya pasada cuenta como pasado', () => {
+      expect(isDateTimeInPast('2025-06-15', '09:00')).toBe(true);
+    });
+
+    it('hoy con hora por venir no está en el pasado', () => {
+      expect(isDateTimeInPast('2025-06-15', '11:00')).toBe(false);
+    });
+
+    it('hoy exactamente a la hora actual no está en el pasado', () => {
+      expect(isDateTimeInPast('2025-06-15', '10:30')).toBe(false);
+    });
+
+    it('un minuto antes de la hora actual ya está en el pasado', () => {
+      expect(isDateTimeInPast('2025-06-15', '10:29')).toBe(true);
+    });
+
+    it('mañana nunca está en el pasado, aunque la hora ya haya pasado', () => {
+      expect(isDateTimeInPast('2025-06-16', '00:00')).toBe(false);
+    });
+
+    it('sin hora delega en isDateInPast (ignora la hora)', () => {
+      expect(isDateTimeInPast('2025-06-14')).toBe(true);
+      expect(isDateTimeInPast('2025-06-15')).toBe(false);
+      expect(isDateTimeInPast('2025-06-15', '')).toBe(false);
+    });
+
+    it('una hora inválida delega en isDateInPast', () => {
+      expect(isDateTimeInPast('2025-06-14', 'basura')).toBe(true);
+      expect(isDateTimeInPast('2025-06-15', 'basura')).toBe(false);
+    });
+
+    it('es coherente con isoStringToDateTime', () => {
+      const pasado = isoStringToDateTime('2025-06-15', '09:00');
+      const futuro = isoStringToDateTime('2025-06-15', '11:00');
+      expect(pasado < new Date()).toBe(true);
+      expect(futuro < new Date()).toBe(false);
+      expect(isDateTimeInPast('2025-06-15', '09:00')).toBe(true);
+      expect(isDateTimeInPast('2025-06-15', '11:00')).toBe(false);
     });
   });
 
