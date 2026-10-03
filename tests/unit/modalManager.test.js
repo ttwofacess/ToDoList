@@ -231,6 +231,48 @@ describe('modalManager', () => {
     });
   });
 
+  describe('botones para vaciar la hora', () => {
+    it('el del formulario de nueva tarea vacía su input', () => {
+      $('taskTime').value = '14:30';
+      $('clearTaskTime').click();
+      expect($('taskTime').value).toBe('');
+    });
+
+    it('el del formulario de edición vacía su input', () => {
+      $('editTaskTime').value = '09:05';
+      $('clearEditTaskTime').click();
+      expect($('editTaskTime').value).toBe('');
+    });
+
+    it('no toca el input del otro formulario', () => {
+      $('taskTime').value = '14:30';
+      $('editTaskTime').value = '09:05';
+      $('clearTaskTime').click();
+      expect($('editTaskTime').value).toBe('09:05');
+    });
+
+    it('no envía el formulario al pulsarlos', () => {
+      const submit = vi.fn();
+      $('newTaskForm').addEventListener('submit', submit);
+      $('taskTime').value = '14:30';
+      $('clearTaskTime').click();
+      expect(submit).not.toHaveBeenCalled();
+      expect($('taskTime').value).toBe('');
+    });
+
+    it('tienen nombre accesible y título traducidos', () => {
+      for (const id of ['clearTaskTime', 'clearEditTaskTime']) {
+        expect($(id).getAttribute('aria-label')).toBe('Borrar la hora');
+        expect($(id).title).toBe('Borrar la hora');
+        expect($(id).textContent).toBe('×');
+      }
+      setLanguage('en');
+      initModals();
+      expect($('clearTaskTime').getAttribute('aria-label')).toBe('Clear time');
+      expect($('clearTaskTime').textContent).toBe('×');
+    });
+  });
+
   // ── Modal de edición ───────────────────────────────────────
   describe('openEditModal()', () => {
     it('rellena los campos con los datos de la tarea', () => {
