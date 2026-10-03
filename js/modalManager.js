@@ -4,7 +4,8 @@
 
 import { t }                               from './i18n.js';
 import { formatDisplayDate, isoStringToDate,
-         isDateInPast, displayDateToIso }  from './dateUtils.js';
+         formatDisplayTime, isDateTimeInPast, isValidTime,
+         displayDateToIso }                  from './dateUtils.js';
 import { persistFromDOM }                  from './storage.js';
 import { changeTaskState, deleteTask }     from './taskActions.js';
 import { toggleRecurrence, showSubtaskInput } from './taskRenderer.js';
@@ -96,6 +97,7 @@ export const openEditModal = (wrapper) => {
     document.getElementById('editTaskText').value     = taskText;
     document.getElementById('editTaskPriority').value = priority;
     document.getElementById('editTaskDate').value     = displayDateToIso(taskDate);
+    document.getElementById('editTaskTime').value     = wrapper.getAttribute('data-time') || '';
 
     document.getElementById('editModal').style.display = 'flex';
 };
@@ -112,18 +114,28 @@ export const saveModalChanges = (event) => {
     const newText      = document.getElementById('editTaskText').value.trim();
     const newPriority  = document.getElementById('editTaskPriority').value;
     const newDateValue = document.getElementById('editTaskDate').value;
+    const newTimeValue = document.getElementById('editTaskTime').value;
+    const hasTime      = isValidTime(newTimeValue);
 
     if (!newText)           { alert(t('alertEmptyTask'));    return; }
     if (newText.length > 500) { alert(t('alertTaskTooLong')); return; }
 
-    if (newDateValue && isDateInPast(isoStringToDate(newDateValue))) {
-        alert(t('alertPastDate'));
+    // El pasado sólo se comprueba si la fecha o la hora cambian: si no, una
+    // tarea ya vencida no se podría ni renombrar. Por eso se compara con lo
+    // que había guardado, no con "ahora".
+    const savedDate  = displayDateToIso(currentEditingWrapper.querySelector('.task-date').textContent);
+    const savedTime  = currentEditingWrapper.getAttribute('data-time') || '';
+    const dueChanged = newDateValue !== savedDate || (hasTime ? newTimeValue : '') !== savedTime;
+
+    if (newDateValue && dueChanged && isDateTimeInPast(newDateValue, newTimeValue)) {
+        alert(t(hasTime ? 'alertPastTime' : 'alertPastDate'));
         return;
     }
 
     const taskEl     = currentEditingWrapper.querySelector('.task');
     const textEl     = taskEl.querySelector('.task-text');
     const dateEl     = taskEl.querySelector('.task-date');
+    const timeEl     = taskEl.querySelector('.task-time');
 
     textEl.textContent = DOMPurify.sanitize(newText);
     taskEl.classList.remove('priority-high', 'priority-medium', 'priority-low');
@@ -131,6 +143,14 @@ export const saveModalChanges = (event) => {
 
     const formattedDate = formatDisplayDate(isoStringToDate(newDateValue));
     dateEl.textContent = formattedDate;
+
+    if (hasTime) {
+        currentEditingWrapper.setAttribute('data-time', newTimeValue);
+        timeEl.textContent = formatDisplayTime(newTimeValue);
+    } else {
+        currentEditingWrapper.removeAttribute('data-time');
+        timeEl.textContent = '';
+    }
 
     persistFromDOM(tasksContainer);
     closeEditModal();
