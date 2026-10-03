@@ -27,9 +27,9 @@ describe('modalManager', () => {
   const isOpen = (el) => el.style.display === 'flex';
 
   const addTask = ({ text = 'Tarea', priority = 'medium', date = '15/06/2025',
-                     recurrence = 'none', subtasks = [] } = {}) => {
+                     recurrence = 'none', subtasks = [], time = '' } = {}) => {
     wrapper = createTaskElement(text, date, priority, subtasks, recurrence, null,
-                                '1700000000000', openActionModal);
+                                '1700000000000', openActionModal, time);
     container.appendChild(wrapper);
     return wrapper;
   };
@@ -303,6 +303,20 @@ describe('modalManager', () => {
       $('actionEdit').click();
       expect(isOpen($('editModal'))).toBe(false);
     });
+
+    describe('hora de vencimiento', () => {
+      it('rellena el input con la hora guardada', () => {
+        addTask({ time: '14:30' });
+        openEditModal(wrapper);
+        expect($('editTaskTime').value).toBe('14:30');
+      });
+
+      it('deja vacío el input si la tarea no tiene hora', () => {
+        addTask();
+        openEditModal(wrapper);
+        expect($('editTaskTime').value).toBe('');
+      });
+    });
   });
 
   describe('saveModalChanges()', () => {
@@ -423,6 +437,127 @@ describe('modalManager', () => {
       $('editTaskText').value = 'Guardado con Enter';
       $('editTaskForm').dispatchEvent(new window.Event('submit', { cancelable: true }));
       expect(wrapper.querySelector('.task-text').textContent).toBe('Guardado con Enter');
+    });
+
+    // El reloj del beforeEach está en 15/06/2025 10:00
+    describe('hora de vencimiento', () => {
+      it('añade la hora a una tarea que no la tenía', () => {
+        openForEdit();
+        $('editTaskDate').value = '2025-06-15';
+        $('editTaskTime').value = '14:30';
+        saveModalChanges(submitEvent());
+
+        expect(wrapper.getAttribute('data-time')).toBe('14:30');
+        expect(wrapper.querySelector('.task-time').textContent).toBe('14:30');
+        expect(readTasks()[0].time).toBe('14:30');
+        expect(isOpen($('editModal'))).toBe(false);
+      });
+
+      it('cambia la hora de una tarea que ya tenía', () => {
+        openForEdit({ date: '01/07/2025', time: '09:00' });
+        $('editTaskTime').value = '18:45';
+        saveModalChanges(submitEvent());
+
+        expect(wrapper.getAttribute('data-time')).toBe('18:45');
+        expect(wrapper.querySelector('.task-time').textContent).toBe('18:45');
+        expect(readTasks()[0].time).toBe('18:45');
+      });
+
+      it('quita la hora si el input queda vacío', () => {
+        openForEdit({ date: '01/07/2025', time: '09:00' });
+        $('editTaskTime').value = '';
+        saveModalChanges(submitEvent());
+
+        expect(wrapper.hasAttribute('data-time')).toBe(false);
+        expect(wrapper.querySelector('.task-time').textContent).toBe('');
+        expect(readTasks()[0].time).toBe('');
+      });
+
+      it('el botón × quita la hora y se guarda', () => {
+        openForEdit({ date: '01/07/2025', time: '09:00' });
+        $('clearEditTaskTime').click();
+        saveModalChanges(submitEvent());
+        expect(readTasks()[0].time).toBe('');
+      });
+
+      it('rechaza una hora que ya pasó hoy', () => {
+        openForEdit();
+        $('editTaskDate').value = '2025-06-15';
+        $('editTaskTime').value = '09:00';
+        saveModalChanges(submitEvent());
+
+        expect(window.alert).toHaveBeenCalledWith(
+          'La fecha y la hora de la tarea no pueden ser anteriores al momento actual.');
+        expect(isOpen($('editModal'))).toBe(true);
+        expect(wrapper.hasAttribute('data-time')).toBe(false);
+      });
+
+      it('acepta una hora que todavía no llega hoy', () => {
+        openForEdit();
+        $('editTaskDate').value = '2025-06-15';
+        $('editTaskTime').value = '11:00';
+        saveModalChanges(submitEvent());
+        expect(window.alert).not.toHaveBeenCalled();
+        expect(wrapper.getAttribute('data-time')).toBe('11:00');
+      });
+
+      it('sin hora sigue avisando sólo con la fecha', () => {
+        openForEdit();
+        $('editTaskDate').value = '2020-01-01';
+        $('editTaskTime').value = '';
+        saveModalChanges(submitEvent());
+        expect(window.alert).toHaveBeenCalledWith(
+          'La fecha de la tarea no puede ser anterior a la fecha actual.');
+      });
+
+      it('una hora inválida se ignora y se guarda como sin hora', () => {
+        openForEdit({ date: '01/07/2025', time: '09:00' });
+        $('editTaskTime').value = 'basura';
+        saveModalChanges(submitEvent());
+        expect(wrapper.hasAttribute('data-time')).toBe(false);
+        expect(readTasks()[0].time).toBe('');
+      });
+
+      it('cambiar la fecha a una pasada sigue bloqueando el guardado', () => {
+        openForEdit({ date: '01/07/2025', time: '09:00' });
+        $('editTaskDate').value = '2020-01-01';
+        saveModalChanges(submitEvent());
+        expect(window.alert).toHaveBeenCalledWith(
+          'La fecha y la hora de la tarea no pueden ser anteriores al momento actual.');
+        expect(isOpen($('editModal'))).toBe(true);
+        expect(wrapper.querySelector('.task-date').textContent).toBe('01/07/2025');
+      });
+
+      // El pasado sólo se valida si la fecha o la hora cambian, para que una
+      // tarea vencida se pueda renombrar sin tener que arreglarla antes.
+      it('permite editar el texto de una tarea cuya hora de hoy ya pasó', () => {
+        openForEdit({ date: '15/06/2025', time: '09:00' });
+        $('editTaskText').value = 'Renombrada';
+        saveModalChanges(submitEvent());
+
+        expect(window.alert).not.toHaveBeenCalled();
+        expect(isOpen($('editModal'))).toBe(false);
+        expect(wrapper.querySelector('.task-text').textContent).toBe('Renombrada');
+        expect(wrapper.getAttribute('data-time')).toBe('09:00');
+      });
+
+      it('permite editar el texto de una tarea con fecha en el pasado', () => {
+        openForEdit({ date: '01/01/2020' });
+        $('editTaskText').value = 'Archivada';
+        saveModalChanges(submitEvent());
+
+        expect(window.alert).not.toHaveBeenCalled();
+        expect(wrapper.querySelector('.task-text').textContent).toBe('Archivada');
+      });
+
+      it('quitarle la hora a una tarea vencida no dispara la validación', () => {
+        openForEdit({ date: '15/06/2025', time: '09:00' });
+        $('editTaskTime').value = '';
+        saveModalChanges(submitEvent());
+
+        expect(window.alert).not.toHaveBeenCalled();
+        expect(wrapper.hasAttribute('data-time')).toBe(false);
+      });
     });
   });
 
