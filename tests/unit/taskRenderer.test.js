@@ -46,6 +46,7 @@ describe('taskRenderer', () => {
       overrides.lastCompleted ?? null,
       overrides.createdAt ?? '1700000000000',
       overrides.onOpenActions ?? (() => {}),
+      overrides.time ?? '',
     );
 
     it('devuelve un .task-wrapper con la estructura esperada', () => {
@@ -55,6 +56,7 @@ describe('taskRenderer', () => {
       expect(el.querySelector('.task')).not.toBeNull();
       expect(el.querySelector('.task-text')).not.toBeNull();
       expect(el.querySelector('.task-date')).not.toBeNull();
+      expect(el.querySelector('.task-time')).not.toBeNull();
       expect(el.querySelector('.recurrence-badge')).not.toBeNull();
       expect(el.querySelector('.subtasks-container')).not.toBeNull();
       expect(el.querySelector('.task-emojis')).not.toBeNull();
@@ -103,6 +105,43 @@ describe('taskRenderer', () => {
     it('pone data-last-completed si se proporciona', () => {
       expect(build({ lastCompleted: '1750000000000' })
         .getAttribute('data-last-completed')).toBe('1750000000000');
+    });
+
+    describe('hora de vencimiento', () => {
+      it('muestra la hora formateada en el .task-time', () => {
+        expect(build({ time: '14:30' }).querySelector('.task-time').textContent).toBe('14:30');
+      });
+
+      it('formatea la hora según el idioma activo al renderizar', () => {
+        setLanguage('en');
+        expect(build({ time: '14:30' }).querySelector('.task-time').textContent)
+          .toMatch(/^0?2:30\s?PM$/i);
+        setLanguage('es');
+        expect(build({ time: '14:30' }).querySelector('.task-time').textContent).toBe('14:30');
+      });
+
+      it('guarda la hora cruda en data-time', () => {
+        expect(build({ time: '09:05' }).getAttribute('data-time')).toBe('09:05');
+      });
+
+      it('sin hora el .task-time queda vacío y no hay data-time', () => {
+        const el = build();
+        expect(el.querySelector('.task-time').textContent).toBe('');
+        expect(el.hasAttribute('data-time')).toBe(false);
+      });
+
+      it('una hora inválida no crea data-time ni texto', () => {
+        for (const bad of ['', '24:00', '9:05', 'basura', null, undefined, 930]) {
+          const el = build({ time: bad });
+          expect(el.hasAttribute('data-time')).toBe(false);
+          expect(el.querySelector('.task-time').textContent).toBe('');
+        }
+      });
+
+      it('la hora no se cuela en .task-date, que se usa como clave', () => {
+        const el = build({ date: '15/06/2025', time: '14:30' });
+        expect(el.querySelector('.task-date').textContent).toBe('15/06/2025');
+      });
     });
 
     it('genera 2 emojis derivados de createdAt', () => {
