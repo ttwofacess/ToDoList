@@ -20,72 +20,107 @@
     color: var(--maintxt);
 }
 
-.action-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+/* ─── Action sheet ─────────────────────────────── */
+.action-sheet {
+    --action-divider: rgba(0, 0, 0, 0.08);
+    --action-row-hover: rgba(108, 99, 255, 0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     margin-bottom: 20px;
 }
 
-.action-card-btn {
-    background-color: var(--wrpprbck);
-    border: 1px solid #E0E0E0;
-    padding: 15px 10px;
-    border-radius: 10px;
-    cursor: pointer;
+@media (prefers-color-scheme: dark) {
+    .action-sheet {
+        --action-divider: rgba(255, 255, 255, 0.10);
+        --action-row-hover: rgba(255, 255, 255, 0.06);
+    }
+}
+
+.action-group {
     display: flex;
     flex-direction: column;
+    gap: 4px;
+}
+
+/* Divisor entre grupos */
+.action-group + .action-group {
+    border-top: 1px solid var(--action-divider);
+    padding-top: 10px;
+}
+
+/* ─── Fila de acción ───────────────────────────── */
+.action-row {
+    display: flex;
     align-items: center;
-    gap: 8px;
-    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-    color: var(--maintxt);
-}
-
-.action-card-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow);
-    border-color: var(--primary);
-}
-
-.action-card-btn .icon {
-    font-size: 1.5rem;
-}
-
-.action-card-btn span:not(.icon) {
-    font-size: 0.8rem;
-    font-weight: 600;
-    font-family: 'Poppins', sans-serif;
-}
-
-.action-card-btn.delete {
-    grid-column: 1 / -1;
-    justify-self: center;
+    gap: 14px;
     width: 100%;
-    max-width: 210px;
-    color: #FF6B6B;
+    min-height: 56px;              /* objetivo táctil cómodo (≥ 44 px) */
+    padding: 8px 10px;
+    background: transparent;
+    border: 0;
+    border-radius: 12px;
+    color: var(--maintxt);
+    text-align: left;
+    font: inherit;
+    cursor: pointer;
+    transition: background-color 0.15s, transform 0.1s;
 }
 
-.action-card-btn.delete:hover {
-    border-color: #FF6B6B;
-    background-color: rgba(255, 107, 107, 0.05);
+.action-row:hover        { background-color: var(--action-row-hover); }
+.action-row:active       { transform: scale(0.98); }
+.action-row:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
 }
 
-.action-card-btn.recurrence-daily {
-    background-color: #6DB37A;
-    color: white;
-    border-color: #6DB37A;
+.action-text  { display: flex; flex-direction: column; min-width: 0; }
+.action-label {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;              /* 500 existe; 600 no está cargado */
+    font-size: 0.95rem;
+}
+.action-desc  {
+    font-size: 0.78rem;
+    opacity: 0.65;
+    overflow-wrap: anywhere;       /* textos largos en pt/es no deben desbordar */
 }
 
-.action-card-btn.recurrence-weekly {
-    background-color: #FFA500;
-    color: white;
-    border-color: #FFA500;
+/* ─── Chip de icono ────────────────────────────── */
+.action-chip {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    font-size: 1.25rem;
+    line-height: 1;
+    background-color: var(--chip-bg, rgba(108, 99, 255, 0.15));
+    transition: background-color 0.2s, transform 0.2s;
 }
 
-.action-card-btn.recurrence-monthly {
-    background-color: #FFD700;
-    color: white;
-    border-color: #FFD700;
+.action-row--done       { --chip-bg: rgba(109, 179, 122, 0.22); }  /* verde (--donetsk) */
+.action-row--edit       { --chip-bg: rgba(108,  99, 255, 0.18); }  /* lila  (--primary) */
+.action-row--subtask    { --chip-bg: rgba(107, 143, 173, 0.22); }  /* azul grisáceo (.actionButton) */
+.action-row--recurrence { --chip-bg: rgba(255, 165,   0, 0.20); }  /* naranja */
+
+/* ─── Recurrencia sobre el chip ────────────────── */
+.action-row.recurrence-daily   .action-chip { background-color: #6DB37A; }
+.action-row.recurrence-weekly  .action-chip { background-color: #FFA500; }
+.action-row.recurrence-monthly .action-chip { background-color: #FFD700; }
+
+/* ─── Zona de peligro ──────────────────────────── */
+.action-group--danger { padding-top: 10px; }
+
+.action-row--danger {
+    --chip-bg: rgba(255, 107, 107, 0.15);
+    color: #D64545;                /* #FF6B6B sobre blanco tiene poco contraste para texto */
+}
+.action-row--danger:hover { background-color: rgba(255, 107, 107, 0.08); }
+
+@media (prefers-color-scheme: dark) {
+    .action-row--danger { color: #FF6B6B; }   /* sobre fondo oscuro sí contrasta */
 }
 
 #actionSubtasksContainer {
