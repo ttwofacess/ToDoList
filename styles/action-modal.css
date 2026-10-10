@@ -123,6 +123,21 @@
     .action-row--danger { color: #FF6B6B; }   /* sobre fondo oscuro sí contrasta */
 }
 
+/* ─── Micro-animación de Hecho ─────────────────── */
+@keyframes chip-pop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.25); }
+    100% { transform: scale(1); }
+}
+.action-row--done:active .action-chip { animation: chip-pop 0.35s ease-out; }
+
+/* Movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+    .action-row, .action-chip { transition: none; }
+    .action-row--done:active .action-chip { animation: none; }
+    .action-row:active { transform: none; }
+}
+
 #actionSubtasksContainer {
     margin-top: 15px;
     padding-top: 15px;
