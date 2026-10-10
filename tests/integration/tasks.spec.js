@@ -297,6 +297,43 @@ test.describe('Completar / editar / eliminar', () => {
   });
 });
 
+test.describe('Modal de acciones — diseño', () => {
+  test.beforeEach(async ({ page }) => {
+    await gotoApp(page);
+    await addTask(page, { text: 'Tarea de prueba' });
+    await page.click('.task');
+    await expect(page.locator('#taskActionModal')).toBeVisible();
+  });
+
+  test('agrupa las 5 acciones en 3 grupos, con descripción en cada una', async ({ page }) => {
+    await expect(page.locator('#taskActionModal .action-group')).toHaveCount(3);
+    await expect(page.locator('#taskActionModal .action-row')).toHaveCount(5);
+
+    const descs = await page.locator('#taskActionModal .action-desc').allTextContents();
+    expect(descs).toHaveLength(5);
+    for (const desc of descs) {
+      expect(desc.trim().length).toBeGreaterThan(0);
+    }
+  });
+
+  test('el chip de Repetir cambia de color con cada recurrencia y vuelve al tinte', async ({ page }) => {
+    const chip = page.locator('#actionRecurrence .action-chip');
+    await expect(chip).toHaveCSS('background-color', 'rgba(255, 165, 0, 0.2)');
+
+    await page.click('#actionRecurrence');
+    await expect(chip).toHaveCSS('background-color', 'rgb(109, 179, 122)');
+
+    await page.click('#actionRecurrence');
+    await expect(chip).toHaveCSS('background-color', 'rgb(255, 165, 0)');
+
+    await page.click('#actionRecurrence');
+    await expect(chip).toHaveCSS('background-color', 'rgb(255, 215, 0)');
+
+    await page.click('#actionRecurrence');
+    await expect(chip).toHaveCSS('background-color', 'rgba(255, 165, 0, 0.2)');
+  });
+});
+
 test.describe('Ordenar', () => {
   // addTask hace prepend, así que tras crear A, B, C el orden es C, B, A.
   test('mueve las completadas al final', async ({ page }) => {
