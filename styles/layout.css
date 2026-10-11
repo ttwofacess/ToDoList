@@ -3,11 +3,13 @@
 .list {
     background-color: var(--wrpprbck);
     margin: 25px auto;
-    max-width: 450px;
+    max-width: 560px;
     padding: 30px;
     width: 100%;
-    box-shadow: var(--shadow);
-    border-radius: 15px;
+    box-sizing: border-box;
+    border: 1px solid var(--card-border);
+    box-shadow: var(--card-shadow);
+    border-radius: var(--card-radius);
 }
 
 /* Donate Button Wrapper */
