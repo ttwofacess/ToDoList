@@ -69,6 +69,7 @@
 
 body {
     background-color: var(--bckgrndbdy);
+    background-image: var(--page-bg);
     font-family: 'Roboto', sans-serif;
     height: 100vh;
     margin: 0;
