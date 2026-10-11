@@ -6,7 +6,7 @@ blob-report/
 coverage/
 *.log
 
-
+# Planes
 PWApp.md
 Notice.md
 Undo.md
@@ -14,3 +14,4 @@ Solucion.md
 Search.md
 Hora.md
 TaskRedesign.md
+Deep.md
