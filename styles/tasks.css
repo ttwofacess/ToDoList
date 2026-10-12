@@ -52,6 +52,8 @@
 
 .task {
     background-color: var(--wrpprbck);
+    /* Referencia para el indicador de prioridad (task-priority.css) */
+    position: relative;
     border: 1px solid var(--task-border);
     color: var(--maintxt);
     cursor: pointer;
