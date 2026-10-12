@@ -1,5 +1,24 @@
 /* tasks.css — Estructura principal de tareas */
 
+/* Superficie de la tarjeta. El borde y las sombras viven en variables para
+   que la elevación se lea igual en claro y en oscuro (sin bordes grises
+   fuera de paleta ni opacidad global que atenúe también el texto). */
+:root {
+    --task-border: rgba(15, 23, 42, 0.08);
+    --task-border-hover: rgba(15, 23, 42, 0.14);
+    --task-shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 6px 16px rgba(15, 23, 42, 0.08);
+    --task-shadow-hover: 0 2px 4px rgba(15, 23, 42, 0.08), 0 14px 28px rgba(15, 23, 42, 0.16);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --task-border: rgba(255, 255, 255, 0.10);
+        --task-border-hover: rgba(255, 255, 255, 0.18);
+        --task-shadow: 0 1px 2px rgba(0, 0, 0, 0.45), 0 8px 20px rgba(0, 0, 0, 0.30);
+        --task-shadow-hover: 0 2px 6px rgba(0, 0, 0, 0.55), 0 16px 34px rgba(0, 0, 0, 0.45);
+    }
+}
+
 .task-wrapper {
     display: flex;
     flex-direction: column;
@@ -18,7 +37,11 @@
 }
 
 .task-wrapper.dragging .task {
-    border: 2px dashed var(--primary);
+    /* Rayado del arrastre sin tocar el ancho del borde: cambiar 1px por 2px
+       desplazaba la tarjeta y sus vecinas en pleno dragover. */
+    border-style: dashed;
+    border-color: var(--primary);
+    box-shadow: var(--task-shadow);
 }
 
 .task-main-row {
@@ -29,8 +52,7 @@
 
 .task {
     background-color: var(--wrpprbck);
-    opacity: 0.8;
-    border: 1px solid #E0E0E0;
+    border: 1px solid var(--task-border);
     color: var(--maintxt);
     cursor: pointer;
     flex-grow: 1;
@@ -41,7 +63,24 @@
     justify-content: space-between;
     align-items: center;
     border-radius: 10px;
-    transition: background-color 0.3s, color 0.3s;
+    box-shadow: var(--task-shadow);
+    transition: background-color 0.3s, color 0.3s, box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+/* Elevación al pasar el puntero o al recibir foco. La tarjeta es un div sin
+   tabindex, así que :focus-visible sólo actuará cuando se le dé foco; se
+   deja preparado junto al hover en lugar de duplicar reglas. */
+.task:hover,
+.task:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: var(--task-shadow-hover);
+    border-color: var(--task-border-hover);
+}
+
+/* Respuesta táctil: leve reducción de escala al pulsar, sin cambiar el sitio
+   que ocupa la tarjeta. */
+.task:active {
+    transform: scale(0.99);
 }
 
 .task-content-wrapper {
@@ -49,6 +88,9 @@
     flex-direction: column;
     gap: 6px;
     flex-grow: 1;
+    /* Sin min-width el texto largo empuja la tarjeta y provoca scroll
+       horizontal en pantallas estrechas; con él envuelve en su lugar. */
+    min-width: 0;
     font-size: 1.12em;
 }
 
@@ -56,6 +98,7 @@
     display: flex;
     align-items: center;
     width: 100%;
+    flex-wrap: wrap;
 }
 
 .task-emojis {
@@ -67,6 +110,8 @@
     font-size: 1.12em;
     text-align: center;
     flex-grow: 1;
+    min-width: 0;
+    overflow-wrap: break-word;
 }
 
 .task-date {
