@@ -8,6 +8,10 @@
     --task-border-hover: rgba(15, 23, 42, 0.14);
     --task-shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 6px 16px rgba(15, 23, 42, 0.08);
     --task-shadow-hover: 0 2px 4px rgba(15, 23, 42, 0.08), 0 14px 28px rgba(15, 23, 42, 0.16);
+    /* Píldoras de fecha/hora: fondo tenue y tinta con contraste suficiente en
+       lugar de bajar la opacidad del texto. */
+    --task-meta-bg: rgba(15, 23, 42, 0.05);
+    --task-meta-ink: #5A6472;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -16,6 +20,8 @@
         --task-border-hover: rgba(255, 255, 255, 0.18);
         --task-shadow: 0 1px 2px rgba(0, 0, 0, 0.45), 0 8px 20px rgba(0, 0, 0, 0.30);
         --task-shadow-hover: 0 2px 6px rgba(0, 0, 0, 0.55), 0 16px 34px rgba(0, 0, 0, 0.45);
+        --task-meta-bg: rgba(255, 255, 255, 0.07);
+        --task-meta-ink: #A8B0C0;
     }
 }
 
@@ -85,10 +91,15 @@
     transform: scale(0.99);
 }
 
+/* El contenido pasa a ser una fila que envuelve: el texto se lleva su propia
+   línea (width:100%) y fecha/hora comparten la línea de metadatos. Si no
+   entran, el wrap las baja en lugar de desbordar la tarjeta. */
 .task-content-wrapper {
     display: flex;
-    flex-direction: column;
-    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 10px;
+    row-gap: 6px;
     flex-grow: 1;
     /* Sin min-width el texto largo empuja la tarjeta y provoca scroll
        horizontal en pantallas estrechas; con él envuelve en su lugar. */
@@ -116,27 +127,41 @@
     overflow-wrap: break-word;
 }
 
-.task-date {
-    font-size: 0.8rem;
-    opacity: 0.7;
-    font-weight: 400;
+/* Metadatos: fecha y hora como píldoras secundarias de bajo contraste, con
+   fondo, radio y espaciado comunes. El textolocalizado lo sigue produciendo
+   dateUtils.js; aquí sólo se presenta. */
+.task-date,
+.task-time {
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.4;
+    white-space: nowrap;
+    padding: 2px 9px;
+    border-radius: 999px;
+    background-color: var(--task-meta-bg);
+    color: var(--task-meta-ink);
+}
+
+.task-time {
+    flex-shrink: 0;
 }
 
 /* La hora es opcional: el span existe siempre pero vacío cuando la tarea no
-   tiene hora, así que no ocupa nada. */
-.task-time {
-    font-size: 0.8rem;
-    opacity: 0.7;
-    font-weight: 400;
-    margin-top: -4px;
+   tiene hora. display:none lo saca del layout sin borrarlo del DOM, que es
+   lo que esperan el renderizador y la edición. */
+.task-time:empty {
+    display: none;
 }
 
+/* En la línea de metadatos manda el badge a la izquierda y empuja la
+   fecha/hora a la derecha. */
 .recurrence-badge {
     font-size: 0.7rem;
     font-weight: 700;
     text-transform: uppercase;
     color: var(--primary);
     opacity: 0.8;
+    margin-right: auto;
 }
 
 .delete-button, .edit-button, .subtask-button, .recurrence-button {
