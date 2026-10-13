@@ -12,6 +12,9 @@
        lugar de bajar la opacidad del texto. */
     --task-meta-bg: rgba(15, 23, 42, 0.05);
     --task-meta-ink: #5A6472;
+    /* Etiqueta de recurrencia: tinta con contraste AA (el --primary crudo se
+       quedaba en ~3:1, y antes bajaba además con opacity 0.8). */
+    --recurrence-ink: #4B45C7;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,6 +25,8 @@
         --task-shadow-hover: 0 2px 6px rgba(0, 0, 0, 0.55), 0 16px 34px rgba(0, 0, 0, 0.45);
         --task-meta-bg: rgba(255, 255, 255, 0.07);
         --task-meta-ink: #A8B0C0;
+        /* Sobre oscuro el morado de marca es demasiado apagado: se aclara. */
+        --recurrence-ink: #A9A2FF;
     }
 }
 
@@ -159,8 +164,7 @@
     font-size: 0.7rem;
     font-weight: 700;
     text-transform: uppercase;
-    color: var(--primary);
-    opacity: 0.8;
+    color: var(--recurrence-ink);
     margin-right: auto;
 }
 

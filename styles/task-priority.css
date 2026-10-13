@@ -7,6 +7,14 @@
     --prio-medium: #FFA500;
     --prio-low: #6DB37A;
 
+    /* Tinta profunda para los indicadores (barra y punto). Los colores de
+       marca se quedan en ~2:1 sobre la tarjeta clara y WCAG 1.4.11 pide 3:1
+       para objetos gráficos que transmiten información: mismo tono, más
+       profundidad. En oscuro los de marca ya pasan, así que se reutilizan. */
+    --prio-high-ink: #E5484D;
+    --prio-medium-ink: #B45309;
+    --prio-low-ink: #3E8E41;
+
     /* Tinte de fondo: 2-3% del color de prioridad sobre la superficie de la
        tarjeta (--wrpprbck). Suficiente para leerse sin teñir la tarjeta. */
     --prio-high-tint: rgba(255, 107, 107, 0.03);
@@ -31,6 +39,11 @@
         --prio-medium-tint: rgba(255, 165, 0, 0.08);
         --prio-low-tint: rgba(109, 179, 122, 0.07);
 
+        /* Los colores de marca ya cumplen contraste sobre oscuro. */
+        --prio-high-ink: var(--prio-high);
+        --prio-medium-ink: var(--prio-medium);
+        --prio-low-ink: var(--prio-low);
+
         --done-bg: rgba(109, 179, 122, 0.16);
         --done-border: rgba(109, 179, 122, 0.38);
         --done-ink: #A9C3B0;
@@ -50,12 +63,12 @@
     bottom: 10px;
     width: 3px;
     border-radius: 999px;
-    background-color: var(--prio);
+    background-color: var(--prio-ink);
 }
 
-.priority-high   { --prio: var(--prio-high);   background-color: var(--prio-high-tint); }
-.priority-medium { --prio: var(--prio-medium); background-color: var(--prio-medium-tint); }
-.priority-low    { --prio: var(--prio-low);    background-color: var(--prio-low-tint); }
+.priority-high   { --prio: var(--prio-high); --prio-ink: var(--prio-high-ink);   background-color: var(--prio-high-tint); }
+.priority-medium { --prio: var(--prio-medium); --prio-ink: var(--prio-medium-ink); background-color: var(--prio-medium-tint); }
+.priority-low    { --prio: var(--prio-low);    --prio-ink: var(--prio-low-ink);    background-color: var(--prio-low-tint); }
 
 /* Punto circular junto al texto de la tarea. pseudoelemento inline-block con
    margen reservado: no entra en textContent, así que storage.js sigue
@@ -68,7 +81,7 @@
     height: 8px;
     margin-right: 8px;
     border-radius: 50%;
-    background-color: var(--prio);
+    background-color: var(--prio-ink);
 }
 
 /* Estado completado. */
