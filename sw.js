@@ -2,7 +2,7 @@
 // sw.js — Service Worker: caché offline del app shell
 // ============================================================
 
-const CACHE_VERSION = 'v10';                // ← subir en cada deploy con cambios relevantes
+const CACHE_VERSION = 'v11';                // ← subir en cada deploy con cambios relevantes
 const CACHE_NAME = `todolist-${CACHE_VERSION}`;
 
 const APP_SHELL = [
@@ -51,6 +51,9 @@ const APP_SHELL = [
   './assets/fonts/poppins-v24-latin-700.woff2',
   './assets/fonts/roboto-v50-latin-regular.woff2',
   './assets/fonts/roboto-v50-latin-500.woff2',
+
+  // Ilustración del estado vacío
+  './assets/empty-state.svg',
 
   // Íconos
   './assets/favicon.svg',
