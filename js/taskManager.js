@@ -134,6 +134,21 @@ export const highlightDueTasks = () => {
     });
 };
 
+/**
+ * ¿Pasa esta tarea el Modo Enfoque?
+ *
+ * Contraparte en JS de las reglas `:has(.due-today)` y
+ * `:has(.priority-high:not(.done))` de styles/filter.css: si se cambian
+ * esas reglas, hay que cambiar también este criterio (lo usa search.js
+ * para decidir si el Modo Enfoque deja la lista visualmente vacía).
+ */
+export const isVisibleInFocusMode = (wrapper) => {
+    const taskEl = wrapper.querySelector('.task');
+    if (!taskEl) return false;
+    return taskEl.classList.contains('due-today')
+        || (taskEl.classList.contains('priority-high') && !taskEl.classList.contains('done'));
+};
+
 export const toggleFilterToday = (event) => {
     const button   = event.target;
     const isActive = tasksContainer.classList.toggle('filter-today-active');

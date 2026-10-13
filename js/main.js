@@ -14,7 +14,7 @@ import { initImportExport, exportTasks,
 import { initPWA }                                 from './pwa.js';
 import { initUpdateNotifier }                       from './updateNotifier.js';
 import { initUndoManager }                          from './undoManager.js';
-import { initSearch }                                from './search.js';
+import { initSearch, applySearch }                  from './search.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const tasksContainer = document.getElementById('tasksContainer');
@@ -51,7 +51,9 @@ document.addEventListener('DOMContentLoaded', () => {
         .addEventListener('click', renderOrderedTasks);
 
     document.querySelector('.filterButton')
-        .addEventListener('click', toggleFilterToday);
+        // Alternar el Modo Enfoque sólo cambia clases: el MutationObserver de
+        // search.js no lo ve, así que hay que recalcular los estados vacíos a mano.
+        .addEventListener('click', (event) => { toggleFilterToday(event); applySearch(); });
 
     document.querySelector('[data-action="export"]')
         ?.addEventListener('click', exportTasks);
