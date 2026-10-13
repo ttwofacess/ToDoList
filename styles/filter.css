@@ -1,5 +1,9 @@
 /* filter.css — Lógica de filtrado */
 
+/* OJO: este criterio está duplicado en JS (isVisibleInFocusMode, en
+   js/taskManager.js), que lo necesita para decidir si el Modo Enfoque deja
+   la lista visualmente vacía. Si se tocan estas reglas, hay que tocar también
+   esa función. */
 #tasksContainer.filter-today-active .task-wrapper {
     display: none;
 }

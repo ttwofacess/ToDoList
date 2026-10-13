@@ -31,6 +31,7 @@
     <link rel="stylesheet" href="styles/donate-modal.css">
     <link rel="stylesheet" href="styles/filter.css">
     <link rel="stylesheet" href="styles/search.css">
+    <link rel="stylesheet" href="styles/empty-state.css">
     <link rel="stylesheet" href="styles/animations.css">
     <link rel="stylesheet" href="styles/toast.css">
     <script src="./assets/vendor/purify.min.js"></script>
@@ -75,7 +76,15 @@
         </div>
         <p id="searchEmpty" class="search-empty" role="status" aria-live="polite"
            data-i18n-key="searchNoResults" hidden>No tasks match your search.</p>
+        <p id="filterEmpty" class="search-empty" role="status" aria-live="polite"
+           data-i18n-key="filterNoTasks" hidden>No tasks to show with this filter.</p>
         <div id="tasksContainer"></div>
+        <div id="emptyState" class="empty-state" hidden>
+            <img class="empty-state-image" src="./assets/empty-state.svg"
+                 alt="" width="120" height="120">
+            <p class="empty-state-title" data-i18n-key="emptyStateTitle">Your list is empty</p>
+            <p class="empty-state-text" data-i18n-key="emptyStateText">Add your first task to get started.</p>
+        </div>
         <div class="donate-wrapper">
             <button type="button" id="donateButton" class="roundBorder" data-i18n-key="donateButton">Donate</button>
         </div>

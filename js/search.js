@@ -4,11 +4,14 @@
 // ============================================================
 
 import { t } from './i18n.js';
+import { isVisibleInFocusMode } from './taskManager.js';
 
 let tasksContainer = null;
 let input    = null;
 let clearBtn = null;
 let emptyEl  = null;
+let emptyStateEl  = null;
+let filterEmptyEl = null;
 let observer = null;
 
 // ─── Funciones puras ───────────────────────────────────────
@@ -51,18 +54,23 @@ export const getSearchableText = (wrapper) => {
 export const applySearch = () => {
     if (!tasksContainer) return;
 
-    const raw    = input?.value ?? '';
-    const tokens = parseQuery(raw);
-    const active = tokens.length > 0;
-    let matches  = 0;
+    const raw      = input?.value ?? '';
+    const tokens   = parseQuery(raw);
+    const active   = tokens.length > 0;
+    const wrappers = tasksContainer.querySelectorAll('.task-wrapper');
+    const total    = wrappers.length;
+    const focus    = tasksContainer.classList.contains('filter-today-active');
+    let   matches  = 0;
+    let   onFocus  = 0;
 
-    tasksContainer.querySelectorAll('.task-wrapper').forEach((wrapper) => {
+    wrappers.forEach((wrapper) => {
         // Nunca ocultar una tarea que el usuario tiene abierta en el modal
         const keep = !active
             || isModalActive(wrapper)
             || matchesQuery(getSearchableText(wrapper), tokens);
         wrapper.classList.toggle('search-hidden', !keep);
         if (keep) matches++;
+        if (isVisibleInFocusMode(wrapper)) onFocus++;
 
         // Pista: si el título NO contiene todos los términos, mostrar la primera subtarea que coincida
         delete wrapper.dataset.searchHint;
@@ -77,8 +85,18 @@ export const applySearch = () => {
     });
 
     tasksContainer.classList.toggle('search-active', active);
-    if (emptyEl)  emptyEl.hidden  = !(active && matches === 0);
-    if (clearBtn) clearBtn.hidden = raw === '';
+
+    // Estados vacíos, mutuamente excluyentes: la consulta activa manda (con
+    // ella sólo se ve #searchEmpty) y sin consulta se ve #emptyState si no hay
+    // ninguna tarea, o #filterEmpty si el Modo Enfoque las oculta todas.
+    const showSearchEmpty = active && matches === 0;
+    const showEmptyState  = !active && total === 0;
+    const showFilterEmpty = !active && total > 0 && focus && onFocus === 0;
+
+    if (emptyEl)       emptyEl.hidden       = !showSearchEmpty;
+    if (emptyStateEl)  emptyStateEl.hidden  = !showEmptyState;
+    if (filterEmptyEl) filterEmptyEl.hidden = !showFilterEmpty;
+    if (clearBtn)      clearBtn.hidden      = raw === '';
 };
 
 export const clearSearch = () => {
@@ -93,6 +111,8 @@ export const initSearch = (container) => {
     input    = document.getElementById('taskSearch');
     clearBtn = document.getElementById('taskSearchClear');
     emptyEl  = document.getElementById('searchEmpty');
+    emptyStateEl  = document.getElementById('emptyState');
+    filterEmptyEl = document.getElementById('filterEmpty');
     if (!input || !container) return;
 
     // Debe llamarse DESPUÉS de detectLanguage() para que t() ya use el idioma correcto
@@ -112,11 +132,11 @@ export const initSearch = (container) => {
 
     // Reaplicar el filtro cuando el DOM de tareas cambie (alta, edición,
     // borrado, deshacer, importar, subtareas movidas al/desde el modal...).
+    // Se recalcula siempre, también con la consulta vacía: los estados
+    // vacíos dependen del total de tareas, no de la consulta.
     // Alternar clases = mutación de atributos → NO se observa → sin bucles.
     observer?.disconnect();
-    observer = new MutationObserver(() => {
-        if (input.value.trim()) applySearch();
-    });
+    observer = new MutationObserver(() => { applySearch(); });
     observer.observe(container, { childList: true, subtree: true, characterData: true });
 
     applySearch();

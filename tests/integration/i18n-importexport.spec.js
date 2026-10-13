@@ -62,6 +62,55 @@ test.describe('i18n — detección de idioma', () => {
   });
 });
 
+test.describe('i18n — estados vacíos', () => {
+  // Lista vacía: el empty state se pinta al cargar, así que basta con abrir la
+  // app con cada locale (detectLanguage() corre antes de initSearch()).
+  for (const [locale, title, text] of [
+    ['es-ES', 'Tu lista está vacía', 'Añade tu primera tarea para empezar.'],
+    ['en-US', 'Your list is empty', 'Add your first task to get started.'],
+    ['pt-BR', 'Sua lista está vazia', 'Adicione sua primeira tarefa para começar.'],
+  ]) {
+    test(`el empty state está traducido en ${locale}`, async ({ browser }) => {
+      const ctx = await browser.newContext({ locale });
+      const page = await ctx.newPage();
+      await page.goto('/index.html');
+      await page.waitForFunction(() => document.getElementById('dateYear')?.textContent?.length > 0);
+
+      await expect(page.locator('.empty-state-title')).toHaveText(title);
+      await expect(page.locator('.empty-state-text')).toHaveText(text);
+      await ctx.close();
+    });
+  }
+
+  for (const [locale, filter] of [
+    ['es-ES', 'No hay tareas para mostrar con este filtro.'],
+    ['en-US', 'No tasks to show with this filter.'],
+    ['pt-BR', 'Nenhuma tarefa para mostrar com este filtro.'],
+  ]) {
+    test(`el aviso del Modo Enfoque está traducido en ${locale}`, async ({ browser }) => {
+      const ctx = await browser.newContext({ locale });
+      const page = await ctx.newPage();
+      await page.goto('/index.html');
+      await page.evaluate(() => localStorage.clear());
+      await page.reload();
+      await page.waitForFunction(() => document.getElementById('dateYear')?.textContent?.length > 0);
+
+      // Una tarea que el Modo Enfoque oculta (otra fecha, prioridad baja)
+      await page.evaluate(() => localStorage.setItem('tasks', JSON.stringify([
+        { text: 'Para otro día', done: false, date: '01/01/2030', priority: 'low' },
+      ])));
+      await page.reload();
+      await page.waitForSelector('.task-wrapper');
+
+      await page.click('.orderButton-wrapper .filterButton');
+
+      await expect(page.locator('#filterEmpty')).toBeVisible();
+      await expect(page.locator('#filterEmpty')).toHaveText(filter);
+      await ctx.close();
+    });
+  }
+});
+
 test.describe('i18n — coherencia con el resto de la app', () => {
   test('el placeholder del input sigue al idioma', async ({ browser }) => {
     for (const [locale, expected] of [['es-ES', 'Nueva tarea'], ['en-US', 'New task']]) {

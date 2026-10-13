@@ -60,6 +60,9 @@ export const translations = {
         searchPlaceholder: 'Search tasks and subtasks…',
         searchClear: 'Clear search',
         searchNoResults: 'No tasks match your search.',
+        emptyStateTitle: 'Your list is empty',
+        emptyStateText: 'Add your first task to get started.',
+        filterNoTasks: 'No tasks to show with this filter.',
     },
     es: {
         pageTitle: 'Lista de Tareas',
@@ -118,6 +121,9 @@ export const translations = {
         searchPlaceholder: 'Buscar en tareas y subtareas…',
         searchClear: 'Borrar búsqueda',
         searchNoResults: 'Ninguna tarea coincide con tu búsqueda.',
+        emptyStateTitle: 'Tu lista está vacía',
+        emptyStateText: 'Añade tu primera tarea para empezar.',
+        filterNoTasks: 'No hay tareas para mostrar con este filtro.',
     },
     pt: {
         pageTitle: 'Lista de Tarefas',
@@ -176,6 +182,9 @@ export const translations = {
         searchPlaceholder: 'Buscar em tarefas e subtarefas…',
         searchClear: 'Limpar busca',
         searchNoResults: 'Nenhuma tarefa corresponde à sua busca.',
+        emptyStateTitle: 'Sua lista está vazia',
+        emptyStateText: 'Adicione sua primeira tarefa para começar.',
+        filterNoTasks: 'Nenhuma tarefa para mostrar com este filtro.',
     }
 };
 
