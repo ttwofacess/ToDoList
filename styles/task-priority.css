@@ -1,20 +1,119 @@
 /* task-priority.css — Prioridades y estado completado */
 
-.priority-high { border-left: 5px solid #FF6B6B; }
-.priority-medium { border-left: 5px solid #FFA500; }
-.priority-low { border-left: 5px solid #6DB37A; }
+/* Color de prioridad: una variable por clase alimenta el indicador lateral,
+   el punto junto al texto y el tinte de fondo. Los hex son los de siempre. */
+:root {
+    --prio-high: #FF6B6B;
+    --prio-medium: #FFA500;
+    --prio-low: #6DB37A;
 
-.done {
-    background-color: var(--donetsk);
-    color: white;
-    border-color: var(--donetsk);
+    /* Tinta profunda para los indicadores (barra y punto). Los colores de
+       marca se quedan en ~2:1 sobre la tarjeta clara y WCAG 1.4.11 pide 3:1
+       para objetos gráficos que transmiten información: mismo tono, más
+       profundidad. En oscuro los de marca ya pasan, así que se reutilizan. */
+    --prio-high-ink: #E5484D;
+    --prio-medium-ink: #B45309;
+    --prio-low-ink: #3E8E41;
+
+    /* Tinte de fondo: 2-3% del color de prioridad sobre la superficie de la
+       tarjeta (--wrpprbck). Suficiente para leerse sin teñir la tarjeta. */
+    --prio-high-tint: rgba(255, 107, 107, 0.03);
+    --prio-medium-tint: rgba(255, 165, 0, 0.04);
+    --prio-low-tint: rgba(109, 179, 122, 0.03);
+
+    /* Estado completado. Antes era verde sólido con texto blanco: dominaba la
+       tarjeta y dejaba los metadatos al límite del contraste. Ahora es un
+       verde muy desaturado de fondo con tokens propios de texto, tachado,
+       borde y etiqueta, calculados para mantener el contraste. */
+    --done-bg: rgba(109, 179, 122, 0.14);
+    --done-border: rgba(109, 179, 122, 0.42);
+    --done-ink: #4A5D50;
+    --done-strike: rgba(74, 93, 80, 0.55);
+    --done-badge: #2A6B42;
 }
 
+@media (prefers-color-scheme: dark) {
+    :root {
+        /* Sobre fondo oscuro el mismo porcentaje casi no se percibe. */
+        --prio-high-tint: rgba(255, 107, 107, 0.07);
+        --prio-medium-tint: rgba(255, 165, 0, 0.08);
+        --prio-low-tint: rgba(109, 179, 122, 0.07);
+
+        /* Los colores de marca ya cumplen contraste sobre oscuro. */
+        --prio-high-ink: var(--prio-high);
+        --prio-medium-ink: var(--prio-medium);
+        --prio-low-ink: var(--prio-low);
+
+        --done-bg: rgba(109, 179, 122, 0.16);
+        --done-border: rgba(109, 179, 122, 0.38);
+        --done-ink: #A9C3B0;
+        --done-strike: rgba(169, 195, 176, 0.55);
+        --done-badge: #8FD6A4;
+    }
+}
+
+/* Indicador lateral fino (3px) de extremos redondeados. Va en un
+   pseudoelemento posicionado en absoluto, así no ocupa espacio de layout ni
+   desplaza texto: los 15px de padding de .task ya lo dejan claro. */
+.task::before {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 10px;
+    bottom: 10px;
+    width: 3px;
+    border-radius: 999px;
+    background-color: var(--prio-ink);
+}
+
+.priority-high   { --prio: var(--prio-high); --prio-ink: var(--prio-high-ink);   background-color: var(--prio-high-tint); }
+.priority-medium { --prio: var(--prio-medium); --prio-ink: var(--prio-medium-ink); background-color: var(--prio-medium-tint); }
+.priority-low    { --prio: var(--prio-low);    --prio-ink: var(--prio-low-ink);    background-color: var(--prio-low-tint); }
+
+/* Punto circular junto al texto de la tarea. pseudoelemento inline-block con
+   margen reservado: no entra en textContent, así que storage.js sigue
+   encontrando el texto intacto. */
+.task-text::before {
+    content: "";
+    display: inline-block;
+    vertical-align: middle;
+    width: 8px;
+    height: 8px;
+    margin-right: 8px;
+    border-radius: 50%;
+    background-color: var(--prio-ink);
+}
+
+/* Estado completado. */
+.done {
+    background-color: var(--done-bg);
+    border-color: var(--done-border);
+}
+
+/* Tachado fino y discreto sobre un texto atenuado pero legible. */
 .done .task-text {
+    color: var(--done-ink);
     text-decoration: line-through;
-    opacity: 0.7;
+    text-decoration-thickness: 1px;
+    text-decoration-color: var(--done-strike);
+}
+
+/* La prioridad no debe competir con el estado terminado: se atenúa el
+   indicador lateral y el punto en lugar de borrarlos. */
+.done::before,
+.done .task-text::before {
+    opacity: 0.3;
+}
+
+/* El hover mantiene el borde verde en lugar del neutro del resto. */
+.task.done:hover,
+.task.done:focus-visible {
+    border-color: var(--done-border);
 }
 
 .done .recurrence-badge {
-    color: white;
+    color: var(--done-badge);
+    /* La etiqueta trae opacity 0.8 de tasks.css: sobre el verde completado
+       eso la dejaba por debajo del contraste mínimo. */
+    opacity: 1;
 }
