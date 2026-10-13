@@ -267,6 +267,165 @@ test.describe('La búsqueda con la lista en movimiento', () => {
   });
 });
 
+// ── Presentaciones cuando la lista no tiene nada que mostrar ──
+test.describe('Estados vacíos', () => {
+  /** Qué bloque está viendo el usuario ahora mismo. */
+  const notices = (page) => page.evaluate(() => ({
+    empty:  !document.getElementById('emptyState').hidden,
+    search: !document.getElementById('searchEmpty').hidden,
+    filter: !document.getElementById('filterEmpty').hidden,
+  }));
+
+  test('con la lista vacía aparece el empty state ilustrado y traducido', async ({ page }) => {
+    await expect(page.locator('#emptyState')).toBeVisible();
+    await expect(page.locator('.empty-state-title')).toHaveText('Tu lista está vacía');
+    await expect(page.locator('.empty-state-text')).toHaveText('Añade tu primera tarea para empezar.');
+    await expect(page.locator('.empty-state-image')).toBeVisible();
+    expect(await notices(page)).toEqual({ empty: true, search: false, filter: false });
+  });
+
+  test('el empty state no cuenta como tarea ni se persiste', async ({ page }) => {
+    await expect(page.locator('#emptyState')).toBeVisible();
+    await expect(page.locator('#tasksContainer .task-wrapper')).toHaveCount(0);
+    await expect(page.locator('#tasksContainer > *')).toHaveCount(0);
+    expect(await readStorage(page)).toEqual([]);
+  });
+
+  test('al crear la primera tarea el empty state desaparece', async ({ page }) => {
+    await expect(page.locator('#emptyState')).toBeVisible();
+
+    await addTask(page, { text: 'Comprar pan' });
+
+    await expect(page.locator('.task-wrapper')).toHaveCount(1);
+    await expect(page.locator('#emptyState')).toBeHidden();
+  });
+
+  test('borrar la última tarea lo devuelve y deshacerlo lo oculta', async ({ page }) => {
+    await addTask(page, { text: 'Comprar pan' });
+    await expect(page.locator('#emptyState')).toBeHidden();
+
+    await page.locator('.task-wrapper .task').click();
+    await page.click('#actionDelete');
+    await expect(page.locator('.task-wrapper')).toHaveCount(0);
+    await expect(page.locator('#emptyState')).toBeVisible();
+
+    await page.click('#undoButton');
+    await expect(page.locator('.task-wrapper')).toHaveCount(1);
+    await expect(page.locator('#emptyState')).toBeHidden();
+  });
+
+  test('importar una lista vacía muestra el empty state', async ({ page }) => {
+    await seed(page, [PAN]);
+    await expect(page.locator('#emptyState')).toBeHidden();
+
+    captureDialogs(page);
+    await page.setInputFiles('#importInput', {
+      name: 'backup.json', mimeType: 'application/json',
+      buffer: Buffer.from('[]'),
+    });
+
+    await expect(page.locator('.task-wrapper')).toHaveCount(0);
+    await expect(page.locator('#emptyState')).toBeVisible();
+  });
+
+  test('con tareas guardadas y búsqueda sin coincidencias gana #searchEmpty', async ({ page }) => {
+    await seed(page, [PAN, CASA]);
+    await page.fill('#taskSearch', 'zzzz');
+
+    await expect(page.locator('#searchEmpty')).toBeVisible();
+    await expect(page.locator('#emptyState')).toBeHidden();
+    await expect(page.locator('#filterEmpty')).toBeHidden();
+  });
+
+  test('con la lista vacía y búsqueda activa tampoco aparece el empty state', async ({ page }) => {
+    await page.fill('#taskSearch', 'zzzz');
+
+    expect(await notices(page)).toEqual({ empty: false, search: true, filter: false });
+  });
+
+  test('una consulta de sólo espacios no activa la búsqueda', async ({ page }) => {
+    await page.fill('#taskSearch', '   ');
+
+    await expect(page.locator('#searchEmpty')).toBeHidden();
+    await expect(page.locator('#emptyState')).toBeVisible();
+  });
+
+  test('limpiar la búsqueda deja la lista tal cual estaba', async ({ page }) => {
+    await seed(page, [PAN, CASA]);
+    await page.fill('#taskSearch', 'zzzz');
+    await expect(page.locator('#searchEmpty')).toBeVisible();
+
+    await page.click('#taskSearchClear');
+
+    expect(await notices(page)).toEqual({ empty: false, search: false, filter: false });
+    expect(await visibleTexts(page)).toEqual(['Comprar pan', 'Limpiar casa']);
+  });
+
+  test('el Modo Enfoque sin tareas visibles muestra su propio aviso', async ({ page }) => {
+    // Ni vence hoy ni es de prioridad alta: el Modo Enfoque la oculta.
+    await seed(page, [task('Para otro día', { priority: 'medium' })]);
+    await expect(page.locator('.task-wrapper:visible')).toHaveCount(1);
+
+    await page.click('.orderButton-wrapper .filterButton');
+
+    await expect(page.locator('#filterEmpty')).toBeVisible();
+    await expect(page.locator('#filterEmpty'))
+      .toHaveText('No hay tareas para mostrar con este filtro.');
+    await expect(page.locator('.task-wrapper:visible')).toHaveCount(0);
+    expect(await notices(page)).toEqual({ empty: false, search: false, filter: true });
+
+    await page.click('.orderButton-wrapper .filterButton');
+
+    await expect(page.locator('#filterEmpty')).toBeHidden();
+    await expect(page.locator('.task-wrapper:visible')).toHaveCount(1);
+  });
+
+  test('con Modo Enfoque y una tarea de hoy no hay ningún aviso', async ({ page }) => {
+    const today = new Date().toLocaleDateString('es-ES');
+    await seed(page, [task('Para hoy', { date: today })]);
+
+    await page.click('.orderButton-wrapper .filterButton');
+
+    await expect(page.locator('.task-wrapper:visible')).toHaveCount(1);
+    expect(await notices(page)).toEqual({ empty: false, search: false, filter: false });
+  });
+
+  test('la búsqueda activa manda sobre el Modo Enfoque', async ({ page }) => {
+    await seed(page, [task('Para otro día', { priority: 'medium' })]);
+    await page.click('.orderButton-wrapper .filterButton');
+    await expect(page.locator('#filterEmpty')).toBeVisible();
+
+    await page.fill('#taskSearch', 'zzzz');
+
+    await expect(page.locator('#searchEmpty')).toBeVisible();
+    expect(await notices(page)).toEqual({ empty: false, search: true, filter: false });
+  });
+
+  test('los estados vacíos no añaden nada enfocado al recorrido del teclado', async ({ page }) => {
+    // Lista vacía: el empty state está visible, pero no aporta nada enfocable.
+    await expect(page.locator('#emptyState')).toBeVisible();
+    await expect(page.locator('#emptyState button, #emptyState a, #emptyState input')).toHaveCount(0);
+
+    // Con una tarea que el Modo Enfoque oculta se ven los dos avisos en el DOM
+    // (nunca visibles a la vez) y se comprueba el alt decorativo.
+    await seed(page, [task('Para otro día', { priority: 'medium' })]);
+    await page.click('.orderButton-wrapper .filterButton');
+    await expect(page.locator('#filterEmpty')).toBeVisible();
+
+    // La ilustración es decorativa (el título y el texto ya dicen lo mismo) y
+    // los dos avisos de texto son los que anuncian por role=status.
+    await expect(page.locator('.empty-state-image')).toHaveAttribute('alt', '');
+    await expect(page.locator('#searchEmpty')).toHaveAttribute('role', 'status');
+    await expect(page.locator('#filterEmpty')).toHaveAttribute('role', 'status');
+
+    // Ni controles nuevos: del buscador se sale por donde se salía antes, a
+    // por el siguiente botón (las tarjetas de tarea nunca fueron enfocables).
+    await page.locator('#taskSearch').focus();
+    await page.keyboard.press('Tab');
+    await expect(page.locator('#donateButton')).toBeFocused();
+  });
+});
+
 test.describe('La tarea abierta en el modal', () => {
   test('si coincide sólo por subtarea, sigue visible mientras el modal está abierto', async ({ page }) => {
     await seed(page, [CENA, CASA]);

@@ -16,12 +16,16 @@ import { initTaskManager, loadTasks } from '../../js/taskManager.js';
 import { openActionModal } from '../../js/modalManager.js';
 import { setLanguage } from '../../js/i18n.js';
 import { writeTasks, readTasks } from '../../js/storage.js';
+import { deleteTask, restoreTask } from '../../js/taskActions.js';
+import { formatDisplayDate } from '../../js/dateUtils.js';
 
 describe('search', () => {
   let container;
   let input;
   let clearBtn;
   let emptyEl;
+  let emptyStateEl;
+  let filterEmptyEl;
 
   /** Escribe tareas, las renderiza y las deja listas para buscar. */
   const seed = (tasks) => {
@@ -47,6 +51,8 @@ describe('search', () => {
     input    = document.getElementById('taskSearch');
     clearBtn = document.getElementById('taskSearchClear');
     emptyEl  = document.getElementById('searchEmpty');
+    emptyStateEl  = document.getElementById('emptyState');
+    filterEmptyEl = document.getElementById('filterEmpty');
 
     initTaskManager(container, vi.fn(), vi.fn());
     setLanguage('es');
@@ -423,6 +429,176 @@ describe('search', () => {
       expect(container.querySelector('#taskSearch')).toBeNull();   // el input vive en index.html
       expect(input.value).toBe('pan');                              // el estado no se guarda
       expect(localStorage.getItem('search')).toBeNull();
+    });
+  });
+
+  // ── Estados vacíos ─────────────────────────────────────────
+  // Matriz: consulta inactiva y 0 tareas → #emptyState; consulta activa y
+  // 0 coincidencias → #searchEmpty; enfoque activo sin tareas visibles
+  // → #filterEmpty. Nunca se ven dos a la vez.
+  describe('estados vacíos', () => {
+    const today = () => formatDisplayDate(new Date());
+
+    // Los callbacks del MutationObserver se encolan como microtareas.
+    const flush = () => new Promise(resolve => setTimeout(resolve, 0));
+
+    /** Qué bloque está visible ahora mismo. */
+    const notices = () => ({
+      empty:  !emptyStateEl.hidden,
+      search: !emptyEl.hidden,
+      filter: !filterEmptyEl.hidden,
+    });
+
+    it('los nodos de estado viven fuera de #tasksContainer', () => {
+      seed([{ text: 'Comprar pan', done: false }]);
+      expect(container.contains(emptyStateEl)).toBe(false);
+      expect(container.contains(filterEmptyEl)).toBe(false);
+      expect(container.children).toHaveLength(1);          // sólo el wrapper
+    });
+
+    it('con cero tareas y consulta vacía sólo aparece #emptyState', () => {
+      seed([]);
+      applySearch();
+      expect(notices()).toEqual({ empty: true, search: false, filter: false });
+    });
+
+    it('la primera tarea oculta #emptyState', async () => {
+      seed([]);
+      applySearch();
+      expect(notices().empty).toBe(true);
+
+      seed([{ text: 'Comprar pan', done: false }]);
+      await flush();                       // el MutationObserver recalcula solo
+      expect(notices()).toEqual({ empty: false, search: false, filter: false });
+    });
+
+    it('borrar la última tarea vuelve a mostrar #emptyState', async () => {
+      seed([{ text: 'Comprar pan', done: false }]);
+      applySearch();
+      expect(notices().empty).toBe(false);
+
+      deleteTask(container.querySelector('.task-wrapper'), container);
+      await flush();
+      expect(notices().empty).toBe(true);
+    });
+
+    it('deshacer el borrado de la última tarea lo oculta', async () => {
+      seed([
+        { text: 'Comprar pan', done: false },
+        { text: 'Limpiar casa', done: false },
+      ]);
+      const [first, second] = [...container.querySelectorAll('.task-wrapper')];
+
+      const snapshot = deleteTask(second, container);
+      await flush();
+      expect(notices().empty).toBe(false);      // todavía queda una
+
+      deleteTask(first, container);
+      await flush();
+      expect(notices().empty).toBe(true);
+
+      restoreTask(snapshot, container);
+      await flush();
+      expect(notices().empty).toBe(false);
+    });
+
+    it('una importación vacía vuelve a mostrar #emptyState', async () => {
+      seed([{ text: 'Comprar pan', done: false }]);
+      applySearch();
+      expect(notices().empty).toBe(false);
+
+      writeTasks([]);
+      loadTasks();
+      await flush();
+      expect(notices().empty).toBe(true);
+    });
+
+    it('la consulta activa manda: con cero tareas se ve #searchEmpty', () => {
+      seed([]);
+      type('zzz');
+      expect(notices()).toEqual({ empty: false, search: true, filter: false });
+    });
+
+    it('una consulta de sólo espacios no cuenta como activa', () => {
+      seed([]);
+      type('   ');
+      expect(notices()).toEqual({ empty: true, search: false, filter: false });
+    });
+
+    it('con coincidencias no se ve ningún estado vacío', () => {
+      seed([{ text: 'Comprar pan', done: false }]);
+      type('pan');
+      expect(notices()).toEqual({ empty: false, search: false, filter: false });
+    });
+
+    it('limpiar la búsqueda con cero tareas deja #emptyState', () => {
+      seed([]);
+      type('zzz');
+      clearSearch();
+      expect(notices()).toEqual({ empty: true, search: false, filter: false });
+    });
+
+    describe('Modo Enfoque sin tareas visibles', () => {
+      // El filtro real sólo cambia clases: quien recalcula es el módulo, así
+      // que aquí se alterna la clase y se llama a applySearch() como hace
+      // el click del botón (main.js encadena toggleFilterToday + applySearch).
+      const focusOn  = () => {
+        container.classList.add('filter-today-active');
+        applySearch();
+      };
+      const focusOff = () => {
+        container.classList.remove('filter-today-active');
+        applySearch();
+      };
+
+      it('muestra #filterEmpty cuando el Modo Enfoque oculta todas', () => {
+        seed([{ text: 'Para otro día', done: false, date: '01/01/2030', priority: 'low' }]);
+        focusOn();
+        expect(notices()).toEqual({ empty: false, search: false, filter: true });
+      });
+
+      it('no muestra nada si una tarea vence hoy', () => {
+        seed([
+          { text: 'Para hoy', done: false, date: today(), priority: 'low' },
+          { text: 'Para otro día', done: false, date: '01/01/2030', priority: 'low' },
+        ]);
+        focusOn();
+        expect(notices().filter).toBe(false);
+      });
+
+      it('no muestra nada si hay una tarea de prioridad alta sin completar', () => {
+        seed([{ text: 'Urgente', done: false, date: '01/01/2030', priority: 'high' }]);
+        focusOn();
+        expect(notices().filter).toBe(false);
+      });
+
+      it('una tarea alta ya completada no pasa el filtro', () => {
+        seed([{ text: 'Urgente hecha', done: true, date: '01/01/2030', priority: 'high' }]);
+        focusOn();
+        expect(notices().filter).toBe(true);
+      });
+
+      it('con cero tareas manda #emptyState, no el aviso del filtro', () => {
+        seed([]);
+        focusOn();
+        expect(notices()).toEqual({ empty: true, search: false, filter: false });
+      });
+
+      it('con consulta activa manda #searchEmpty', () => {
+        seed([{ text: 'Para otro día', done: false, date: '01/01/2030', priority: 'low' }]);
+        focusOn();
+        type('zzz');
+        expect(notices()).toEqual({ empty: false, search: true, filter: false });
+      });
+
+      it('al desactivar el Modo Enfoque el aviso desaparece', () => {
+        seed([{ text: 'Para otro día', done: false, date: '01/01/2030', priority: 'low' }]);
+        focusOn();
+        expect(notices().filter).toBe(true);
+
+        focusOff();
+        expect(notices()).toEqual({ empty: false, search: false, filter: false });
+      });
     });
   });
 });

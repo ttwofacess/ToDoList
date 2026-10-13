@@ -11,6 +11,7 @@ import {
   renderOrderedTasks,
   highlightDueTasks,
   toggleFilterToday,
+  isVisibleInFocusMode,
 } from '../../js/taskManager.js';
 import { setLanguage } from '../../js/i18n.js';
 import { formatDisplayDate } from '../../js/dateUtils.js';
@@ -524,6 +525,44 @@ describe('taskManager', () => {
 
     it('no lanza con el contenedor vacío', () => {
       expect(() => highlightDueTasks()).not.toThrow();
+    });
+  });
+
+  // ── isVisibleInFocusMode ───────────────────────────────────
+  // Contraparte JS de styles/filter.css: si cambian aquellas reglas, estos
+  // tests (y la función) tienen que cambiar con ellas.
+  describe('isVisibleInFocusMode()', () => {
+    const seedTask = (task) => {
+      writeTasks([task]);
+      loadTasks();
+      return container.querySelector('.task-wrapper');
+    };
+
+    // El reloj fake está en 15/06/2025 (ver el beforeEach de arriba).
+    const today = () => formatDisplayDate(new Date());
+
+    it('pasa si la tarea vence hoy', () => {
+      const wrapper = seedTask({ text: 'Hoy', done: false, date: today(), priority: 'low' });
+      expect(isVisibleInFocusMode(wrapper)).toBe(true);
+    });
+
+    it('pasa si es de prioridad alta y no está completada', () => {
+      const wrapper = seedTask({ text: 'Urgente', done: false, date: '01/01/2030', priority: 'high' });
+      expect(isVisibleInFocusMode(wrapper)).toBe(true);
+    });
+
+    it('no pasa si es alta pero está completada', () => {
+      const wrapper = seedTask({ text: 'Urgente hecha', done: true, date: '01/01/2030', priority: 'high' });
+      expect(isVisibleInFocusMode(wrapper)).toBe(false);
+    });
+
+    it('no pasa si no vence hoy y es de prioridad media o baja', () => {
+      const wrapper = seedTask({ text: 'Otro día', done: false, date: '01/01/2030', priority: 'medium' });
+      expect(isVisibleInFocusMode(wrapper)).toBe(false);
+    });
+
+    it('no pasa si el wrapper no contiene la tarjeta', () => {
+      expect(isVisibleInFocusMode(document.createElement('div'))).toBe(false);
     });
   });
 
