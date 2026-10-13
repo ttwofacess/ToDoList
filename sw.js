@@ -25,6 +25,7 @@ const APP_SHELL = [
   './styles/donate-modal.css',
   './styles/filter.css',
   './styles/search.css',
+  './styles/empty-state.css',
   './styles/animations.css',
   './styles/toast.css',
 

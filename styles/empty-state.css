@@ -1,0 +1,51 @@
+/* empty-state.css — Bloque ilustrado cuando la lista no tiene tareas (#emptyState) */
+
+:root {
+    /* Texto secundario: tinta con contraste AA en claro y en oscuro en lugar
+       de bajar la opacidad global, que atenúa también los bordes. */
+    --empty-state-ink: #5A6472;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --empty-state-ink: #A8B0C0;
+    }
+}
+
+#emptyState {
+    text-align: center;
+    /* Arriba separa del buscador (que ya trae 15px de margen); abajo deja que
+       el margin-top de .donate-wrapper complete el espacio. */
+    padding: 10px 5px 10px;
+    color: var(--maintxt);
+}
+
+/* `hidden` tiene que ganar a cualquier display del bloque */
+#emptyState[hidden] {
+    display: none;
+}
+
+.empty-state-image {
+    display: block;
+    /* Fluido: en móvil no roba ancho, en escritorio no crece sin límite */
+    width: clamp(104px, 36%, 148px);
+    height: auto;
+    margin: 0 auto 15px;
+}
+
+.empty-state-title {
+    margin: 0 0 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: clamp(1.05rem, 4.5vw, 1.25rem);
+    font-weight: 700;
+    color: var(--maintxt);
+}
+
+.empty-state-text {
+    max-width: 32ch;               /* líneas cortas: se lee de un vistazo */
+    margin: 0 auto;
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    color: var(--empty-state-ink);
+}
