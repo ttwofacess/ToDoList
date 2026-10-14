@@ -50,6 +50,16 @@
     --card-border: rgba(255, 255, 255, 0.65);
     --card-shadow: 0 1px 2px rgba(15, 23, 42, 0.07), 0 20px 45px rgba(15, 23, 42, 0.14);
     --card-radius: 22px;
+
+    /* NUEVO: Escala tipográfica mejorada */
+    --text-xs: 0.75rem;      /* 12px - metadata */
+    --text-sm: 0.875rem;     /* 14px - texto pequeño */
+    --text-base: 1rem;       /* 16px - body default */
+    --text-lg: 1.125rem;     /* 18px - tareas */
+    --text-xl: 1.25rem;      /* 20px - subtítulos */
+    --text-2xl: 1.5rem;      /* 24px - títulos sección */
+    --text-3xl: 2rem;        /* 32px - títulos grandes */
+    --text-hero: 3.5rem;     /* 56px - dateNumber */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -71,6 +81,8 @@ body {
     background-color: var(--bckgrndbdy);
     background-image: var(--page-bg);
     font-family: 'Roboto', sans-serif;
+    /* NUEVO: Line-height base más generoso */
+    line-height: 1.5;
     height: 100vh;
     margin: 0;
     display: flex;
