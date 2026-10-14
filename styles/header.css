@@ -12,6 +12,13 @@
 #dateNumber {
     font-size: 3.5rem;
     font-weight: 700;
+    /* NUEVO: Gradiente sutil del primary */
+    background: linear-gradient(135deg, var(--primary) 0%, #8B83FF 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    /* NUEVO: Tracking ajustado (ligeramente negativo para héroe) */
+    letter-spacing: -2px;
 }
 
 #dateText {
@@ -23,6 +30,42 @@
 
 #dateMonth,
 #dateYear {
-    font-size: 1.2rem;
-    margin-left: 10px;
+    font-size: 1rem;
+    margin-left: 8px;
+    /* NUEVO: Small caps con opacidad baja */
+    font-variant: small-caps;
+    opacity: 0.6;
+    letter-spacing: 1px;
+    font-weight: 500;
+}
+
+/* Ajustar el contenedor para mejor alineación */
+.dateLeft {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+/* Responsive typography */
+@media (max-width: 480px) {
+    #dateNumber {
+        font-size: 2.5rem;
+        letter-spacing: -1px;
+    }
+
+    #dateMonth,
+    #dateYear {
+        font-size: 0.875rem;
+    }
+
+    #dateText {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 360px) {
+    #dateNumber {
+        font-size: 2rem;
+        letter-spacing: 0;
+    }
 }

@@ -71,6 +71,8 @@
     flex-grow: 1;
     font-family: 'Roboto', sans-serif;
     font-weight: 500;
+    /* NUEVO: Line-height específico para tareas */
+    line-height: 1.5;
     padding: 15px;
     display: flex;
     justify-content: space-between;
@@ -110,6 +112,8 @@
        horizontal en pantallas estrechas; con él envuelve en su lugar. */
     min-width: 0;
     font-size: 1.12em;
+    /* NUEVO: Mejor legibilidad */
+    line-height: 1.5;
 }
 
 .task-text-wrapper {
@@ -130,6 +134,8 @@
     flex-grow: 1;
     min-width: 0;
     overflow-wrap: break-word;
+    /* NUEVO: Line-height generoso para que respiren */
+    line-height: 1.5;
 }
 
 /* Metadatos: fecha y hora como píldoras secundarias de bajo contraste, con
