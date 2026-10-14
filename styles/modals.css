@@ -35,6 +35,16 @@
     }
 }
 
+/* Títulos de modales con Poppins */
+.modal-content h2 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.75rem;
+    color: var(--maintxt);
+    margin-bottom: 10px;
+    text-align: center;
+}
+
 .close-button {
     color: #aaa;
     float: right;
