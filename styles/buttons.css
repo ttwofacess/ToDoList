@@ -127,6 +127,39 @@
     }
 }
 
+/* Foco visible en botones secundarios/terciarios que no tienen --btn-ring */
+.clear-time:focus-visible,
+.search-clear:focus-visible,
+.copy-button:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* Movimiento reducido: sin desplazamiento ni parpadeo en botones. */
+@media (prefers-reduced-motion: reduce) {
+    .orderButton,
+    .filterButton,
+    .actionButton,
+    #donateButton,
+    .newTaskMainButton {
+        transition: none;
+    }
+    .orderButton:hover,
+    .filterButton:hover,
+    .actionButton:hover,
+    #donateButton:hover,
+    .newTaskMainButton:hover {
+        transform: none;
+    }
+    .orderButton:active,
+    .filterButton:active,
+    .actionButton:active,
+    #donateButton:active,
+    .newTaskMainButton:active {
+        transform: none;
+    }
+}
+
 /* El botón Instalar solo aparece cuando la instalación es posible */
 #installButton[hidden] {
     display: none !important;
