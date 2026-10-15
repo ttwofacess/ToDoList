@@ -8,9 +8,9 @@
 
 .newTaskMainButton {
     --btn-color: var(--btn-plus);
-    --btn-glow: rgba(255, 101, 132, 0.30);
-    /* WCAG 1.4.11: el #FF6584 solo alcanza ~2.8:1 sobre blanco, el anillo
-       necesita ≥ 3:1, así que se oscurece ligeramente manteniendo el tono. */
+    --btn-glow: rgba(236, 80, 112, 0.30);
+    /* WCAG 1.4.11: el #FF6584 solo alcanzaba ~2.8:1 sobre blanco, el #EC5070
+       sube a ~3.56:1 (texto grande del botón primario). */
     --btn-ring: #EE5A7B;
     background-color: var(--btn-color);
     color: white;
