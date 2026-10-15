@@ -7,7 +7,10 @@
 }
 
 .newTaskMainButton {
-    background-color: var(--btnplus);
+    --btn-color: var(--btn-plus);
+    --btn-glow: rgba(255, 101, 132, 0.30);
+    --btn-ring: rgba(255, 101, 132, 0.30);
+    background-color: var(--btn-color);
     color: white;
     border: none;
     padding: 12px 30px;
