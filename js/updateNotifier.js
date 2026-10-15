@@ -86,6 +86,12 @@ const watchControllerChange = (wasControlledAtLoad) => {
 const pollForUpdates = (registration) => {
     const check = () => registration.update().catch(() => {});
 
+    // Comprobar de inmediato al cargar: el navegador no siempre revalida
+    // sw.js automáticamente (sirve con caché), así que sin esto la nueva
+    // versión puede pasar desapercibida hasta que el usuario vuelve a la
+    // pestaña o pasan 60 minutos.
+    check();
+
     // Al volver a la pestaña (usuario vuelve tras minutos/horas)
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') check();
