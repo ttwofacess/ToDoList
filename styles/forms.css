@@ -15,27 +15,28 @@
     background-color: var(--btn-color);
     color: white;
     border: none;
-    padding: 12px 30px;
-    font-size: 1.1rem;
     font-family: 'Poppins', sans-serif;
     font-weight: 700;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 10px;
+    padding: 14px 34px;
+    font-size: 1.2rem;
     transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
-    box-shadow: 0 4px 15px rgba(255, 101, 132, 0.3);
+    /* Glow rosa permanente y suave que refuerza la presencia del botón primario. */
+    box-shadow: 0 0 18px rgba(255, 101, 132, 0.35);
 }
 
 .newTaskMainButton:hover {
     transform: translateY(-1px) scale(1.02);
-    box-shadow: 0 6px 14px var(--btn-glow);
+    box-shadow: 0 0 26px rgba(255, 101, 132, 0.5);
     background-color: #ff4d70;
 }
 
 .newTaskMainButton:active {
     transform: translateY(0) scale(1);
-    box-shadow: 0 2px 6px var(--btn-glow);
+    box-shadow: 0 0 10px rgba(255, 101, 132, 0.2);
 }
 
 .newTaskMainButton:focus-visible {
@@ -44,7 +45,8 @@
 }
 
 .newTaskMainButton .plus-icon {
-    font-size: 1.5rem;
+    font-size: 1.7rem;
+    font-weight: 700;
     line-height: 1;
 }
 
