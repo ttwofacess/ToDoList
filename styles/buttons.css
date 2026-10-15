@@ -26,7 +26,9 @@
 .orderButton, .filterButton, .actionButton, #donateButton {
     --btn-color: var(--btn-ordr);
     --btn-glow: rgba(108, 99, 255, 0.30);
-    --btn-ring: rgba(108, 99, 255, 0.30);
+    /* El anillo va con el color sólido, no con un tinte: WCAG 1.4.11 pide 3:1
+       contra el fondo y cualquier alfa cómodo sobre blanco queda por debajo. */
+    --btn-ring: var(--btn-ordr);
     background-color: var(--btn-color);
     color: white;
     padding: 10px 20px;
@@ -45,14 +47,25 @@
 }
 
 .orderButton:hover, .filterButton:hover, .actionButton:hover, #donateButton:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px var(--btn-glow);
+}
+
+.orderButton:active, .filterButton:active, .actionButton:active, #donateButton:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px var(--btn-glow);
+}
+
+.orderButton:focus-visible, .filterButton:focus-visible,
+.actionButton:focus-visible, #donateButton:focus-visible {
+    outline: 2px solid var(--btn-ring);
+    outline-offset: 2px;
 }
 
 .actionButton {
     --btn-color: var(--btn-action);
     --btn-glow: rgba(107, 143, 173, 0.30);
-    --btn-ring: rgba(107, 143, 173, 0.30);
+    --btn-ring: var(--btn-action);
 }
 
 .actionButton:hover {
@@ -62,7 +75,7 @@
 #donateButton {
     --btn-color: var(--btn-donate);
     --btn-glow: rgba(58, 125, 84, 0.30);
-    --btn-ring: rgba(58, 125, 84, 0.30);
+    --btn-ring: var(--btn-donate);
 }
 
 .filterButton.filter-active {

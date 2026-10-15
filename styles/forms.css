@@ -9,7 +9,9 @@
 .newTaskMainButton {
     --btn-color: var(--btn-plus);
     --btn-glow: rgba(255, 101, 132, 0.30);
-    --btn-ring: rgba(255, 101, 132, 0.30);
+    /* WCAG 1.4.11: el #FF6584 solo alcanza ~2.8:1 sobre blanco, el anillo
+       necesita ≥ 3:1, así que se oscurece ligeramente manteniendo el tono. */
+    --btn-ring: #EE5A7B;
     background-color: var(--btn-color);
     color: white;
     border: none;
@@ -26,9 +28,19 @@
 }
 
 .newTaskMainButton:hover {
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 6px 20px rgba(255, 101, 132, 0.4);
+    transform: translateY(-1px) scale(1.02);
+    box-shadow: 0 6px 14px var(--btn-glow);
     background-color: #ff4d70;
+}
+
+.newTaskMainButton:active {
+    transform: translateY(0) scale(1);
+    box-shadow: 0 2px 6px var(--btn-glow);
+}
+
+.newTaskMainButton:focus-visible {
+    outline: 2px solid var(--btn-ring);
+    outline-offset: 2px;
 }
 
 .newTaskMainButton .plus-icon {
