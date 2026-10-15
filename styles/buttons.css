@@ -82,6 +82,51 @@
     background-color: var(--btn-plus);
 }
 
+/* ─── Acciones de vista: Order + Focus Mode ─── */
+/* Iconos decorativos como pseudo-elemento: el JS reescribe textContent del
+   botón (Focus Mode ↔ Show All) sin tocar el ::before, y los tests siguen verdes.
+   Acotado a .orderButton-wrapper para no pintar los Cancel de los modales. */
+.orderButton-wrapper .orderButton::before {
+    content: "⇅";
+    margin-right: 6px;
+    line-height: 1;
+}
+.orderButton-wrapper .filterButton::before {
+    content: "🎯";
+    margin-right: 6px;
+    line-height: 1;
+}
+
+/* Estado activo de Focus Mode: color de prioridad alta + dot animado al costado. */
+.orderButton-wrapper .filterButton {
+    position: relative;
+}
+.orderButton-wrapper .filterButton.filter-active {
+    background-color: var(--prio-high);
+    --btn-glow: rgba(255, 107, 107, 0.30);
+    --btn-ring: var(--prio-high);
+}
+.orderButton-wrapper .filterButton.filter-active::after {
+    content: "";
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--prio-high);
+    animation: pulse 2s infinite;
+    pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .orderButton-wrapper .filterButton.filter-active::after {
+        animation: none;
+        box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.35);
+    }
+}
+
 /* El botón Instalar solo aparece cuando la instalación es posible */
 #installButton[hidden] {
     display: none !important;
