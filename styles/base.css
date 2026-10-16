@@ -60,20 +60,146 @@
     --text-2xl: 1.5rem;      /* 24px - títulos sección */
     --text-3xl: 2rem;        /* 32px - títulos grandes */
     --text-hero: 3.5rem;     /* 56px - dateNumber */
+
+    /* NUEVO: Escalas de color de marca (light) — Paso 1 */
+    --primary-50: #f3f2ff;
+    --primary-100: #d8d5ff;
+    --primary-200: #bdb9ff;
+    --primary-300: #a29cff;
+    --primary-400: #8780ff;
+    --primary-500: #6c63ff;
+    --primary-600: #5d55da;
+    --primary-700: #4d47b5;
+    --primary-800: #3e3890;
+    --primary-900: #2e2a6b;
+
+    --rose-50: #fff0f3;
+    --rose-100: #fbd0d9;
+    --rose-200: #f7b0bf;
+    --rose-300: #f490a4;
+    --rose-400: #f0708a;
+    --rose-500: #ec5070;
+    --rose-600: #cc4360;
+    --rose-700: #ac364f;
+    --rose-800: #8b283f;
+    --rose-900: #6b1b2e;
+
+    --green-50: #f0faf3;
+    --green-100: #d0e7d5;
+    --green-200: #afd4b7;
+    --green-300: #8fc09a;
+    --green-400: #6ead7c;
+    --green-500: #4e9a5e;
+    --green-600: #408350;
+    --green-700: #326c42;
+    --green-800: #245434;
+    --green-900: #163d26;
+
+    --red-50: #fff0f0;
+    --red-100: #facecf;
+    --red-200: #f5adaf;
+    --red-300: #ef8b8e;
+    --red-400: #ea6a6e;
+    --red-500: #e5484d;
+    --red-600: #c43b40;
+    --red-700: #a22f33;
+    --red-800: #812225;
+    --red-900: #5f1518;
+
+    --orange-50: #fff8eb;
+    --orange-100: #f7e3bc;
+    --orange-200: #f0ce8d;
+    --orange-300: #e8b85e;
+    --orange-400: #e1a32f;
+    --orange-500: #d98e00;
+    --orange-600: #b57302;
+    --orange-700: #925903;
+    --orange-800: #6e3e05;
+    --orange-900: #4a2306;
+
+    --blue-50: #eff6ff;
+    --blue-100: #cbdffd;
+    --blue-200: #a7c8fb;
+    --blue-300: #83b0fa;
+    --blue-400: #5f99f8;
+    --blue-500: #3b82f6;
+    --blue-600: #3470d0;
+    --blue-700: #2d5eab;
+    --blue-800: #254c85;
+    --blue-900: #1e3a5f;
+
+    --gray-50: #f8fafc;
+    --gray-100: #dadfe5;
+    --gray-200: #bdc4cf;
+    --gray-300: #9faab8;
+    --gray-400: #828fa2;
+    --gray-500: #64748b;
+    --gray-600: #4f5d73;
+    --gray-700: #3a465b;
+    --gray-800: #242e42;
+    --gray-900: #0f172a;
+
+    /* NUEVO: Alias semánticos (light) — Paso 1 */
+    --color-danger: var(--red-500);
+    --color-warning: var(--orange-500);
+    --color-success: var(--green-500);
+    --color-info: var(--blue-500);
+    --color-danger-ink: var(--red-600);
+    --color-warning-ink: var(--orange-600);
+    --color-success-ink: var(--green-600);
+    --color-info-ink: var(--blue-600);
+    --color-danger-tint: rgba(229, 72, 77, 0.08);
+    --color-warning-tint: rgba(217, 142, 0, 0.08);
+    --color-success-tint: rgba(78, 154, 94, 0.08);
+    --color-info-tint: rgba(59, 130, 246, 0.08);
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --bckgrndbdy: #1A1A2E;
+        --bckgrndbdy: #0F0F1A;
         --btnordr: #6C63FF;
         --donetsk: #3A7D54;
         --primary: #6C63FF;
-        --wrpprbck: #1E1E3F;
-        --maintxt: #EAEAEA;
-        --page-bg-top: #1B1B33;
-        --page-bg-bottom: #111120;
+        --wrpprbck: #1C1B29;
+        --maintxt: #E8E6F0;
+        --page-bg-top: #131322;
+        --page-bg-bottom: #0A0A14;
         --card-border: rgba(255, 255, 255, 0.08);
         --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 24px 56px rgba(0, 0, 0, 0.55);
+
+        /* NUEVO: Acentos saturados en oscuro — Paso 1 */
+        --primary-500: #7B73FF;
+        --primary-600: #8B83FF;
+        --primary-400: #6C63FF;
+        --primary-100: #2A2750;
+        --rose-500: #FF6B8A;
+        --rose-600: #FF8FA3;
+        --green-400: #8FD6A4;
+        --green-500: #6DB37A;
+        --red-400: #FF8585;
+        --red-500: #FF6B6B;
+        --orange-400: #FFB84D;
+        --blue-400: #7BB3FF;
+
+        /* NUEVO: Bordes y metadata de tareas en oscuro — Paso 1 */
+        --task-border: rgba(255, 255, 255, 0.08);
+        --task-border-hover: rgba(255, 255, 255, 0.16);
+        --task-meta-bg: rgba(255, 255, 255, 0.06);
+        --task-meta-ink: #A0A8B8;
+
+        /* NUEVO: Alias semánticos (dark) — Paso 1 */
+        --color-danger: var(--red-400);
+        --color-warning: var(--orange-400);
+        --color-success: var(--green-400);
+        --color-info: var(--blue-400);
+        --color-danger-ink: var(--red-300);
+        --color-warning-ink: var(--orange-300);
+        --color-success-ink: var(--green-300);
+        --color-info-ink: var(--blue-300);
+        --color-danger-tint: rgba(255, 107, 107, 0.08);
+        --color-warning-tint: rgba(255, 184, 77, 0.08);
+        --color-success-tint: rgba(109, 179, 122, 0.08);
+        --color-info-tint: rgba(123, 179, 255, 0.08);
     }
 }
 

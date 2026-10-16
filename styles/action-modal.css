@@ -126,13 +126,13 @@
 .action-group--danger { padding-top: 10px; }
 
 .action-row--danger {
-    --chip-bg: rgba(255, 107, 107, 0.15);
-    color: #D64545;                /* #FF6B6B sobre blanco tiene poco contraste para texto */
+    --chip-bg: var(--color-danger-tint);
+    color: var(--color-danger-ink);                /* #FF6B6B sobre blanco tiene poco contraste para texto */
 }
 .action-row--danger:hover { background-color: rgba(255, 107, 107, 0.08); }
 
 @media (prefers-color-scheme: dark) {
-    .action-row--danger { color: #FF6B6B; }   /* sobre fondo oscuro sí contrasta */
+    .action-row--danger { color: var(--color-danger); }   /* sobre fondo oscuro sí contrasta */
 }
 
 /* ─── Micro-animación de Hecho ─────────────────── */

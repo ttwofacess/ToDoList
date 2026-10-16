@@ -66,7 +66,7 @@
 .subtask-delete {
     background: transparent;
     border: none;
-    color: #FF6B6B;
+    color: var(--color-danger);
     cursor: pointer;
     font-weight: bold;
     font-size: 1.1rem;

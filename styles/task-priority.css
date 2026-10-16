@@ -3,23 +3,23 @@
 /* Color de prioridad: una variable por clase alimenta el indicador lateral,
    el punto junto al texto y el tinte de fondo. Los hex son los de siempre. */
 :root {
-    --prio-high: #FF6B6B;
-    --prio-medium: #FFA500;
-    --prio-low: #6DB37A;
+    --prio-high: var(--red-400);
+    --prio-medium: var(--orange-400);
+    --prio-low: var(--green-400);
 
     /* Tinta profunda para los indicadores (barra y punto). Los colores de
        marca se quedan en ~2:1 sobre la tarjeta clara y WCAG 1.4.11 pide 3:1
        para objetos gráficos que transmiten información: mismo tono, más
        profundidad. En oscuro los de marca ya pasan, así que se reutilizan. */
-    --prio-high-ink: #E5484D;
-    --prio-medium-ink: #B45309;
-    --prio-low-ink: #3E8E41;
+    --prio-high-ink: var(--red-600);
+    --prio-medium-ink: var(--orange-600);
+    --prio-low-ink: var(--green-600);
 
     /* Tinte de fondo: 2-3% del color de prioridad sobre la superficie de la
        tarjeta (--wrpprbck). Suficiente para leerse sin teñir la tarjeta. */
-    --prio-high-tint: rgba(255, 107, 107, 0.03);
-    --prio-medium-tint: rgba(255, 165, 0, 0.04);
-    --prio-low-tint: rgba(109, 179, 122, 0.03);
+    --prio-high-tint: var(--color-danger-tint);
+    --prio-medium-tint: var(--color-warning-tint);
+    --prio-low-tint: var(--color-success-tint);
 
     /* Estado completado. Antes era verde sólido con texto blanco: dominaba la
        tarjeta y dejaba los metadatos al límite del contraste. Ahora es un
@@ -29,7 +29,7 @@
     --done-border: rgba(109, 179, 122, 0.42);
     --done-ink: #4A5D50;
     --done-strike: rgba(74, 93, 80, 0.55);
-    --done-badge: #2A6B42;
+    --done-badge: var(--green-700);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -48,7 +48,7 @@
         --done-border: rgba(109, 179, 122, 0.38);
         --done-ink: #A9C3B0;
         --done-strike: rgba(169, 195, 176, 0.55);
-        --done-badge: #8FD6A4;
+        --done-badge: var(--green-300);
     }
 }
 

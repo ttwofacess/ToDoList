@@ -8,10 +8,10 @@
     /* Tonos ajustados para que el texto blanco cumpla ≥ 3:1 (componentes de
        interfaz) y, salvo el botón primario grande (≥3:1 texto grande), ≥ 4.5:1
        (texto pequeño). Valores medidos contra fondo blanco. */
-    --btn-ordr: #665BF0;        /* ~4.85:1 */
-    --btn-action: #4E6D80;      /* ~5.47:1 */
-    --btn-donate: #3A7D54;      /* ~4.96:1 */
-    --btn-plus: #EC5070;        /* ~3.56:1 (texto grande) */
+    --btn-ordr: var(--primary-600);
+    --btn-action: #4E6D80;
+    --btn-donate: var(--green-600);
+    --btn-plus: var(--rose-500);
 }
 
 /* Contenedores de botones */
@@ -28,7 +28,7 @@
    sobreescriben junto con --btn-color. */
 .orderButton, .filterButton, .actionButton, #donateButton {
     --btn-color: var(--btn-ordr);
-    --btn-glow: rgba(102, 91, 240, 0.30);
+    --btn-glow: rgba(108, 99, 255, 0.30);
     /* El anillo va con el color sólido, no con un tinte: WCAG 1.4.11 pide 3:1
        contra el fondo y cualquier alfa cómodo sobre blanco queda por debajo. */
     --btn-ring: var(--btn-ordr);
