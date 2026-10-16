@@ -20,7 +20,7 @@
     background-color: var(--wrpprbck);
     margin: auto;
     padding: 20px;
-    border: 1px solid #888;
+    border: 1px solid var(--gray-500);
     width: 80%;
     max-width: 500px;
     border-radius: 15px;
@@ -46,7 +46,7 @@
 }
 
 .close-button {
-    color: #aaa;
+    color: var(--gray-400);
     float: right;
     font-size: 28px;
     font-weight: bold;
