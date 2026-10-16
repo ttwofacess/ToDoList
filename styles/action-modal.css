@@ -118,9 +118,9 @@
 .action-row--recurrence { --chip-bg: rgba(255, 165,   0, 0.20); }  /* naranja */
 
 /* ─── Recurrencia sobre el chip ────────────────── */
-.action-row.recurrence-daily   .action-chip { background-color: var(--green-400); }
-.action-row.recurrence-weekly  .action-chip { background-color: var(--orange-400); }
-.action-row.recurrence-monthly .action-chip { background-color: var(--orange-300); }
+.action-row.recurrence-daily   .action-chip { background-color: #6DB37A; }
+.action-row.recurrence-weekly  .action-chip { background-color: #FFA500; }
+.action-row.recurrence-monthly .action-chip { background-color: #FFD700; }
 
 /* ─── Zona de peligro ──────────────────────────── */
 .action-group--danger { padding-top: 10px; }
