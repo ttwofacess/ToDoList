@@ -11,7 +11,7 @@
     --btn-glow: rgba(236, 80, 112, 0.30);
     /* WCAG 1.4.11: el #FF6584 solo alcanzaba ~2.8:1 sobre blanco, el #EC5070
        sube a ~3.56:1 (texto grande del botón primario). */
-    --btn-ring: #EE5A7B;
+    --btn-ring: var(--rose-400);
     background-color: var(--btn-color);
     color: white;
     border: none;
@@ -31,7 +31,7 @@
 .newTaskMainButton:hover {
     transform: translateY(-1px) scale(1.02);
     box-shadow: 0 0 26px rgba(255, 101, 132, 0.5);
-    background-color: #ff4d70;
+    background-color: var(--rose-500);
 }
 
 .newTaskMainButton:active {
