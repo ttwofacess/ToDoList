@@ -1,5 +1,19 @@
 /* buttons.css — Botones de acción globales */
 
+/* Color base por familia de botón. El glow y el anillo salen del mismo tono
+   como rgba literal (sin color-mix, igual que animations.css y forms.css).
+   --btn-ordr y --btn-plus se apoyan en los tokens de marca ya existentes para
+   no duplicar hex; --btn-action y --btn-donate son los únicos nuevos. */
+:root {
+    /* Tonos ajustados para que el texto blanco cumpla ≥ 3:1 (componentes de
+       interfaz) y, salvo el botón primario grande (≥3:1 texto grande), ≥ 4.5:1
+       (texto pequeño). Valores medidos contra fondo blanco. */
+    --btn-ordr: #665BF0;        /* ~4.85:1 */
+    --btn-action: #4E6D80;      /* ~5.47:1 */
+    --btn-donate: #3A7D54;      /* ~4.96:1 */
+    --btn-plus: #EC5070;        /* ~3.56:1 (texto grande) */
+}
+
 /* Contenedores de botones */
 .orderButton-wrapper, .actions-wrapper {
     display: flex;
@@ -9,9 +23,16 @@
     margin-bottom: 15px;
 }
 
-/* Estilo unificado para botones de acción */
+/* Estilo unificado para botones de acción. Los valores de --btn-glow y
+   --btn-ring son el valor por defecto (morado); las familias de abajo los
+   sobreescriben junto con --btn-color. */
 .orderButton, .filterButton, .actionButton, #donateButton {
-    background-color: var(--btnordr);
+    --btn-color: var(--btn-ordr);
+    --btn-glow: rgba(102, 91, 240, 0.30);
+    /* El anillo va con el color sólido, no con un tinte: WCAG 1.4.11 pide 3:1
+       contra el fondo y cualquier alfa cómodo sobre blanco queda por debajo. */
+    --btn-ring: var(--btn-ordr);
+    background-color: var(--btn-color);
     color: white;
     padding: 10px 20px;
     font-size: 0.9rem;
@@ -29,20 +50,117 @@
 }
 
 .orderButton:hover, .filterButton:hover, .actionButton:hover, #donateButton:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px var(--btn-glow);
+}
+
+.orderButton:active, .filterButton:active, .actionButton:active, #donateButton:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px var(--btn-glow);
+}
+
+.orderButton:focus-visible, .filterButton:focus-visible,
+.actionButton:focus-visible, #donateButton:focus-visible {
+    outline: 2px solid var(--btn-ring);
+    outline-offset: 2px;
 }
 
 .actionButton {
-    background-color: #6B8FAD;
+    --btn-color: var(--btn-action);
+    --btn-glow: rgba(78, 109, 128, 0.30);
+    --btn-ring: var(--btn-action);
 }
 
 .actionButton:hover {
     background-color: #5a7f9d;
 }
 
+#donateButton {
+    --btn-color: var(--btn-donate);
+    --btn-glow: rgba(58, 125, 84, 0.30);
+    --btn-ring: var(--btn-donate);
+}
+
 .filterButton.filter-active {
-    background-color: var(--btnplus);
+    background-color: var(--btn-plus);
+}
+
+/* ─── Acciones de vista: Order + Focus Mode ─── */
+/* Iconos decorativos como pseudo-elemento: el JS reescribe textContent del
+   botón (Focus Mode ↔ Show All) sin tocar el ::before, y los tests siguen verdes.
+   Acotado a .orderButton-wrapper para no pintar los Cancel de los modales. */
+.orderButton-wrapper .orderButton::before {
+    content: "⇅";
+    margin-right: 6px;
+    line-height: 1;
+}
+.orderButton-wrapper .filterButton::before {
+    content: "🎯";
+    margin-right: 6px;
+    line-height: 1;
+}
+
+/* Estado activo de Focus Mode: color de prioridad alta + dot animado al costado. */
+.orderButton-wrapper .filterButton {
+    position: relative;
+}
+.orderButton-wrapper .filterButton.filter-active {
+    background-color: var(--prio-high);
+    --btn-glow: rgba(255, 107, 107, 0.30);
+    --btn-ring: var(--prio-high);
+}
+.orderButton-wrapper .filterButton.filter-active::after {
+    content: "";
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--prio-high);
+    animation: pulse 2s infinite;
+    pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .orderButton-wrapper .filterButton.filter-active::after {
+        animation: none;
+        box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.35);
+    }
+}
+
+/* Foco visible en botones secundarios/terciarios que no tienen --btn-ring */
+.clear-time:focus-visible,
+.search-clear:focus-visible,
+.copy-button:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* Movimiento reducido: sin desplazamiento ni parpadeo en botones. */
+@media (prefers-reduced-motion: reduce) {
+    .orderButton,
+    .filterButton,
+    .actionButton,
+    #donateButton,
+    .newTaskMainButton {
+        transition: none;
+    }
+    .orderButton:hover,
+    .filterButton:hover,
+    .actionButton:hover,
+    #donateButton:hover,
+    .newTaskMainButton:hover {
+        transform: none;
+    }
+    .orderButton:active,
+    .filterButton:active,
+    .actionButton:active,
+    #donateButton:active,
+    .newTaskMainButton:active {
+        transform: none;
+    }
 }
 
 /* El botón Instalar solo aparece cuando la instalación es posible */
