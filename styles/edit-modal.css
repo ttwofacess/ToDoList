@@ -14,7 +14,7 @@
 
 .edit-input {
     flex-grow: 1;
-    border: 1px solid #6C63FF;
+    border: 1px solid var(--primary-500);
     padding: 10px;
     border-radius: 5px;
 }
