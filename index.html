@@ -17,6 +17,20 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="ToDo">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+    <!-- Anti-FOUC: aplica el tema forzado (light/dark) antes del primer pintado.
+         "auto" o sin valor se resuelve por CSS con prefers-color-scheme. -->
+    <script>
+        (function () {
+            try {
+                const theme = localStorage.getItem('theme');
+                if (theme === 'light' || theme === 'dark') {
+                    document.documentElement.dataset.theme = theme;
+                }
+            } catch { /* storage no disponible: queda el tema por defecto */ }
+        })();
+    </script>
+
     <link rel="stylesheet" href="styles/base.css">
     <link rel="stylesheet" href="styles/layout.css">
     <link rel="stylesheet" href="styles/header.css">
