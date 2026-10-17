@@ -41,6 +41,7 @@ const APP_SHELL = [
   './js/dragDrop.js',
   './js/importExport.js',
   './js/pwa.js',
+  './js/themeManager.js',
   './js/updateNotifier.js',
   './js/undoManager.js',
   './js/search.js',
