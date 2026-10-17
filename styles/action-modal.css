@@ -39,11 +39,9 @@
     margin-bottom: 20px;
 }
 
-@media (prefers-color-scheme: dark) {
-    .action-sheet {
-        --action-divider: rgba(255, 255, 255, 0.10);
-        --action-row-hover: rgba(255, 255, 255, 0.06);
-    }
+[data-theme="dark"] .action-sheet {
+    --action-divider: rgba(255, 255, 255, 0.10);
+    --action-row-hover: rgba(255, 255, 255, 0.06);
 }
 
 .action-group {
@@ -131,9 +129,7 @@
 }
 .action-row--danger:hover { background-color: rgba(255, 107, 107, 0.08); }
 
-@media (prefers-color-scheme: dark) {
-    .action-row--danger { color: var(--color-danger); }   /* sobre fondo oscuro sí contrasta */
-}
+[data-theme="dark"] .action-row--danger { color: var(--color-danger); }   /* sobre fondo oscuro sí contrasta */
 
 /* ─── Micro-animación de Hecho ─────────────────── */
 @keyframes chip-pop {

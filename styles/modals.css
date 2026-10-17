@@ -29,10 +29,8 @@
     overflow-y: auto;
 }
 
-@media (prefers-color-scheme: dark) {
-    .modal-content {
-        color: var(--maintxt);
-    }
+[data-theme="dark"] .modal-content {
+    color: var(--maintxt);
 }
 
 /* Títulos de modales con Poppins */

@@ -63,12 +63,14 @@ export const resolveTheme = (theme) =>
         : getSystemTheme();
 
 /**
- * Aplica el tema crudo (light/dark/auto) al documento y
- * actualiza el icono y el aria-label del botón.
+ * Aplica el tema al documento y actualiza el icono y el aria-label
+ * del botón según el tema crudo elegido. El atributo siempre guarda
+ * el tema ya resuelto (light/dark): el CSS no tiene media queries de
+ * color, así que "auto" se resuelve acá y no queda nunca en el DOM.
  * @param {'light' | 'dark' | 'auto'} theme
  */
 export const applyTheme = (theme) => {
-    document.documentElement.dataset.theme = theme;
+    document.documentElement.dataset.theme = resolveTheme(theme);
 
     if (button) {
         setToggleUi(button, theme);

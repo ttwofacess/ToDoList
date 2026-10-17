@@ -6,10 +6,8 @@
     --empty-state-ink: #5A6472;
 }
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        --empty-state-ink: #A8B0C0;
-    }
+:root[data-theme="dark"] {
+    --empty-state-ink: #A8B0C0;
 }
 
 #emptyState {
