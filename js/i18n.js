@@ -63,6 +63,10 @@ export const translations = {
         emptyStateTitle: 'Your list is empty',
         emptyStateText: 'Add your first task to get started.',
         filterNoTasks: 'No tasks to show with this filter.',
+        themeToggleLabel: 'Theme',
+        themeToggleLight: 'Switch to light theme',
+        themeToggleDark: 'Switch to dark theme',
+        themeToggleAuto: 'Switch to system theme',
     },
     es: {
         pageTitle: 'Lista de Tareas',
@@ -124,6 +128,10 @@ export const translations = {
         emptyStateTitle: 'Tu lista está vacía',
         emptyStateText: 'Añade tu primera tarea para empezar.',
         filterNoTasks: 'No hay tareas para mostrar con este filtro.',
+        themeToggleLabel: 'Tema',
+        themeToggleLight: 'Cambiar a tema claro',
+        themeToggleDark: 'Cambiar a tema oscuro',
+        themeToggleAuto: 'Cambiar al tema del sistema',
     },
     pt: {
         pageTitle: 'Lista de Tarefas',
@@ -185,6 +193,10 @@ export const translations = {
         emptyStateTitle: 'Sua lista está vazia',
         emptyStateText: 'Adicione sua primeira tarefa para começar.',
         filterNoTasks: 'Nenhuma tarefa para mostrar com este filtro.',
+        themeToggleLabel: 'Tema',
+        themeToggleLight: 'Mudar para tema claro',
+        themeToggleDark: 'Mudar para tema escuro',
+        themeToggleAuto: 'Mudar para o tema do sistema',
     }
 };
 
