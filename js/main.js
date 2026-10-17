@@ -15,6 +15,7 @@ import { initPWA }                                 from './pwa.js';
 import { initUpdateNotifier }                       from './updateNotifier.js';
 import { initUndoManager }                          from './undoManager.js';
 import { initSearch, applySearch }                  from './search.js';
+import { initTheme }                                from './themeManager.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const tasksContainer = document.getElementById('tasksContainer');
@@ -29,6 +30,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── 2. Detectar idioma (renderiza fecha tras aplicarlo) ──
     detectLanguage(renderHeaderDate);
+
+    // ── 2-bis. Toggle de tema (tras detectLanguage para el aria-label) ──
+    initTheme(document.getElementById('themeToggleButton'));
 
     // ── 3. Cargar y decorar tareas ───────────────────────────
     loadTasks();
