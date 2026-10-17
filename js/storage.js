@@ -53,8 +53,8 @@ export const persistFromDOM = (tasksContainer) => {
             : 'low';
 
         const isActiveInModal = el.getAttribute('data-active-modal') === 'true';
-        const searchRoot = isActiveInModal 
-            ? document.getElementById('actionSubtasksContainer') 
+        const searchRoot = isActiveInModal
+            ? document.getElementById('actionSubtasksContainer')
             : el;
 
         const subtasks = [...searchRoot.querySelectorAll('.subtask-item')].map(subEl => ({

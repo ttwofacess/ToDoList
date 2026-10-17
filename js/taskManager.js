@@ -67,7 +67,7 @@ export const addNewTask = (event) => {
     tasksContainer.prepend(taskEl);
     event.target.reset();
     persistFromDOM(tasksContainer);
-    
+
     // Llamamos al callback inyectado
     if (onCloseNewTaskModal) onCloseNewTaskModal();
 };

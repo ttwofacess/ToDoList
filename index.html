@@ -192,7 +192,7 @@
             <h2 data-i18n-key="editTaskTitle">Edit Task</h2>
             <form id="editTaskForm">
                 <input type="text" id="editTaskText" placeholder="Task text" class="roundBorder" data-i18n-key="taskPlaceholder">
-                
+
                 <div class="priority-wrapper">
                     <label for="editTaskPriority" data-i18n-key="priorityLabel">Priority:</label>
                     <select id="editTaskPriority" class="roundBorder">
@@ -201,12 +201,12 @@
                         <option value="low" data-i18n-key="priorityLow">Low</option>
                     </select>
                 </div>
-                
+
                 <div class="date-wrapper">
                     <label for="editTaskDate" data-i18n-key="dateLabel">Date:</label>
                     <input type="date" id="editTaskDate" class="roundBorder" required>
                 </div>
-                
+
                 <div class="date-wrapper time-wrapper">
                     <label for="editTaskTime" data-i18n-key="timeLabel">Time:</label>
                     <div class="time-input-wrapper">
@@ -214,7 +214,7 @@
                         <button type="button" class="clear-time" id="clearEditTaskTime" data-i18n-label="clearTime" title="Clear time">&times;</button>
                     </div>
                 </div>
-                
+
                 <div class="modal-actions">
                     <button type="submit" class="orderButton roundBorder" data-i18n-key="saveButton">Save</button>
                     <button type="button" id="cancelEditButton" class="filterButton roundBorder" data-i18n-key="cancelButton">Cancel</button>
@@ -227,7 +227,7 @@
         <div class="modal-content roundBorder">
             <span class="close-button" id="closeActionModal">&times;</span>
             <h2 id="actionModalTitle" data-i18n-key="actionModalTitle">Task Actions</h2>
-            
+
             <div class="task-info-preview">
                 <div id="actionModalEmojis"></div>
                 <div id="actionModalText"></div>

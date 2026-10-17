@@ -42,7 +42,7 @@ export const openActionModal = (wrapper) => {
         subContainer.style.display = 'flex';
         modalSubContainer.appendChild(subContainer);
     }
-    
+
     document.getElementById('taskActionModal').style.display = 'flex';
 };
 
@@ -188,11 +188,11 @@ export const initModals = () => {
     );
 
     document.getElementById('closeActionModal').onclick = closeActionModal;
-    
+
     document.getElementById('actionDone').onclick = () => {
         if (currentActionWrapper) changeTaskState(currentActionWrapper, tasksContainer);
     };
-    
+
     document.getElementById('actionEdit').onclick = () => {
         if (currentActionWrapper) {
             const wrapper = currentActionWrapper;
@@ -200,7 +200,7 @@ export const initModals = () => {
             openEditModal(wrapper);
         }
     };
-    
+
     document.getElementById('actionSubtask').onclick = () => {
         if (currentActionWrapper) {
             const modalSubContainer = document.getElementById('actionSubtasksContainer');
@@ -208,11 +208,11 @@ export const initModals = () => {
             showSubtaskInput(subContainer);
         }
     };
-    
+
     document.getElementById('actionRecurrence').onclick = () => {
         if (currentActionWrapper) toggleRecurrence(currentActionWrapper);
     };
-    
+
     document.getElementById('actionDelete').onclick = () => {
         if (currentActionWrapper) {
             const wrapper = currentActionWrapper;   // capturar antes de cerrar (luego queda en null)

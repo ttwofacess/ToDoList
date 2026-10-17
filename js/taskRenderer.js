@@ -144,7 +144,7 @@ export const createTaskElement = (
     const task = document.createElement('div');
     task.classList.add('task', 'roundBorder', `priority-${priority}`);
     if (date === todayStr) task.classList.add('due-today');
-    
+
     task.addEventListener('click', () => onOpenActions(taskWrapper));
 
     const contentWrapper = document.createElement('div');
@@ -190,7 +190,7 @@ export const createTaskElement = (
 
     const subtasksContainer = document.createElement('div');
     subtasksContainer.classList.add('subtasks-container');
-    subtasksContainer.style.display = 'none'; 
+    subtasksContainer.style.display = 'none';
     subtasksData.forEach(sub => subtasksContainer.appendChild(createSubtaskElement(sub.text, sub.done)));
 
     contentWrapper.append(subtasksContainer);
