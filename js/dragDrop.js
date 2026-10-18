@@ -53,11 +53,18 @@ export const attachDragListeners = (taskWrapper, tasksContainer) => {
 export const initDragDrop = (tasksContainer) => {
     tasksContainer.addEventListener('dragover', (e) => {
         e.preventDefault();
-        const draggable    = document.querySelector('.dragging');
+        const draggable = document.querySelector('.dragging');
+        if (!draggable) return;
+
+        // Limpio el indicador en todas las tareas antes de recalcular el destino.
+        tasksContainer.querySelectorAll('.task-wrapper.drag-over')
+            .forEach((task) => task.classList.remove('drag-over'));
+
         const afterElement = getDragAfterElement(tasksContainer, e.clientY);
 
-        if (!draggable) return;
         if (afterElement == null) tasksContainer.appendChild(draggable);
         else                      tasksContainer.insertBefore(draggable, afterElement);
+
+        afterElement?.classList.add('drag-over');
     });
 };
