@@ -41,8 +41,9 @@
 }
 
 .task-wrapper.dragging {
-    opacity: 0.4;
-    transform: scale(0.98);
+    opacity: 0.85;
+    transform: rotate(1.5deg) scale(1);
+    cursor: grabbing;
 }
 
 .task-wrapper.dragging .task {
@@ -50,7 +51,7 @@
        desplazaba la tarjeta y sus vecinas en pleno dragover. */
     border-style: dashed;
     border-color: var(--primary);
-    box-shadow: var(--task-shadow);
+    box-shadow: var(--task-shadow-hover);
 }
 
 .task-main-row {
