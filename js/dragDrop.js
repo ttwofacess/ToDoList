@@ -42,6 +42,8 @@ export const attachDragListeners = (taskWrapper, tasksContainer) => {
     });
     taskWrapper.addEventListener('dragend', () => {
         taskWrapper.classList.remove('dragging');
+        tasksContainer.querySelectorAll('.task-wrapper.drag-over')
+            .forEach((task) => task.classList.remove('drag-over'));
         persistFromDOM(tasksContainer);
     });
 };
