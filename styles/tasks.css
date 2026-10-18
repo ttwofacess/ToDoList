@@ -74,6 +74,17 @@
     opacity: 1;
 }
 
+/* Highlight de fondo en la tarea destino del drop */
+.task-wrapper.drag-over .task {
+    background-color: var(--primary-50);
+    border-color: var(--primary-200);
+}
+
+:root[data-theme="dark"] .task-wrapper.drag-over .task {
+    background-color: var(--primary-100);
+    border-color: var(--primary-400);
+}
+
 .task-wrapper:active {
     cursor: grabbing;
 }
