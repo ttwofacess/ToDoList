@@ -34,6 +34,55 @@
     align-items: stretch;
     margin-bottom: 15px;
     cursor: grab;
+    /* Referencia para el indicador de drop (::before / ::after) */
+    position: relative;
+}
+
+/* Indicador de drop: línea + puntito centrados en el punto de inserción.
+   Opacity 0 por defecto; se activan con .drag-over (dragDrop.js). */
+.task-wrapper::before {
+    content: "";
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    top: -8px;
+    height: 3px;
+    background: var(--primary);
+    border-radius: 2px;
+    opacity: 0;
+    transition: opacity 0.15s;
+    pointer-events: none;
+}
+
+.task-wrapper::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: -10px;
+    width: 7px;
+    height: 7px;
+    background: var(--primary);
+    border-radius: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.15s;
+    pointer-events: none;
+}
+
+.task-wrapper.drag-over::before,
+.task-wrapper.drag-over::after {
+    opacity: 1;
+}
+
+/* Highlight de fondo en la tarea destino del drop */
+.task-wrapper.drag-over .task {
+    background-color: var(--primary-50);
+    border-color: var(--primary-200);
+}
+
+:root[data-theme="dark"] .task-wrapper.drag-over .task {
+    background-color: var(--primary-100);
+    border-color: var(--primary-400);
 }
 
 .task-wrapper:active {
@@ -41,8 +90,9 @@
 }
 
 .task-wrapper.dragging {
-    opacity: 0.4;
-    transform: scale(0.98);
+    opacity: 0.85;
+    transform: rotate(1.5deg) scale(1);
+    cursor: grabbing;
 }
 
 .task-wrapper.dragging .task {
@@ -50,7 +100,7 @@
        desplazaba la tarjeta y sus vecinas en pleno dragover. */
     border-style: dashed;
     border-color: var(--primary);
-    box-shadow: var(--task-shadow);
+    box-shadow: var(--task-shadow-hover);
 }
 
 .task-main-row {
