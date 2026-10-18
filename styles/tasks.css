@@ -34,6 +34,44 @@
     align-items: stretch;
     margin-bottom: 15px;
     cursor: grab;
+    /* Referencia para el indicador de drop (::before / ::after) */
+    position: relative;
+}
+
+/* Indicador de drop: línea + puntito centrados en el punto de inserción.
+   Opacity 0 por defecto; se activan con .drag-over (dragDrop.js). */
+.task-wrapper::before {
+    content: "";
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    top: -8px;
+    height: 3px;
+    background: var(--primary);
+    border-radius: 2px;
+    opacity: 0;
+    transition: opacity 0.15s;
+    pointer-events: none;
+}
+
+.task-wrapper::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: -10px;
+    width: 7px;
+    height: 7px;
+    background: var(--primary);
+    border-radius: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.15s;
+    pointer-events: none;
+}
+
+.task-wrapper.drag-over::before,
+.task-wrapper.drag-over::after {
+    opacity: 1;
 }
 
 .task-wrapper:active {
