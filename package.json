@@ -15,6 +15,7 @@
     "test:integration:headed": "playwright test --headed",
     "test:report": "playwright show-report",
     "serve": "node tests/helpers/static-server.js",
+    "lint": "node scripts/lint.js",
     "setup:browsers": "playwright install --with-deps chromium"
   },
   "devDependencies": {

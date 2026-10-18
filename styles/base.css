@@ -30,10 +30,13 @@
 }
 
 :root {
-    /* La app sigue al tema del sistema, así que los widgets nativos (indicador
-       del date picker, popup del time picker, scrollbars) se adaptan solos con
-       color-scheme en vez de tener que invertir sus iconos a mano. */
-    color-scheme: light dark;
+    /* Tema claro por defecto. El tema forzado vive en :root[data-theme="dark"].
+       No hay media query de prefers-color-scheme: "auto" lo resuelve JS
+       (script inline anti-FOUC en index.html + themeManager.js) seteando
+       data-theme a "light" o "dark" antes del primer pintado.
+       color-scheme: los widgets nativos (date picker, scrollbars) siguen al
+       tema ya resuelto. */
+    color-scheme: light;
     --bckgrndbdy: #F0F2F5;
     --btnordr: #6C63FF;
     --btnplus: #FF6584;
@@ -154,9 +157,9 @@
     --color-info-tint: rgba(59, 130, 246, 0.08);
 }
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        --bckgrndbdy: #0F0F1A;
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --bckgrndbdy: #0F0F1A;
         --btnordr: #6C63FF;
         --donetsk: #3A7D54;
         --primary: #6C63FF;
@@ -167,7 +170,7 @@
         --card-border: rgba(255, 255, 255, 0.08);
         --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 24px 56px rgba(0, 0, 0, 0.55);
 
-        /* NUEVO: Acentos saturados en oscuro — Paso 1 */
+        /* Acentos saturados en oscuro */
         --primary-500: #7B73FF;
         --primary-600: #8B83FF;
         --primary-400: #6C63FF;
@@ -181,13 +184,11 @@
         --orange-400: #FFB84D;
         --blue-400: #7BB3FF;
 
-        /* NUEVO: Bordes y metadata de tareas en oscuro — Paso 1 */
-        --task-border: rgba(255, 255, 255, 0.08);
-        --task-border-hover: rgba(255, 255, 255, 0.16);
-        --task-meta-bg: rgba(255, 255, 255, 0.06);
-        --task-meta-ink: #A0A8B8;
+        /* Bordes y metadata de tareas: los tokens --task-border* y
+           --task-meta* viven en tasks.css (dueña de esos tokens) en ambos
+           temas; acá serían duplicados. */
 
-        /* NUEVO: Alias semánticos (dark) — Paso 1 */
+        /* Alias semánticos (dark) */
         --color-danger: var(--red-400);
         --color-warning: var(--orange-400);
         --color-success: var(--green-400);
@@ -200,7 +201,6 @@
         --color-warning-tint: rgba(255, 184, 77, 0.08);
         --color-success-tint: rgba(109, 179, 122, 0.08);
         --color-info-tint: rgba(123, 179, 255, 0.08);
-    }
 }
 
 body {

@@ -23,11 +23,9 @@
     color: var(--maintxt);
 }
 
-@media (prefers-color-scheme: dark) {
-    .crypto-info input {
-        color: var(--maintxt);
-        background-color: var(--bckgrndbdy);
-    }
+[data-theme="dark"] .crypto-info input {
+    color: var(--maintxt);
+    background-color: var(--bckgrndbdy);
 }
 
 .copy-button {

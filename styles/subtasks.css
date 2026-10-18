@@ -42,10 +42,8 @@
     color: var(--maintxt);
 }
 
-@media (prefers-color-scheme: dark) {
-    .subtask-item {
-        background-color: rgba(255,255,255,0.05);
-    }
+[data-theme="dark"] .subtask-item {
+    background-color: rgba(255,255,255,0.05);
 }
 
 .subtask-checkbox {

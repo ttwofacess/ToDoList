@@ -17,6 +17,21 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="ToDo">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+    <!-- Anti-FOUC: resuelve el tema (incluido el auto, via matchMedia) antes
+         del primer pintado; el CSS no tiene media queries de color. -->
+    <script>
+        (function () {
+            try {
+                const stored = localStorage.getItem('theme') || 'auto';
+                const dark = stored === 'dark' ||
+                    (stored === 'auto' &&
+                        window.matchMedia('(prefers-color-scheme: dark)').matches);
+                document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+            } catch { /* storage o matchMedia no disponibles: queda el light */ }
+        })();
+    </script>
+
     <link rel="stylesheet" href="styles/base.css">
     <link rel="stylesheet" href="styles/layout.css">
     <link rel="stylesheet" href="styles/header.css">
@@ -47,7 +62,22 @@
                     <div id="dateYear"></div>
                 </div>
             </div>
-            <div id="dateText"></div>
+            <div class="dateRight">
+                <div id="dateText"></div>
+                <button type="button" id="themeToggleButton" class="theme-toggle" data-i18n-label="themeToggleLabel" aria-label="Theme">
+                    <svg data-theme-icon="light" aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="4"/>
+                        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+                    </svg>
+                    <svg data-theme-icon="dark" hidden aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    </svg>
+                    <svg data-theme-icon="auto" hidden aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <circle cx="12" cy="12" r="9"/>
+                        <path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" stroke="none"/>
+                    </svg>
+                </button>
+            </div>
         </div>
         <div class="new-task-button-wrapper">
             <button type="button" id="openNewTaskModal" class="newTaskMainButton roundBorder">
@@ -162,7 +192,7 @@
             <h2 data-i18n-key="editTaskTitle">Edit Task</h2>
             <form id="editTaskForm">
                 <input type="text" id="editTaskText" placeholder="Task text" class="roundBorder" data-i18n-key="taskPlaceholder">
-                
+
                 <div class="priority-wrapper">
                     <label for="editTaskPriority" data-i18n-key="priorityLabel">Priority:</label>
                     <select id="editTaskPriority" class="roundBorder">
@@ -171,12 +201,12 @@
                         <option value="low" data-i18n-key="priorityLow">Low</option>
                     </select>
                 </div>
-                
+
                 <div class="date-wrapper">
                     <label for="editTaskDate" data-i18n-key="dateLabel">Date:</label>
                     <input type="date" id="editTaskDate" class="roundBorder" required>
                 </div>
-                
+
                 <div class="date-wrapper time-wrapper">
                     <label for="editTaskTime" data-i18n-key="timeLabel">Time:</label>
                     <div class="time-input-wrapper">
@@ -184,7 +214,7 @@
                         <button type="button" class="clear-time" id="clearEditTaskTime" data-i18n-label="clearTime" title="Clear time">&times;</button>
                     </div>
                 </div>
-                
+
                 <div class="modal-actions">
                     <button type="submit" class="orderButton roundBorder" data-i18n-key="saveButton">Save</button>
                     <button type="button" id="cancelEditButton" class="filterButton roundBorder" data-i18n-key="cancelButton">Cancel</button>
@@ -197,7 +227,7 @@
         <div class="modal-content roundBorder">
             <span class="close-button" id="closeActionModal">&times;</span>
             <h2 id="actionModalTitle" data-i18n-key="actionModalTitle">Task Actions</h2>
-            
+
             <div class="task-info-preview">
                 <div id="actionModalEmojis"></div>
                 <div id="actionModalText"></div>
