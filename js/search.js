@@ -157,6 +157,8 @@ const findTokenRanges = (raw, token) => {
 
 /**
  * Nodos del texto con las coincidencias envueltas en <mark>.
+ * Los tokens tienen que venir normalizados (los de parseQuery()): así el
+ * texto original se busca con las mismas reglas que usa el filtro.
  * Se arma con la API del DOM (createElement + createTextNode): nunca
  * innerHTML, así el riesgo de XSS es estructuralmente nulo.
  */
