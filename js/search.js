@@ -12,6 +12,7 @@ let clearBtn = null;
 let emptyEl  = null;
 let emptyStateEl  = null;
 let filterEmptyEl = null;
+let countEl  = null;
 let observer = null;
 
 // ─── Funciones puras ───────────────────────────────────────
@@ -33,6 +34,17 @@ export const matchesQuery = (haystack, tokens) =>
 
 const isModalActive = (wrapper) =>
     wrapper.getAttribute('data-active-modal') === 'true';
+
+/**
+ * Texto del contador: "3 de 12 tareas coinciden".
+ * El singular se usa sólo con una única tarea en total ("1 de 1 tarea
+ * coincide"): en los demás idiomas el verbo concuerda con el sustantivo
+ * plural, así que "1 de 3 tareas coinciden" es lo correcto.
+ */
+export const formatSearchCount = (shown, total) => {
+    const key = total === 1 ? 'searchCountOne' : 'searchCount';
+    return t(key).replace('{shown}', shown).replace('{total}', total);
+};
 
 /**
  * Texto buscable de una tarea: título + subtareas, normalizado.
@@ -97,6 +109,15 @@ export const applySearch = () => {
     if (emptyStateEl)  emptyStateEl.hidden  = !showEmptyState;
     if (filterEmptyEl) filterEmptyEl.hidden = !showFilterEmpty;
     if (clearBtn)      clearBtn.hidden      = raw === '';
+
+    // Contador de resultados: complementario a #searchEmpty (que ya anuncia
+    // el "no hay coincidencias"). Con 0 coincidencias se oculta, para no
+    // repetir el cero.
+    const showCount = active && matches > 0;
+    if (countEl) {
+        countEl.hidden = !showCount;
+        if (showCount) countEl.textContent = formatSearchCount(matches, total);
+    }
 };
 
 export const clearSearch = () => {
@@ -113,6 +134,7 @@ export const initSearch = (container) => {
     emptyEl  = document.getElementById('searchEmpty');
     emptyStateEl  = document.getElementById('emptyState');
     filterEmptyEl = document.getElementById('filterEmpty');
+    countEl  = document.getElementById('searchCount');
     if (!input || !container) return;
 
     // Debe llamarse DESPUÉS de detectLanguage() para que t() ya use el idioma correcto
