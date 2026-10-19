@@ -47,6 +47,22 @@
 .search-clear:hover { opacity: 1; }
 .search-clear[hidden] { display: none; }
 
+/* Entrada del botón ×: sólo fade-in. Se mantiene el toggle del atributo
+   `hidden` (display:none no permite animar la salida) para no romper los
+   specs que asertan toBeVisible/toBeHidden. */
+.search-clear:not([hidden]) {
+    animation: search-clear-in 0.15s ease-out;
+}
+
+@keyframes search-clear-in {
+    from { opacity: 0; }
+    to   { opacity: 0.6; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .search-clear:not([hidden]) { animation: none; }
+}
+
 /* Oculta lo que no coincide. !important: debe ganar a las reglas
    `display:flex` de filter.css (Modo Enfoque) → combinación AND. */
 #tasksContainer .task-wrapper.search-hidden { display: none !important; }
