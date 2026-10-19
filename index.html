@@ -110,6 +110,10 @@
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
+        <!-- Contador de coincidencias: complementario del aviso de "no hay
+             resultados" (ese es el que lleva role=status). Con aria-live
+             "polite" se anuncia el conteo mientras se escribe, sin cortar
+             lo que el usuario esté leyendo. -->
         <p id="searchCount" class="search-count" aria-live="polite" hidden></p>
         <p id="searchEmpty" class="search-empty" role="status" aria-live="polite"
            data-i18n-key="searchNoResults" hidden>No tasks match your search.</p>
