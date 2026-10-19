@@ -14,6 +14,7 @@ let emptyStateEl  = null;
 let filterEmptyEl = null;
 let countEl  = null;
 let observer = null;
+let keyHandler = null;
 
 // ─── Funciones puras ───────────────────────────────────────
 
@@ -59,6 +60,43 @@ export const getSearchableText = (wrapper) => {
     const subs = [...(root?.querySelectorAll('.subtask-text') ?? [])]
         .map((el) => el.textContent);
     return normalize([title, ...subs].join('\n'));
+};
+
+// ─── Atajos de teclado ──────────────────────────────────────
+
+/** ¿El foco está en un campo editable? */
+const isEditableTarget = (el) =>
+    !!el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable);
+
+/**
+ * ¿Hay algún modal abierto? Los modales se abren y cierran únicamente con
+ * style.display inline ('flex' / 'none'), así que alcanza con mirarlo.
+ */
+const isAnyModalOpen = () =>
+    [...document.querySelectorAll('.modal')].some(m => m.style.display === 'flex');
+
+/**
+ * "/" enfoca el buscador; Ctrl/Cmd+K también, y si el buscador ya estaba
+ * enfocado con texto, limpia la búsqueda.
+ */
+const onSearchShortcut = (e) => {
+    if (!input || e.altKey) return;
+
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        if (isAnyModalOpen()) return;
+        e.preventDefault();
+        if (document.activeElement === input && input.value) clearSearch();
+        input.focus();
+        input.select();
+        return;
+    }
+
+    if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
+        if (isEditableTarget(e.target) || isAnyModalOpen()) return;
+        e.preventDefault();
+        input.focus();
+        input.select();
+    }
 };
 
 // ─── Aplicación del filtro ─────────────────────────────────
@@ -151,6 +189,12 @@ export const initSearch = (container) => {
             clearSearch();
         }
     });
+
+    // Atajos de teclado. Se re-registra en cada initSearch() para no dejar
+    // listeners duplicados (los tests reinicializan el módulo).
+    if (keyHandler) document.removeEventListener('keydown', keyHandler);
+    keyHandler = onSearchShortcut;
+    document.addEventListener('keydown', keyHandler);
 
     // Reaplicar el filtro cuando el DOM de tareas cambie (alta, edición,
     // borrado, deshacer, importar, subtareas movidas al/desde el modal...).
