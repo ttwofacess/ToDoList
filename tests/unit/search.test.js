@@ -273,28 +273,33 @@ describe('search', () => {
   });
 
   // ── applySearch() — pista de subtarea ─────────────────────
-  describe('applySearch() — data-search-hint', () => {
+  describe('applySearch() — pista de subtarea', () => {
+    /** La pista de una tarea: null si no hay. */
+    const hint = (wrapper) => {
+      const el = wrapper.querySelector('.search-hint');
+      return el && !el.hidden ? el.textContent : null;
+    };
+
     it('no pone pista si la coincidencia está en el título', () => {
       seed([{ text: 'Comprar pan', done: false, subtasks: [{ text: 'panadería', done: false }] }]);
       type('comprar');
-      expect(container.querySelector('.task-wrapper').dataset.searchHint).toBeUndefined();
+      expect(hint(container.querySelector('.task-wrapper'))).toBeNull();
     });
 
     it('pone la pista con la subtarea que coincidió', () => {
       seed([{ text: 'Cocinar cena', done: false, subtasks: [{ text: 'verduras frescas', done: false }] }]);
       type('verduras');
-      expect(container.querySelector('.task-wrapper').dataset.searchHint)
-        .toBe('↳ verduras frescas');
+      expect(hint(container.querySelector('.task-wrapper'))).toBe('↳ verduras frescas');
     });
 
     it('borra la pista cuando la búsqueda se limpia', () => {
       seed([{ text: 'Cocinar cena', done: false, subtasks: [{ text: 'verduras', done: false }] }]);
       const wrapper = container.querySelector('.task-wrapper');
       type('verduras');
-      expect(wrapper.dataset.searchHint).toBeDefined();
+      expect(hint(wrapper)).toBe('↳ verduras');
 
       type('');
-      expect(wrapper.dataset.searchHint).toBeUndefined();
+      expect(hint(wrapper)).toBeNull();
     });
 
     it('no pone pista en la tarea abierta en el modal', () => {
@@ -302,6 +307,19 @@ describe('search', () => {
       const wrapper = container.querySelector('.task-wrapper');
       openActionModal(wrapper);
       type('verduras');
+      expect(hint(wrapper)).toBeNull();
+    });
+
+    it('la pista es un elemento real, no un pseudo-elemento', () => {
+      // Los ::before / ::after del wrapper los usa el indicador de drop.
+      seed([{ text: 'Cocinar cena', done: false, subtasks: [{ text: 'verduras', done: false }] }]);
+      const wrapper = container.querySelector('.task-wrapper');
+      type('verduras');
+
+      const el = wrapper.querySelector('.search-hint');
+      expect(el).not.toBeNull();
+      expect(el.tagName).toBe('P');
+      // Y no queda ninguna pista en el atributo data-search-hint
       expect(wrapper.dataset.searchHint).toBeUndefined();
     });
   });

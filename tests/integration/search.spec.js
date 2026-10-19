@@ -79,8 +79,24 @@ test.describe('Filtrar por texto', () => {
 
     await page.fill('#taskSearch', 'verduras');
 
-    await expect(page.locator('.task-wrapper')).toHaveAttribute(
-      'data-search-hint', '↳ verduras frescas');
+    await expect(page.locator('.search-hint')).toHaveText('↳ verduras frescas');
+    await expect(page.locator('.search-hint')).toBeVisible();
+  });
+
+  test('la pista va debajo de la tarjeta, no encima', async ({ page }) => {
+    await seed(page, [CENA, CASA]);
+
+    await page.fill('#taskSearch', 'verduras');
+
+    const hint = page.locator('.search-hint:visible');
+    const card = page.locator('.task-wrapper:visible .task');
+    const hintBox = await hint.boundingBox();
+    const cardBox = await card.boundingBox();
+
+    // Abajo de la tarjeta y dentro de su ancho
+    expect(hintBox.y).toBeGreaterThanOrEqual(cardBox.y + cardBox.height - 1);
+    expect(hintBox.x).toBeGreaterThanOrEqual(cardBox.x - 1);
+    expect(hintBox.x + hintBox.width).toBeLessThanOrEqual(cardBox.x + cardBox.width + 1);
   });
 
   test('ignora mayúsculas y tildes', async ({ page }) => {
@@ -580,8 +596,26 @@ test.describe('Resaltado de coincidencias', () => {
     await page.fill('#taskSearch', 'verduras');
 
     await expect(page.locator('.task-text mark')).toHaveCount(0);
-    await expect(page.locator('.task-wrapper')).toHaveAttribute(
-      'data-search-hint', '↳ verduras frescas');
+    await expect(page.locator('.search-hint')).toHaveText('↳ verduras frescas');
+  });
+
+  test('la pista no rompe el indicador de drop del drag & drop', async ({ page }) => {
+    await seed(page, [CENA]);
+
+    await page.fill('#taskSearch', 'verduras');
+
+    // El ::after del wrapper es el puntito del drag & drop: la pista ya no
+    // lo pisa (antes lo pisaba y el texto salía flotando arriba de la tarea).
+    const after = await page.evaluate(() => {
+      const wrapper = document.querySelector('.task-wrapper');
+      const cs = getComputedStyle(wrapper, '::after');
+      return { content: cs.content, position: cs.position, width: cs.width, height: cs.height };
+    });
+
+    expect(after.content).toBe('""');
+    expect(after.position).toBe('absolute');
+    expect(after.width).toBe('7px');
+    expect(after.height).toBe('7px');
   });
 
   test('al limpiar la búsqueda el título vuelve a su texto exacto', async ({ page }) => {

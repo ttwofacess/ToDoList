@@ -269,7 +269,7 @@ const applyFilter = () => {
         if (isVisibleInFocusMode(wrapper)) onFocus++;
 
         // Resaltar las coincidencias del título (sólo del título: la pista
-        // data-search-hint ya señala por qué coincide una subtarea).
+        // .search-hint ya señala por qué coincide una subtarea).
         const taskTextEl = wrapper.querySelector('.task-text');
         if (taskTextEl) {
             if (active && keep) applyHighlight(taskTextEl, tokens);
@@ -277,14 +277,15 @@ const applyFilter = () => {
         }
 
         // Pista: si el título NO contiene todos los términos, mostrar la primera subtarea que coincida
-        delete wrapper.dataset.searchHint;
-        if (active && keep && !isModalActive(wrapper)) {
-            const title = normalize(wrapper.querySelector('.task-text')?.textContent);
-            if (!matchesQuery(title, tokens)) {
-                const hit = [...wrapper.querySelectorAll('.subtask-text')]
-                    .find((el) => tokens.some((tok) => normalize(el.textContent).includes(tok)));
-                if (hit) wrapper.dataset.searchHint = `↳ ${hit.textContent}`;
-            }
+        const hintEl = wrapper.querySelector('.search-hint');
+        if (hintEl) {
+            const title = normalize(taskTextEl?.textContent);
+            const hit = (active && keep && !isModalActive(wrapper) && !matchesQuery(title, tokens))
+                ? [...wrapper.querySelectorAll('.subtask-text')]
+                    .find((el) => tokens.some((tok) => normalize(el.textContent).includes(tok)))
+                : null;
+            hintEl.textContent = hit ? `↳ ${hit.textContent}` : '';
+            hintEl.hidden = !hit;
         }
     });
 

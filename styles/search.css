@@ -109,16 +109,20 @@ mark.search-mark {
 }
 .search-count[hidden] { display: none; }
 
-/* Pista de por qué coincide: la subtarea que coincidió. El texto viene de
-   attr(), o sea texto plano — sin riesgo de XSS. */
-.task-wrapper[data-search-hint]::after {
-    content: attr(data-search-hint);
+/* Pista de por qué coincide: la subtarea que coincidió. Va debajo de la
+   tarjeta, en el flujo normal (es un elemento real, no un pseudo-elemento:
+   los ::before / ::after del wrapper los usa el indicador de drop del
+   drag & drop). El texto viene de una subtarea ya saneada. */
+.search-hint {
+    margin: 0;
+    padding: 4px 15px 0;
+    text-align: center;
     font-family: 'Roboto', sans-serif;
     font-size: 0.75rem;
     color: var(--maintxt);
     opacity: 0.7;
-    padding: 4px 15px 0;
 }
+.search-hint[hidden] { display: none; }
 
 .visually-hidden {
     position: absolute;
