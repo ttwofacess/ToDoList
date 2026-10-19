@@ -1,5 +1,22 @@
 /* search.css — Búsqueda por texto libre */
 
+/* Resaltado de coincidencias: amarillo suave en claro, lila en oscuro (el
+   amarillo sobre fondo oscuro satura y vibra demasiado). */
+:root {
+    --mark-bg: rgba(255, 235, 59, 0.45);
+}
+
+:root[data-theme="dark"] {
+    --mark-bg: rgba(179, 157, 219, 0.35);
+}
+
+mark.search-mark {
+    background: var(--mark-bg);
+    color: inherit;
+    padding: 0 1px;
+    border-radius: 2px;
+}
+
 .search-wrapper {
     position: relative;
     display: flex;

@@ -99,11 +99,155 @@ const onSearchShortcut = (e) => {
     }
 };
 
+// ─── Highlight de coincidencias ─────────────────────────────
+
+/**
+ * Estado del highlight por elemento .task-text:
+ * { text: texto original sin marcar, tokens: firma de los tokens aplicados }.
+ * WeakMap para no retener elementos que ya no están en el DOM.
+ */
+const highlightState = new WeakMap();
+
+/**
+ * Texto normalizado del original (minúsculas y sin tildes, igual que
+ * normalize()) con un mapa de índices: cada code unit del normalizado
+ * apunta al code point del original del que salió.
+ * Hace falta porque los índices del texto normalizado NO coinciden con los
+ * del original ("canción" → "cancion": el acento ocupa un lugar aparte).
+ */
+const buildNormalizedMap = (raw) => {
+    const chars = [...raw];               // code points del original
+
+    const rawUnit = [];                   // offset en code units de cada code point
+    let units = 0;
+    for (const ch of chars) {
+        rawUnit.push(units);
+        units += ch.length;
+    }
+    rawUnit.push(units);                  // longitud total del original
+
+    let norm = '';
+    const unitToChar = [];                // code unit del normalizado -> code point del original
+    chars.forEach((ch, i) => {
+        const out = ch.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+        norm += out;
+        for (let k = 0; k < out.length; k++) unitToChar.push(i);
+    });
+
+    return { norm, unitToChar, rawUnit };
+};
+
+/** Rangos [inicio, fin) del texto ORIGINAL donde aparece el token. */
+const findTokenRanges = (raw, token) => {
+    if (!token) return [];
+    const { norm, unitToChar, rawUnit } = buildNormalizedMap(raw);
+    const ranges = [];
+    let from = 0;
+
+    while (from <= norm.length - token.length) {
+        const idx = norm.indexOf(token, from);
+        if (idx === -1) break;
+        const startChar = unitToChar[idx];
+        const endChar   = unitToChar[idx + token.length - 1] + 1;
+        ranges.push([rawUnit[startChar], rawUnit[endChar]]);
+        from = idx + token.length;
+    }
+    return ranges;
+};
+
+/**
+ * Nodos del texto con las coincidencias envueltas en <mark>.
+ * Se arma con la API del DOM (createElement + createTextNode): nunca
+ * innerHTML, así el riesgo de XSS es estructuralmente nulo.
+ */
+export const highlightText = (rawText, tokens) => {
+    const raw = String(rawText ?? '');
+    const list = (tokens ?? []).filter(Boolean);
+    if (!raw || !list.length) return [document.createTextNode(raw)];
+
+    const ranges = list
+        .flatMap(tok => findTokenRanges(raw, tok))
+        .sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+
+    // Fusiona rangos solapados o contiguos ("pan" dentro de "panadería")
+    const merged = [];
+    for (const range of ranges) {
+        const last = merged[merged.length - 1];
+        if (last && range[0] <= last[1]) {
+            last[1] = Math.max(last[1], range[1]);
+        } else {
+            merged.push([range[0], range[1]]);
+        }
+    }
+
+    const nodes = [];
+    let pos = 0;
+    for (const [start, end] of merged) {
+        if (start > pos) nodes.push(document.createTextNode(raw.slice(pos, start)));
+        const mark = document.createElement('mark');
+        mark.className = 'search-mark';
+        mark.textContent = raw.slice(start, end);
+        nodes.push(mark);
+        pos = end;
+    }
+    if (pos < raw.length) nodes.push(document.createTextNode(raw.slice(pos)));
+    return nodes;
+};
+
+/**
+ * Marca las coincidencias del título de una tarea.
+ * Si el texto fue editado, los <mark> desaparecieron: el texto que hay
+ * pasa a ser el original nuevo.
+ */
+const applyHighlight = (el, tokens) => {
+    const state    = highlightState.get(el);
+    const hasMarks = !!el.querySelector('mark');
+    const original = hasMarks ? (state?.text ?? el.textContent) : el.textContent;
+    const signature = tokens.join('\u0000');
+
+    if (hasMarks && state && state.tokens === signature && state.text === original) return;
+
+    const nodes = highlightText(original, tokens);
+    if (!nodes.some(n => n.nodeName === 'MARK')) {
+        // El título no coincide (la tarea pudo coincidir por una subtarea)
+        if (hasMarks) el.textContent = original;
+        highlightState.delete(el);
+        return;
+    }
+
+    el.replaceChildren(...nodes);
+    highlightState.set(el, { text: original, tokens: signature });
+};
+
+/** Devuelve el título a su texto original, sin marcas. */
+const revertHighlight = (el) => {
+    const state = highlightState.get(el);
+    if (!state) return;
+    if (el.querySelector('mark')) el.textContent = state.text;
+    highlightState.delete(el);
+};
+
 // ─── Aplicación del filtro ─────────────────────────────────
+
+const OBSERVER_OPTIONS = { childList: true, subtree: true, characterData: true };
 
 export const applySearch = () => {
     if (!tasksContainer) return;
 
+    // El highlight reescribe el texto de los títulos (mutación de childList):
+    // con el observer conectado eso dispararía applySearch() otra vez y el
+    // ciclo no terminaría. Se pausa mientras se aplica el filtro y se
+    // reconecta al final (disconnect() también vacía los registros
+    // pendientes: el estado se recalcula entero de todos modos).
+    observer?.disconnect();
+    try {
+        applyFilter();
+    } finally {
+        if (observer) observer.observe(tasksContainer, OBSERVER_OPTIONS);
+    }
+};
+
+const applyFilter = () => {
     const raw      = input?.value ?? '';
     const tokens   = parseQuery(raw);
     const active   = tokens.length > 0;
@@ -121,6 +265,14 @@ export const applySearch = () => {
         wrapper.classList.toggle('search-hidden', !keep);
         if (keep) matches++;
         if (isVisibleInFocusMode(wrapper)) onFocus++;
+
+        // Resaltar las coincidencias del título (sólo del título: la pista
+        // data-search-hint ya señala por qué coincide una subtarea).
+        const taskTextEl = wrapper.querySelector('.task-text');
+        if (taskTextEl) {
+            if (active && keep) applyHighlight(taskTextEl, tokens);
+            else revertHighlight(taskTextEl);
+        }
 
         // Pista: si el título NO contiene todos los términos, mostrar la primera subtarea que coincida
         delete wrapper.dataset.searchHint;
@@ -203,7 +355,7 @@ export const initSearch = (container) => {
     // Alternar clases = mutación de atributos → NO se observa → sin bucles.
     observer?.disconnect();
     observer = new MutationObserver(() => { applySearch(); });
-    observer.observe(container, { childList: true, subtree: true, characterData: true });
+    observer.observe(container, OBSERVER_OPTIONS);
 
     applySearch();
 };
