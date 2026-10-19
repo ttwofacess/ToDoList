@@ -210,6 +210,25 @@ let currentLang = 'en';
 
 export const getLang = () => currentLang;
 
+/**
+ * Etiqueta BCP-47 de cada idioma. Es la que va en el atributo lang del
+ * <html> (para que el lector de pantalla elija la voz regional) y la que
+ * usan las APIs de Intl para formatear fechas y horas.
+ */
+const LOCALE_TAGS = {
+    en: 'en-US',
+    es: 'es-ES',
+    pt: 'pt-BR',
+};
+
+/**
+ * Etiqueta BCP-47 de un idioma: 'es' → 'es-ES'.
+ * Con un idioma desconocido cae a 'en-US'.
+ * @param {string} [lang]
+ * @returns {string}
+ */
+export const getLocaleTag = (lang = currentLang) => LOCALE_TAGS[lang] ?? 'en-US';
+
 export const t = (key) => translations[currentLang][key] ?? key;
 
 /**
@@ -253,9 +272,11 @@ export const setLanguage = (lang, onAfterSet = null) => {
 
     // El atributo lang del <html> tiene que seguir al idioma de la UI: si
     // queda en "en" con la interfaz en español, un lector de pantalla
-    // pronuncia el texto con la voz equivocada. Se actualiza al final, ya
-    // con el idioma validado (un idioma inválido revienta antes, arriba).
-    document.documentElement.lang = lang;
+    // pronuncia el texto con la voz equivocada. Va con la etiqueta BCP-47
+    // completa (es-ES) para que el lector elija la voz regional.
+    // Se actualiza al final, ya con el idioma validado (un idioma inválido
+    // revienta antes, arriba).
+    document.documentElement.lang = getLocaleTag(lang);
 
     onAfterSet?.();
 };

@@ -2,21 +2,13 @@
 // dateUtils.js — Responsabilidad: Formateo y lógica de fechas
 // ============================================================
 
-import { getLang } from './i18n.js';
+import { getLang, getLocaleTag } from './i18n.js';
 
 /**
  * Devuelve la clave de locale para las APIs de Intl.
- * Ej: 'es' → 'es-ES', 'en' → 'en-EN'
+ * Ej: 'es' → 'es-ES', 'en' → 'en-US'
  */
-export const getLocaleKey = () => {
-    const lang = getLang();
-    const locales = {
-        en: 'en-US',
-        es: 'es-ES',
-        pt: 'pt-BR'
-    };
-    return locales[lang] || 'en-US';
-};
+export const getLocaleKey = () => getLocaleTag();
 
 /**
  * Formatea una fecha en formato 'dd/mm/aa' o 'mm/dd/aa' según el idioma activo.
@@ -131,16 +123,16 @@ export const displayDateToIso = (displayDate) => {
  * Rellena el widget de fecha en el header con el día actual.
  */
 export const renderHeaderDate = () => {
-    const lang = getLang();
+    const locale = getLocaleKey();
     const date = new Date();
     document.getElementById('dateNumber').textContent =
-        date.toLocaleString(lang, { day: 'numeric' });
+        date.toLocaleString(locale, { day: 'numeric' });
     document.getElementById('dateText').textContent =
-        date.toLocaleString(lang, { weekday: 'long' });
+        date.toLocaleString(locale, { weekday: 'long' });
     document.getElementById('dateMonth').textContent =
-        date.toLocaleString(lang, { month: 'short' });
+        date.toLocaleString(locale, { month: 'short' });
     document.getElementById('dateYear').textContent =
-        date.toLocaleString(lang, { year: 'numeric' });
+        date.toLocaleString(locale, { year: 'numeric' });
 };
 
 /**
