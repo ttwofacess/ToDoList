@@ -47,6 +47,21 @@ test.describe('i18n — detección de idioma', () => {
     await ctx.close();
   });
 
+  // El atributo lang del <html> tiene que seguir al idioma de la UI: si
+  // queda en "en" con la interfaz en español, un lector de pantalla
+  // pronuncia el texto con la voz equivocada.
+  for (const [locale, lang] of [['es-ES', 'es'], ['en-US', 'en'], ['pt-BR', 'pt']]) {
+    test(`con locale ${locale} el atributo lang del <html> es "${lang}"`, async ({ browser }) => {
+      const ctx = await browser.newContext({ locale });
+      const page = await ctx.newPage();
+      await page.goto('/index.html');
+      await page.waitForFunction(() => document.getElementById('dateYear')?.textContent?.length > 0);
+
+      await expect(page.locator('html')).toHaveAttribute('lang', lang);
+      await ctx.close();
+    });
+  }
+
   test('un idioma no soportado cae a inglés sin romperse', async ({ browser }) => {
     const ctx = await browser.newContext({ locale: 'de-DE' });
     const page = await ctx.newPage();
@@ -57,6 +72,7 @@ test.describe('i18n — detección de idioma', () => {
     await page.waitForFunction(() => document.getElementById('dateYear')?.textContent?.length > 0);
 
     await expect(page).toHaveTitle('To-Do List');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
     expect(errors).toEqual([]);
     await ctx.close();
   });

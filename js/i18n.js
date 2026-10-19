@@ -250,6 +250,13 @@ export const setLanguage = (lang, onAfterSet = null) => {
     });
 
     document.title = translations[lang].pageTitle;
+
+    // El atributo lang del <html> tiene que seguir al idioma de la UI: si
+    // queda en "en" con la interfaz en español, un lector de pantalla
+    // pronuncia el texto con la voz equivocada. Se actualiza al final, ya
+    // con el idioma validado (un idioma inválido revienta antes, arriba).
+    document.documentElement.lang = lang;
+
     onAfterSet?.();
 };
 

@@ -67,6 +67,17 @@ describe('i18n', () => {
       // agrega un selector de idioma sin validar, rompe la app entera.
       expect(() => setLanguage('fr')).toThrow(TypeError);
     });
+
+    it.each(LANGS)('setLanguage(%s) actualiza el atributo lang del <html>', (lang) => {
+      setLanguage(lang);
+      expect(document.documentElement.lang).toBe(lang);
+    });
+
+    it('el atributo lang no se toca con un idioma inválido', () => {
+      setLanguage('es');
+      expect(() => setLanguage('fr')).toThrow();
+      expect(document.documentElement.lang).toBe('es');
+    });
   });
 
   describe('t()', () => {
