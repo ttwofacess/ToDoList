@@ -11,6 +11,8 @@ import {
   applySearch,
   clearSearch,
   initSearch,
+  highlightText,
+  formatSearchCount,
 } from '../../js/search.js';
 import { initTaskManager, loadTasks } from '../../js/taskManager.js';
 import { openActionModal } from '../../js/modalManager.js';
@@ -26,6 +28,7 @@ describe('search', () => {
   let emptyEl;
   let emptyStateEl;
   let filterEmptyEl;
+  let countEl;
 
   /** Escribe tareas, las renderiza y las deja listas para buscar. */
   const seed = (tasks) => {
@@ -53,6 +56,7 @@ describe('search', () => {
     emptyEl  = document.getElementById('searchEmpty');
     emptyStateEl  = document.getElementById('emptyState');
     filterEmptyEl = document.getElementById('filterEmpty');
+    countEl = document.getElementById('searchCount');
 
     initTaskManager(container, vi.fn(), vi.fn());
     setLanguage('es');
@@ -269,28 +273,33 @@ describe('search', () => {
   });
 
   // ── applySearch() — pista de subtarea ─────────────────────
-  describe('applySearch() — data-search-hint', () => {
+  describe('applySearch() — pista de subtarea', () => {
+    /** La pista de una tarea: null si no hay. */
+    const hint = (wrapper) => {
+      const el = wrapper.querySelector('.search-hint');
+      return el && !el.hidden ? el.textContent : null;
+    };
+
     it('no pone pista si la coincidencia está en el título', () => {
       seed([{ text: 'Comprar pan', done: false, subtasks: [{ text: 'panadería', done: false }] }]);
       type('comprar');
-      expect(container.querySelector('.task-wrapper').dataset.searchHint).toBeUndefined();
+      expect(hint(container.querySelector('.task-wrapper'))).toBeNull();
     });
 
     it('pone la pista con la subtarea que coincidió', () => {
       seed([{ text: 'Cocinar cena', done: false, subtasks: [{ text: 'verduras frescas', done: false }] }]);
       type('verduras');
-      expect(container.querySelector('.task-wrapper').dataset.searchHint)
-        .toBe('↳ verduras frescas');
+      expect(hint(container.querySelector('.task-wrapper'))).toBe('↳ verduras frescas');
     });
 
     it('borra la pista cuando la búsqueda se limpia', () => {
       seed([{ text: 'Cocinar cena', done: false, subtasks: [{ text: 'verduras', done: false }] }]);
       const wrapper = container.querySelector('.task-wrapper');
       type('verduras');
-      expect(wrapper.dataset.searchHint).toBeDefined();
+      expect(hint(wrapper)).toBe('↳ verduras');
 
       type('');
-      expect(wrapper.dataset.searchHint).toBeUndefined();
+      expect(hint(wrapper)).toBeNull();
     });
 
     it('no pone pista en la tarea abierta en el modal', () => {
@@ -298,6 +307,19 @@ describe('search', () => {
       const wrapper = container.querySelector('.task-wrapper');
       openActionModal(wrapper);
       type('verduras');
+      expect(hint(wrapper)).toBeNull();
+    });
+
+    it('la pista es un elemento real, no un pseudo-elemento', () => {
+      // Los ::before / ::after del wrapper los usa el indicador de drop.
+      seed([{ text: 'Cocinar cena', done: false, subtasks: [{ text: 'verduras', done: false }] }]);
+      const wrapper = container.querySelector('.task-wrapper');
+      type('verduras');
+
+      const el = wrapper.querySelector('.search-hint');
+      expect(el).not.toBeNull();
+      expect(el.tagName).toBe('P');
+      // Y no queda ninguna pista en el atributo data-search-hint
       expect(wrapper.dataset.searchHint).toBeUndefined();
     });
   });
@@ -599,6 +621,230 @@ describe('search', () => {
         focusOff();
         expect(notices()).toEqual({ empty: false, search: false, filter: false });
       });
+    });
+  });
+
+  // ── Contador de resultados ─────────────────────────────────
+  describe('contador de resultados', () => {
+    beforeEach(() => {
+      seed([
+        { text: 'Comprar pan', done: false },
+        { text: 'Cocinar cena', done: false },
+        { text: 'Limpiar casa', done: false },
+      ]);
+    });
+
+    it('muestra cuántas tareas coinciden de cuántas hay', () => {
+      type('pan');
+      expect(countEl.hidden).toBe(false);
+      expect(countEl.textContent).toBe('1 de 3 tareas coinciden');
+    });
+
+    it('con la query vacía el contador está oculto', () => {
+      type('pan');
+      type('');
+      expect(countEl.hidden).toBe(true);
+    });
+
+    it('sin coincidencias el contador está oculto', () => {
+      type('zzzz');
+      expect(countEl.hidden).toBe(true);
+    });
+
+    it('con una sola tarea en total usa el singular', () => {
+      seed([{ text: 'Comprar pan', done: false }]);
+      type('pan');
+      expect(countEl.textContent).toBe('1 de 1 tarea coincide');
+    });
+
+    it('el texto sigue al idioma activo', () => {
+      setLanguage('en');
+      type('pan');
+      expect(countEl.textContent).toBe('1 of 3 tasks match');
+      setLanguage('es');
+    });
+  });
+
+  describe('formatSearchCount()', () => {
+    it('usa el plural', () => {
+      expect(formatSearchCount(3, 12)).toBe('3 de 12 tareas coinciden');
+    });
+
+    it('usa el singular sólo con una única tarea en total', () => {
+      expect(formatSearchCount(1, 1)).toBe('1 de 1 tarea coincide');
+    });
+
+    it('con una coincidencia pero varias tareas mantiene el plural', () => {
+      expect(formatSearchCount(1, 3)).toBe('1 de 3 tareas coinciden');
+    });
+  });
+
+  // ── Highlight ──────────────────────────────────────────────
+  describe('highlightText()', () => {
+    /** Los <mark> del array de nodos, con su texto. */
+    const marks = (nodes) =>
+      nodes.filter(n => n.nodeName === 'MARK').map(n => n.textContent);
+
+    it('sin tokens devuelve el texto entero como un nodo de texto', () => {
+      const nodes = highlightText('Comprar pan', []);
+      expect(nodes).toHaveLength(1);
+      expect(nodes[0].nodeType).toBe(3);           // TEXT_NODE
+      expect(nodes[0].textContent).toBe('Comprar pan');
+    });
+
+    it('envuelve sólo la coincidencia', () => {
+      const nodes = highlightText('Comprar pan', ['pan']);
+      expect(nodes).toHaveLength(2);
+      expect(nodes[0].textContent).toBe('Comprar ');
+      expect(nodes[1].nodeName).toBe('MARK');
+      expect(nodes[1].textContent).toBe('pan');
+    });
+
+    it('con acentos marca el texto ORIGINAL, con su tilde', () => {
+      const nodes = highlightText('Canción en el coche', ['cancion']);
+      expect(marks(nodes)).toEqual(['Canción']);
+    });
+
+    it('marca todas las coincidencias de varios tokens', () => {
+      const nodes = highlightText('Comprar pan y queso', ['comprar', 'queso']);
+      expect(marks(nodes)).toEqual(['Comprar', 'queso']);
+    });
+
+    it('fusiona los rangos solapados', () => {
+      // Los tokens llegan normalizados desde parseQuery(): 'panadería' → 'panaderia'
+      const nodes = highlightText('Comprar panadería', ['pan', 'panaderia']);
+      expect(marks(nodes)).toEqual(['panadería']);
+    });
+
+    it('no marca si el token no aparece', () => {
+      const nodes = highlightText('Comprar pan', ['queso']);
+      expect(marks(nodes)).toEqual([]);
+      expect(nodes[0].textContent).toBe('Comprar pan');
+    });
+
+    it('no usa innerHTML: el texto con HTML queda como texto', () => {
+      const nodes = highlightText('<b>pan</b>', ['pan']);
+      expect(marks(nodes)).toEqual(['pan']);
+      expect(nodes[0].textContent).toBe('<b>');
+    });
+
+    it('no se rompe con los emojis (pares suplentes)', () => {
+      const nodes = highlightText('🎂 Tarta de pan 🎉', ['pan']);
+      expect(marks(nodes)).toEqual(['pan']);
+      expect(nodes[0].textContent).toBe('🎂 Tarta de ');
+    });
+  });
+
+  // ── Highlight en el DOM ────────────────────────────────────
+  describe('resaltado en el DOM', () => {
+    /** Los callbacks del MutationObserver se encolan como microtareas. */
+    const flush = () => new Promise(resolve => setTimeout(resolve, 0));
+
+    const titleEl = () => container.querySelector('.task-text');
+
+    it('marca la coincidencia del título', () => {
+      seed([{ text: 'Comprar pan', done: false }]);
+      type('pan');
+      expect(titleEl().querySelector('mark').textContent).toBe('pan');
+    });
+
+    it('no marca el título de una tarea que coincide sólo por subtarea', () => {
+      seed([{ text: 'Cocinar cena', done: false, subtasks: [{ text: 'verduras', done: false }] }]);
+      type('verduras');
+      expect(titleEl().querySelector('mark')).toBeNull();
+      expect(titleEl().textContent).toBe('Cocinar cena');
+    });
+
+    it('al limpiar la búsqueda el título vuelve a su texto exacto', () => {
+      seed([{ text: 'Comprar pan y queso', done: false }]);
+      type('pan');
+      type('');
+
+      const el = titleEl();
+      expect(el.querySelector('mark')).toBeNull();
+      expect(el.textContent).toBe('Comprar pan y queso');
+      expect(el.childNodes).toHaveLength(1);       // vuelve a ser un nodo de texto
+    });
+
+    it('la tarea que deja de coincidir pierde el resaltado', () => {
+      seed([{ text: 'Comprar pan', done: false }, { text: 'Limpiar casa', done: false }]);
+      type('pan');
+      expect(titleEl().querySelector('mark').textContent).toBe('pan');
+
+      type('casa');
+      expect(titleEl().querySelector('mark')).toBeNull();
+    });
+
+    it('el texto original se conserva aunque el título se edite', () => {
+      seed([{ text: 'Comprar pan', done: false }]);
+      type('pan');
+
+      // El modal de edición escribe con textContent: se borran los marks.
+      titleEl().textContent = 'Comprar pan y queso';
+      applySearch();
+
+      expect(titleEl().textContent).toBe('Comprar pan y queso');
+      expect(titleEl().querySelector('mark').textContent).toBe('pan');
+    });
+
+    it('no entra en bucle con el MutationObserver', async () => {
+      seed([{ text: 'Comprar pan', done: false }]);
+      type('pan');
+      await flush();
+      await flush();
+      await flush();
+
+      expect(titleEl().querySelectorAll('mark')).toHaveLength(1);
+      expect(titleEl().textContent).toBe('Comprar pan');
+    });
+  });
+
+  // ── Atajos de teclado ──────────────────────────────────────
+  describe('atajos de teclado', () => {
+    /** Lanza una tecla desde el document (el handler está en document). */
+    const press = (key, opts = {}) =>
+      document.dispatchEvent(new window.KeyboardEvent('keydown', {
+        key, bubbles: true, cancelable: true, ...opts,
+      }));
+
+    it('"/" enfoca el buscador', () => {
+      press('/');
+      expect(document.activeElement).toBe(input);
+    });
+
+    it('"/" dentro del buscador no lo vuelve a enfocar ni lo previene', () => {
+      input.focus();
+      const ev = new window.KeyboardEvent('keydown', { key: '/', bubbles: true, cancelable: true });
+      input.dispatchEvent(ev);
+      expect(ev.defaultPrevented).toBe(false);
+    });
+
+    it('"/" con un modal abierto no interfiere', () => {
+      document.getElementById('newTaskModal').style.display = 'flex';
+      press('/');
+      expect(document.activeElement).not.toBe(input);
+    });
+
+    it('Ctrl+K enfoca el buscador', () => {
+      press('k', { ctrlKey: true });
+      expect(document.activeElement).toBe(input);
+    });
+
+    it('Ctrl+K con el buscador enfocado y con texto limpia la búsqueda', () => {
+      seed([{ text: 'Comprar pan', done: false }, { text: 'Limpiar casa', done: false }]);
+      type('pan');
+      input.focus();
+
+      press('k', { ctrlKey: true });
+
+      expect(input.value).toBe('');
+      expect(visible()).toEqual(['Comprar pan', 'Limpiar casa']);
+    });
+
+    it('Ctrl+K con un modal abierto no roba el foco', () => {
+      document.getElementById('newTaskModal').style.display = 'flex';
+      press('k', { ctrlKey: true });
+      expect(document.activeElement).not.toBe(input);
     });
   });
 });

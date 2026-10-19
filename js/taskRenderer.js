@@ -196,6 +196,14 @@ export const createTaskElement = (
     contentWrapper.append(subtasksContainer);
     task.append(contentWrapper);
 
-    taskWrapper.append(task);
+    // Pista de por qué coincide una subtarea con la búsqueda. La llena
+    // search.js; arranca oculta. Es un elemento real (no un pseudo-elemento)
+    // para no pelear con los ::before / ::after que el drag & drop usa en el
+    // wrapper, y para que el texto sea legible por los lectores de pantalla.
+    const searchHint = document.createElement('p');
+    searchHint.classList.add('search-hint');
+    searchHint.hidden = true;
+
+    taskWrapper.append(task, searchHint);
     return taskWrapper;
 };

@@ -3,7 +3,7 @@
 // ============================================================
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { translations, getLang, t, setLanguage, detectLanguage } from '../../js/i18n.js';
+import { translations, getLang, getLocaleTag, t, setLanguage, detectLanguage } from '../../js/i18n.js';
 
 const LANGS = ['en', 'es', 'pt'];
 
@@ -66,6 +66,45 @@ describe('i18n', () => {
       // valida el idioma, así que no se dispara en producción. Pero si se
       // agrega un selector de idioma sin validar, rompe la app entera.
       expect(() => setLanguage('fr')).toThrow(TypeError);
+    });
+
+    it.each(LANGS)('setLanguage(%s) actualiza el atributo lang del <html>', (lang) => {
+      setLanguage(lang);
+      expect(document.documentElement.lang).toBe(getLocaleTag(lang));
+    });
+
+    it('el atributo lang lleva la etiqueta BCP-47 completa', () => {
+      setLanguage('es');
+      expect(document.documentElement.lang).toBe('es-ES');
+      setLanguage('pt');
+      expect(document.documentElement.lang).toBe('pt-BR');
+      setLanguage('en');
+      expect(document.documentElement.lang).toBe('en-US');
+    });
+
+    it('el atributo lang no se toca con un idioma inválido', () => {
+      setLanguage('es');
+      expect(() => setLanguage('fr')).toThrow();
+      expect(document.documentElement.lang).toBe('es-ES');
+    });
+  });
+
+  describe('getLocaleTag()', () => {
+    it.each([
+      ['en', 'en-US'],
+      ['es', 'es-ES'],
+      ['pt', 'pt-BR'],
+    ])('mapea el idioma %s al locale %s', (lang, expected) => {
+      expect(getLocaleTag(lang)).toBe(expected);
+    });
+
+    it('sin argumento devuelve el del idioma activo', () => {
+      setLanguage('pt');
+      expect(getLocaleTag()).toBe('pt-BR');
+    });
+
+    it('cae a en-US si el idioma no está en el mapa', () => {
+      expect(getLocaleTag('fr')).toBe('en-US');
     });
   });
 

@@ -60,6 +60,8 @@ export const translations = {
         searchPlaceholder: 'Search tasks and subtasks…',
         searchClear: 'Clear search',
         searchNoResults: 'No tasks match your search.',
+        searchCount: '{shown} of {total} tasks match',
+        searchCountOne: '{shown} of {total} task matches',
         emptyStateTitle: 'Your list is empty',
         emptyStateText: 'Add your first task to get started.',
         filterNoTasks: 'No tasks to show with this filter.',
@@ -125,6 +127,8 @@ export const translations = {
         searchPlaceholder: 'Buscar en tareas y subtareas…',
         searchClear: 'Borrar búsqueda',
         searchNoResults: 'Ninguna tarea coincide con tu búsqueda.',
+        searchCount: '{shown} de {total} tareas coinciden',
+        searchCountOne: '{shown} de {total} tarea coincide',
         emptyStateTitle: 'Tu lista está vacía',
         emptyStateText: 'Añade tu primera tarea para empezar.',
         filterNoTasks: 'No hay tareas para mostrar con este filtro.',
@@ -190,6 +194,8 @@ export const translations = {
         searchPlaceholder: 'Buscar em tarefas e subtarefas…',
         searchClear: 'Limpar busca',
         searchNoResults: 'Nenhuma tarefa corresponde à sua busca.',
+        searchCount: '{shown} de {total} tarefas coincidem',
+        searchCountOne: '{shown} de {total} tarefa coincide',
         emptyStateTitle: 'Sua lista está vazia',
         emptyStateText: 'Adicione sua primeira tarefa para começar.',
         filterNoTasks: 'Nenhuma tarefa para mostrar com este filtro.',
@@ -203,6 +209,25 @@ export const translations = {
 let currentLang = 'en';
 
 export const getLang = () => currentLang;
+
+/**
+ * Etiqueta BCP-47 de cada idioma. Es la que va en el atributo lang del
+ * <html> (para que el lector de pantalla elija la voz regional) y la que
+ * usan las APIs de Intl para formatear fechas y horas.
+ */
+const LOCALE_TAGS = {
+    en: 'en-US',
+    es: 'es-ES',
+    pt: 'pt-BR',
+};
+
+/**
+ * Etiqueta BCP-47 de un idioma: 'es' → 'es-ES'.
+ * Con un idioma desconocido cae a 'en-US'.
+ * @param {string} [lang]
+ * @returns {string}
+ */
+export const getLocaleTag = (lang = currentLang) => LOCALE_TAGS[lang] ?? 'en-US';
 
 export const t = (key) => translations[currentLang][key] ?? key;
 
@@ -244,6 +269,15 @@ export const setLanguage = (lang, onAfterSet = null) => {
     });
 
     document.title = translations[lang].pageTitle;
+
+    // El atributo lang del <html> tiene que seguir al idioma de la UI: si
+    // queda en "en" con la interfaz en español, un lector de pantalla
+    // pronuncia el texto con la voz equivocada. Va con la etiqueta BCP-47
+    // completa (es-ES) para que el lector elija la voz regional.
+    // Se actualiza al final, ya con el idioma validado (un idioma inválido
+    // revienta antes, arriba).
+    document.documentElement.lang = getLocaleTag(lang);
+
     onAfterSet?.();
 };
 

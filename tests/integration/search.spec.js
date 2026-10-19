@@ -79,8 +79,24 @@ test.describe('Filtrar por texto', () => {
 
     await page.fill('#taskSearch', 'verduras');
 
-    await expect(page.locator('.task-wrapper')).toHaveAttribute(
-      'data-search-hint', '↳ verduras frescas');
+    await expect(page.locator('.search-hint')).toHaveText('↳ verduras frescas');
+    await expect(page.locator('.search-hint')).toBeVisible();
+  });
+
+  test('la pista va debajo de la tarjeta, no encima', async ({ page }) => {
+    await seed(page, [CENA, CASA]);
+
+    await page.fill('#taskSearch', 'verduras');
+
+    const hint = page.locator('.search-hint:visible');
+    const card = page.locator('.task-wrapper:visible .task');
+    const hintBox = await hint.boundingBox();
+    const cardBox = await card.boundingBox();
+
+    // Abajo de la tarjeta y dentro de su ancho
+    expect(hintBox.y).toBeGreaterThanOrEqual(cardBox.y + cardBox.height - 1);
+    expect(hintBox.x).toBeGreaterThanOrEqual(cardBox.x - 1);
+    expect(hintBox.x + hintBox.width).toBeLessThanOrEqual(cardBox.x + cardBox.width + 1);
   });
 
   test('ignora mayúsculas y tildes', async ({ page }) => {
@@ -554,6 +570,183 @@ test.describe('La búsqueda es sólo vista', () => {
 
     await expect(page.locator('#taskSearch')).toHaveValue('');
     expect(await visibleTexts(page)).toEqual(['Comprar pan', 'Limpiar casa']);
+  });
+});
+
+test.describe('Resaltado de coincidencias', () => {
+  test('marca la coincidencia en el título', async ({ page }) => {
+    await seed(page, [PAN]);
+
+    await page.fill('#taskSearch', 'pan');
+
+    await expect(page.locator('.task-text mark')).toHaveText('pan');
+  });
+
+  test('marca el texto original, con su tilde', async ({ page }) => {
+    await seed(page, [task('Canción en el coche')]);
+
+    await page.fill('#taskSearch', 'cancion');
+
+    await expect(page.locator('.task-text mark')).toHaveText('Canción');
+  });
+
+  test('la tarea que coincide sólo por subtarea no marca el título', async ({ page }) => {
+    await seed(page, [CENA]);
+
+    await page.fill('#taskSearch', 'verduras');
+
+    await expect(page.locator('.task-text mark')).toHaveCount(0);
+    await expect(page.locator('.search-hint')).toHaveText('↳ verduras frescas');
+  });
+
+  test('la pista no rompe el indicador de drop del drag & drop', async ({ page }) => {
+    await seed(page, [CENA]);
+
+    await page.fill('#taskSearch', 'verduras');
+
+    // El ::after del wrapper es el puntito del drag & drop: la pista ya no
+    // lo pisa (antes lo pisaba y el texto salía flotando arriba de la tarea).
+    const after = await page.evaluate(() => {
+      const wrapper = document.querySelector('.task-wrapper');
+      const cs = getComputedStyle(wrapper, '::after');
+      return { content: cs.content, position: cs.position, width: cs.width, height: cs.height };
+    });
+
+    expect(after.content).toBe('""');
+    expect(after.position).toBe('absolute');
+    expect(after.width).toBe('7px');
+    expect(after.height).toBe('7px');
+  });
+
+  test('al limpiar la búsqueda el título vuelve a su texto exacto', async ({ page }) => {
+    await seed(page, [PAN]);
+
+    await page.fill('#taskSearch', 'pan');
+    await expect(page.locator('.task-text mark')).toHaveCount(1);
+
+    await page.fill('#taskSearch', '');
+
+    await expect(page.locator('.task-text mark')).toHaveCount(0);
+    expect(await taskTexts(page)).toEqual(['Comprar pan']);
+  });
+
+  test('resaltar no dispara un bucle de re-render', async ({ page }) => {
+    await seed(page, [PAN]);
+
+    await page.fill('#taskSearch', 'pan');
+    await page.waitForTimeout(300);
+
+    await expect(page.locator('.task-text mark')).toHaveCount(1);
+    expect(await taskTexts(page)).toEqual(['Comprar pan']);
+  });
+
+  test('con la búsqueda activa editar y guardar no deja artefactos', async ({ page }) => {
+    await seed(page, [task('Comprar pan y queso'), CASA]);
+    await page.fill('#taskSearch', 'pan');
+    await expect(page.locator('.task-text mark')).toHaveText('pan');
+
+    // El modal de edición tiene que mostrar el texto plano, no el marcado
+    await page.locator('.task-wrapper:visible .task').click();
+    await page.click('#actionEdit');
+    await expect(page.locator('#editTaskText')).toHaveValue('Comprar pan y queso');
+    await page.click('#editTaskForm button[type="submit"]');
+
+    // Y lo que se guarda es el texto original
+    expect((await readStorage(page))[0].text).toBe('Comprar pan y queso');
+  });
+});
+
+test.describe('Contador de resultados', () => {
+  test('muestra cuántas tareas coinciden de cuántas hay', async ({ page }) => {
+    await seed(page, [PAN, CENA, CASA]);
+
+    await page.fill('#taskSearch', 'pan');
+
+    await expect(page.locator('#searchCount')).toBeVisible();
+    await expect(page.locator('#searchCount')).toHaveText('1 de 3 tareas coinciden');
+  });
+
+  test('con una sola tarea en total usa el singular', async ({ page }) => {
+    await seed(page, [PAN]);
+
+    await page.fill('#taskSearch', 'pan');
+
+    await expect(page.locator('#searchCount')).toHaveText('1 de 1 tarea coincide');
+  });
+
+  test('sin coincidencias el contador se oculta', async ({ page }) => {
+    await seed(page, [PAN]);
+
+    await page.fill('#taskSearch', 'zzzz');
+
+    await expect(page.locator('#searchCount')).toBeHidden();
+    await expect(page.locator('#searchEmpty')).toBeVisible();
+  });
+
+  test('al limpiar la búsqueda el contador desaparece', async ({ page }) => {
+    await seed(page, [PAN, CENA]);
+
+    await page.fill('#taskSearch', 'pan');
+    await expect(page.locator('#searchCount')).toBeVisible();
+
+    await page.fill('#taskSearch', '');
+
+    await expect(page.locator('#searchCount')).toBeHidden();
+  });
+});
+
+test.describe('Atajos de teclado', () => {
+  test('"/" enfoca el buscador', async ({ page }) => {
+    await seed(page, [PAN]);
+
+    await page.keyboard.press('/');
+
+    await expect(page.locator('#taskSearch')).toBeFocused();
+  });
+
+  test('Ctrl+K enfoca el buscador', async ({ page }) => {
+    await seed(page, [PAN]);
+
+    await page.keyboard.press('Control+k');
+
+    await expect(page.locator('#taskSearch')).toBeFocused();
+  });
+
+  test('Ctrl+K con el buscador enfocado y con texto limpia la búsqueda', async ({ page }) => {
+    await seed(page, [PAN, CASA]);
+    await page.fill('#taskSearch', 'pan');
+    await page.locator('#taskSearch').focus();
+
+    await page.keyboard.press('Control+k');
+
+    await expect(page.locator('#taskSearch')).toHaveValue('');
+    expect(await visibleTexts(page)).toEqual(['Comprar pan', 'Limpiar casa']);
+  });
+
+  test('"/" no interfiere con lo que se está escribiendo en un modal', async ({ page }) => {
+    await seed(page, [PAN]);
+
+    await page.click('#openNewTaskModal');
+    await expect(page.locator('#newTaskModal')).toBeVisible();
+    await expect(page.locator('#newTaskForm input[name="taskText"]')).toBeFocused();
+
+    await page.keyboard.press('/');
+
+    await expect(page.locator('#newTaskForm input[name="taskText"]')).toHaveValue('/');
+    await expect(page.locator('#taskSearch')).not.toBeFocused();
+  });
+});
+
+test.describe('El botón "×"', () => {
+  test('aparece con una animación de entrada al escribir', async ({ page }) => {
+    await seed(page, [PAN]);
+
+    await page.fill('#taskSearch', 'pan');
+
+    await expect(page.locator('#taskSearchClear')).toBeVisible();
+    const animation = await page.locator('#taskSearchClear')
+      .evaluate(el => getComputedStyle(el).animationName);
+    expect(animation).toBe('search-clear-in');
   });
 });
 

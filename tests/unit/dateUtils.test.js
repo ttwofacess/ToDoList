@@ -42,13 +42,11 @@ describe('dateUtils', () => {
       expect(getLocaleKey()).toBe(expected);
     });
 
-    it('cae a en-US si el idioma no está en el mapa', async () => {
-      // getLocaleKey() sólo es alcanzable con un lang fuera del mapa si se
-      // fuerza el estado interno de i18n, así que se mockea la dependencia.
+    it('delega en getLocaleTag() de i18n (fuente única de verdad)', async () => {
       vi.resetModules();
-      vi.doMock('../../js/i18n.js', () => ({ getLang: () => 'fr' }));
-      const { getLocaleKey: fallback } = await import('../../js/dateUtils.js');
-      expect(fallback()).toBe('en-US');
+      vi.doMock('../../js/i18n.js', () => ({ getLocaleTag: () => 'xx-XX' }));
+      const { getLocaleKey: delegando } = await import('../../js/dateUtils.js');
+      expect(delegando()).toBe('xx-XX');
       vi.doUnmock('../../js/i18n.js');
       vi.resetModules();
     });

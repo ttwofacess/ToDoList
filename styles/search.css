@@ -1,5 +1,22 @@
 /* search.css — Búsqueda por texto libre */
 
+/* Resaltado de coincidencias: amarillo suave en claro, lila en oscuro (el
+   amarillo sobre fondo oscuro satura y vibra demasiado). */
+:root {
+    --mark-bg: rgba(255, 235, 59, 0.45);
+}
+
+:root[data-theme="dark"] {
+    --mark-bg: rgba(179, 157, 219, 0.35);
+}
+
+mark.search-mark {
+    background: var(--mark-bg);
+    color: inherit;
+    padding: 0 1px;
+    border-radius: 2px;
+}
+
 .search-wrapper {
     position: relative;
     display: flex;
@@ -7,9 +24,22 @@
     margin: 0 0 15px;
 }
 
+/* Lupa: decorativa, no focusable, sólo informa visualmente */
+.search-icon {
+    position: absolute;
+    left: 10px;
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+    color: var(--maintxt);
+    opacity: 0.5;
+}
+.search-wrapper:focus-within .search-icon { opacity: 0.9; }
+
 /* base: `input { width: 80% }` es global; aquí ocupamos todo el ancho */
 .search-wrapper input[type="search"] {
     width: 100%;
+    padding-left: 36px;
     padding-right: 40px;
     font-size: 16px;            /* <16px hace que iOS haga zoom al enfocar */
     -webkit-appearance: none;
@@ -34,6 +64,22 @@
 .search-clear:hover { opacity: 1; }
 .search-clear[hidden] { display: none; }
 
+/* Entrada del botón ×: sólo fade-in. Se mantiene el toggle del atributo
+   `hidden` (display:none no permite animar la salida) para no romper los
+   specs que asertan toBeVisible/toBeHidden. */
+.search-clear:not([hidden]) {
+    animation: search-clear-in 0.15s ease-out;
+}
+
+@keyframes search-clear-in {
+    from { opacity: 0; }
+    to   { opacity: 0.6; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .search-clear:not([hidden]) { animation: none; }
+}
+
 /* Oculta lo que no coincide. !important: debe ganar a las reglas
    `display:flex` de filter.css (Modo Enfoque) → combinación AND. */
 #tasksContainer .task-wrapper.search-hidden { display: none !important; }
@@ -51,16 +97,32 @@
 }
 .search-empty[hidden] { display: none; }
 
-/* Pista de por qué coincide: la subtarea que coincidió. El texto viene de
-   attr(), o sea texto plano — sin riesgo de XSS. */
-.task-wrapper[data-search-hint]::after {
-    content: attr(data-search-hint);
+/* Contador de resultados: informa cuántos coinciden, complementario al
+   aviso de "no hay coincidencias". */
+.search-count {
+    text-align: center;
+    color: var(--maintxt);
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.85rem;
+    opacity: 0.7;
+    margin: -8px 0 12px;
+}
+.search-count[hidden] { display: none; }
+
+/* Pista de por qué coincide: la subtarea que coincidió. Va debajo de la
+   tarjeta, en el flujo normal (es un elemento real, no un pseudo-elemento:
+   los ::before / ::after del wrapper los usa el indicador de drop del
+   drag & drop). El texto viene de una subtarea ya saneada. */
+.search-hint {
+    margin: 0;
+    padding: 4px 15px 0;
+    text-align: center;
     font-family: 'Roboto', sans-serif;
     font-size: 0.75rem;
     color: var(--maintxt);
     opacity: 0.7;
-    padding: 4px 15px 0;
 }
+.search-hint[hidden] { display: none; }
 
 .visually-hidden {
     position: absolute;
