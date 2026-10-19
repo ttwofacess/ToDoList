@@ -7,9 +7,22 @@
     margin: 0 0 15px;
 }
 
+/* Lupa: decorativa, no focusable, sólo informa visualmente */
+.search-icon {
+    position: absolute;
+    left: 10px;
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+    color: var(--maintxt);
+    opacity: 0.5;
+}
+.search-wrapper:focus-within .search-icon { opacity: 0.9; }
+
 /* base: `input { width: 80% }` es global; aquí ocupamos todo el ancho */
 .search-wrapper input[type="search"] {
     width: 100%;
+    padding-left: 36px;
     padding-right: 40px;
     font-size: 16px;            /* <16px hace que iOS haga zoom al enfocar */
     -webkit-appearance: none;
