@@ -36,6 +36,19 @@ export const gotoApp = async (page) => {
   return page;
 };
 
+/**
+ * Espera a que el Service Worker tenga el control de la página.
+ *
+ * Al instalarse dispara location.reload() desde 'controllerchange'
+ * (js/updateNotifier.js). Ese reload puede abortar la navegación en curso o el
+ * click siguiente, así que hay que esperar a que el SW ya esté al mando antes
+ * de interactuar.
+ */
+export const waitForServiceWorker = async (page) => {
+  await page.waitForFunction(() => navigator.serviceWorker?.controller != null, null,
+    { timeout: 15000 }).catch(() => {});
+};
+
 /** Fecha de hoy en ISO (yyyy-mm-dd) tal como la calcula el navegador. */
 export const todayISO = async (page) =>
   page.evaluate(() => {

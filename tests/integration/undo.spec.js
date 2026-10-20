@@ -188,6 +188,7 @@ test.describe('Deshacer', () => {
     await openActions(page, 'Hecha');
     await page.click('#actionDone');             // marcar como hecha
     await page.click('#closeActionModal');
+    await expect(page.locator('#taskActionModal')).toBeHidden();
     await expect(page.locator('.task').first()).toHaveClass(/done/);
 
     await deleteTask(page, 'Hecha');
@@ -205,6 +206,7 @@ test.describe('Deshacer', () => {
     await openActions(page, 'Recurrente');
     await page.click('#actionRecurrence');        // → daily
     await page.click('#closeActionModal');
+    await expect(page.locator('#taskActionModal')).toBeHidden();
 
     await deleteTask(page, 'Recurrente');
     await page.click('#undoButton');

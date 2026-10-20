@@ -348,6 +348,7 @@ test.describe('Ordenar', () => {
     await page.click('#actionDone');
     // #actionDone deja el modal abierto: hay que cerrarlo o bloquea el header
     await page.click('#closeActionModal');
+    await expect(page.locator('#taskActionModal')).toBeHidden();
     await expect(page.locator('.task-wrapper', { hasText: 'B' }).locator('.task'))
       .toHaveClass(/done/);
 
@@ -364,6 +365,7 @@ test.describe('Ordenar', () => {
     await page.locator('.task-wrapper', { hasText: 'B' }).locator('.task').click();
     await page.click('#actionDone');
     await page.click('#closeActionModal');
+    await expect(page.locator('#taskActionModal')).toBeHidden();
     await page.click('.orderButton');
 
     expect((await readStorage(page)).map(t => t.text)).toEqual(['C', 'A', 'B']);

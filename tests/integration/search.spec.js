@@ -769,6 +769,7 @@ test.describe('Robustez', () => {
     await page.fill('#actionSubtasksContainer .subtask-input', 'harina');
     await page.click('#actionSubtasksContainer .subtask-input-wrapper button >> nth=0');
     await page.click('#closeActionModal');
+    await expect(page.locator('#taskActionModal')).toBeHidden();
     await page.fill('#taskSearch', 'harina');
     await page.waitForTimeout(300);
 
