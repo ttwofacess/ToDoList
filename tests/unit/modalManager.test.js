@@ -207,7 +207,7 @@ describe('modalManager', () => {
 
     it('añade la animación de entrada', () => {
       openNewTaskModal();
-      expect($('newTaskModal').querySelector('.modal-content').classList.contains('tornado-animate'))
+      expect($('newTaskModal').querySelector('.modal-content').classList.contains('modal-enter'))
         .toBe(true);
     });
 
@@ -215,7 +215,7 @@ describe('modalManager', () => {
       openNewTaskModal();
       closeNewTaskModal();
       expect(isOpen($('newTaskModal'))).toBe(false);
-      expect($('newTaskModal').querySelector('.modal-content').classList.contains('tornado-animate'))
+      expect($('newTaskModal').querySelector('.modal-content').classList.contains('modal-enter'))
         .toBe(false);
     });
 
@@ -228,6 +228,54 @@ describe('modalManager', () => {
       $('openNewTaskModal').click();
       $('closeNewTaskModal').click();
       expect(isOpen($('newTaskModal'))).toBe(false);
+    });
+  });
+
+  // ─── Animación de entrada ─────────────────────────────────
+  describe('animación de entrada', () => {
+    const hasEnter = (id) =>
+      $(id).querySelector('.modal-content').classList.contains('modal-enter');
+
+    it('se aplica a los cuatro modales', () => {
+      addTask();
+
+      openNewTaskModal();
+      expect(hasEnter('newTaskModal')).toBe(true);
+
+      closeNewTaskModal();
+      openActionModal(wrapper);
+      expect(hasEnter('taskActionModal')).toBe(true);
+
+      closeActionModal();
+      openEditModal(wrapper);
+      expect(hasEnter('editModal')).toBe(true);
+
+      closeEditModal();
+      $('donateButton').click();
+      expect(hasEnter('donateModal')).toBe(true);
+    });
+
+    it('vuelve a animarse al reabrir', () => {
+      openNewTaskModal();
+      closeNewTaskModal();
+      openNewTaskModal();
+      expect(hasEnter('newTaskModal')).toBe(true);
+    });
+
+    it('mueve el foco dentro del modal de acciones', () => {
+      addTask();
+      openActionModal(wrapper);
+      vi.runAllTimers();
+      expect(document.activeElement).toBe($('actionDone'));
+      closeActionModal();
+    });
+
+    it('mueve el foco al campo de texto al editar', () => {
+      addTask();
+      openEditModal(wrapper);
+      vi.runAllTimers();
+      expect(document.activeElement).toBe($('editTaskText'));
+      closeEditModal();
     });
   });
 

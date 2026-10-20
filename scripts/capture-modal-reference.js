@@ -37,14 +37,19 @@ const log = (...args) => console.log('[capture]', ...args);
 
 /**
  * Congela la animación de entrada en un instante concreto (ms desde el
- * inicio) usando `animation-delay` negativo + `animation-play-state: paused`.
- * Así los frames son deterministas y comparables entre ejecuciones.
+ * inicio). Para que el frame sea determinista, la animación se reinicia en
+ * cada iteración (se quita la clase, se fuerza el reflow y se vuelve a
+ * poner) y después se congela con `animation-delay` negativo +
+ * `animation-play-state: paused`.
  */
 const captureAnimationFrames = async (page, contentSelector, times, prefix, capture) => {
   for (const t of times) {
     await page.evaluate(({ sel, delay }) => {
       const el = document.querySelector(sel);
       if (!el) return;
+      el.classList.remove('modal-enter');
+      void el.offsetWidth;
+      el.classList.add('modal-enter');
       el.style.animationDelay = `-${delay}ms`;
       el.style.animationPlayState = 'paused';
     }, { sel: contentSelector, delay: t });
@@ -192,6 +197,11 @@ const captureCombo = async (browser, { vp, theme }) => {
     log('captura', path.relative(ROOT, file));
   };
 
+  // Frames de la animación de entrada de un modal (instantes de la línea de
+  // tiempo, congelados con animation-delay negativo).
+  const frames = (id, prefix) =>
+    captureAnimationFrames(page, `#${id} .modal-content`, [0, 60, 120, 220], prefix, inDir);
+
   await inDir('00-list');
 
   // ── 1. Modal de nueva tarea ──────────────────────────────
@@ -200,7 +210,7 @@ const captureCombo = async (browser, { vp, theme }) => {
   report.modals.newTask = await measure(page, 'newTaskModal');
   report.modals.newTask.focusAfterOpen = await page.evaluate(() =>
     document.activeElement?.getAttribute('name') ?? document.activeElement?.id ?? document.activeElement?.tagName);
-  await captureAnimationFrames(page, '#newTaskModal .modal-content', [0, 150, 300, 600], '01-new-task', inDir);
+  await frames('newTaskModal', '01-new-task');
   await page.waitForTimeout(700);
   await inDir('01-new-task-final');
   report.states.afterNewTaskClose = await (async () => {
@@ -212,6 +222,8 @@ const captureCombo = async (browser, { vp, theme }) => {
   await page.click('#tasksContainer .task-wrapper:first-child .task');
   await page.waitForTimeout(300);
   report.modals.actions = await measure(page, 'taskActionModal');
+  await frames('taskActionModal', '02-actions');
+  await page.waitForTimeout(400);
   await inDir('02-actions');
 
   // Subtarea: input abierto y comportamiento de Escape dentro de él.
@@ -258,6 +270,8 @@ const captureCombo = async (browser, { vp, theme }) => {
   await page.waitForTimeout(300);
   report.modals.edit = await measure(page, 'editModal');
   report.states.afterActionEditChain = await modalStates(page);
+  await frames('editModal', '03-edit');
+  await page.waitForTimeout(400);
   await inDir('03-edit');
 
   // ¿Las subtareas volvieron al wrapper al cerrar el modal de acciones?
@@ -272,6 +286,8 @@ const captureCombo = async (browser, { vp, theme }) => {
   await page.click('#donateButton');
   await page.waitForTimeout(250);
   report.modals.donate = await measure(page, 'donateModal');
+  await frames('donateModal', '04-donate');
+  await page.waitForTimeout(400);
   await inDir('04-donate');
   await page.click('#donateModal .close-button');
   await page.waitForTimeout(200);

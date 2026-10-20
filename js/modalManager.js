@@ -17,6 +17,31 @@ let currentActionWrapper   = null;
 
 export const initModalManager = (container) => { tasksContainer = container; };
 
+// ─── Animación de entrada ───────────────────────────────────
+
+const ENTER_CLASS = 'modal-enter';
+
+/**
+ * Reproduce la animación de entrada del modal.
+ *
+ * Hay que quitar la clase, forzar un reflow y volver a ponerla: si no, el
+ * navegador no reinicia la animación y el modal aparece de golpe. El reflow
+ * sólo sirve con el modal visible, por eso se llama después de poner
+ * `display: flex`.
+ */
+const playEnter = (modal) => {
+    const content = modal.querySelector('.modal-content');
+    if (!content) return;
+    content.classList.remove(ENTER_CLASS);
+    void content.offsetWidth; // force reflow
+    content.classList.add(ENTER_CLASS);
+};
+
+/** Quita la clase de entrada para que la próxima apertura vuelva a animarse. */
+const clearEnter = (modal) => {
+    modal.querySelector('.modal-content')?.classList.remove(ENTER_CLASS);
+};
+
 // ─── Modal de Acciones de Tarea ────────────────────────────
 
 export const openActionModal = (wrapper) => {
@@ -44,6 +69,8 @@ export const openActionModal = (wrapper) => {
     }
 
     document.getElementById('taskActionModal').style.display = 'flex';
+    playEnter(document.getElementById('taskActionModal'));
+    setTimeout(() => document.getElementById('actionDone')?.focus(), 10);
 };
 
 export const closeActionModal = () => {
@@ -56,7 +83,9 @@ export const closeActionModal = () => {
             currentActionWrapper.appendChild(subContainer);
         }
     }
-    document.getElementById('taskActionModal').style.display = 'none';
+    const modal = document.getElementById('taskActionModal');
+    clearEnter(modal);
+    modal.style.display = 'none';
     currentActionWrapper = null;
 };
 
@@ -64,11 +93,8 @@ export const closeActionModal = () => {
 
 export const openNewTaskModal = () => {
     const modal = document.getElementById('newTaskModal');
-    const content = modal.querySelector('.modal-content');
     modal.style.display = 'flex';
-    content.classList.remove('tornado-animate');
-    void content.offsetWidth; // force reflow
-    content.classList.add('tornado-animate');
+    playEnter(modal);
     setTimeout(() => {
         const input = document.querySelector('#newTaskForm input[name="taskText"]');
         if (input) input.focus();
@@ -77,8 +103,7 @@ export const openNewTaskModal = () => {
 
 export const closeNewTaskModal = () => {
     const modal = document.getElementById('newTaskModal');
-    const content = modal.querySelector('.modal-content');
-    content.classList.remove('tornado-animate');
+    clearEnter(modal);
     modal.style.display = 'none';
 };
 
@@ -100,10 +125,14 @@ export const openEditModal = (wrapper) => {
     document.getElementById('editTaskTime').value     = wrapper.getAttribute('data-time') || '';
 
     document.getElementById('editModal').style.display = 'flex';
+    playEnter(document.getElementById('editModal'));
+    setTimeout(() => document.getElementById('editTaskText')?.focus(), 10);
 };
 
 export const closeEditModal = () => {
-    document.getElementById('editModal').style.display = 'none';
+    const modal = document.getElementById('editModal');
+    clearEnter(modal);
+    modal.style.display = 'none';
     currentEditingWrapper = null;
 };
 
@@ -168,8 +197,18 @@ export const initModals = () => {
     document.getElementById('closeNewTaskModal').onclick   = closeNewTaskModal;
     document.getElementById('cancelNewTaskButton').onclick = closeNewTaskModal;
 
-    document.getElementById('donateButton').onclick = () => donateModal.style.display = 'flex';
-    donateModal.querySelector('.close-button').onclick = () => donateModal.style.display = 'none';
+    const openDonateModal = () => {
+        donateModal.style.display = 'flex';
+        playEnter(donateModal);
+        setTimeout(() => donateModal.querySelector('.close-button')?.focus(), 10);
+    };
+    const closeDonateModal = () => {
+        clearEnter(donateModal);
+        donateModal.style.display = 'none';
+    };
+
+    document.getElementById('donateButton').onclick = openDonateModal;
+    donateModal.querySelector('.close-button').onclick = closeDonateModal;
 
     document.getElementById('closeEditModal').onclick = closeEditModal;
     document.getElementById('cancelEditButton').onclick = closeEditModal;
@@ -223,7 +262,7 @@ export const initModals = () => {
     };
 
     window.addEventListener('click', (e) => {
-        if (e.target === donateModal)     donateModal.style.display = 'none';
+        if (e.target === donateModal)     closeDonateModal();
         if (e.target === editModal)       closeEditModal();
         if (e.target === newTaskModal)    closeNewTaskModal();
         if (e.target === taskActionModal) closeActionModal();
