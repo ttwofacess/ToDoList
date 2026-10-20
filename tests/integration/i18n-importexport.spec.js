@@ -173,6 +173,7 @@ test.describe('i18n — coherencia con el resto de la app', () => {
       await page.locator('.task-wrapper').first().locator('.task').click();
       await page.click('#actionRecurrence');
       await page.click('#closeActionModal');
+      await expect(page.locator('#taskActionModal')).toBeHidden();
 
       await expect(page.locator('.recurrence-badge')).toHaveText(expected);
       await ctx.close();
@@ -362,6 +363,7 @@ test.describe('Importar', () => {
     await page.fill('#actionSubtasksContainer .subtask-input', 'Mi subtarea');
     await page.click('#actionSubtasksContainer .subtask-input-wrapper button >> nth=0');
     await page.click('#closeActionModal');
+    await expect(page.locator('#taskActionModal')).toBeHidden();
 
     const original = await readStorage(page);
 

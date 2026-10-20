@@ -26,6 +26,10 @@ describe('modalManager', () => {
   const $ = (id) => document.getElementById(id);
   const isOpen = (el) => el.style.display === 'flex';
 
+  // El cierre de los modales tiene un fade-out de 200 ms: el overlay sigue
+  // visible hasta que termina, así que hay que dejar correr los timers.
+  const settle = () => vi.advanceTimersByTime(250);
+
   const addTask = ({ text = 'Tarea', priority = 'medium', date = '15/06/2025',
                      recurrence = 'none', subtasks = [], time = '' } = {}) => {
     wrapper = createTaskElement(text, date, priority, subtasks, recurrence, null,
@@ -75,6 +79,7 @@ describe('modalManager', () => {
       addTask();
       openActionModal(wrapper);
       closeActionModal();
+      settle();
       expect(isOpen($('taskActionModal'))).toBe(false);
       expect(wrapper.hasAttribute('data-active-modal')).toBe(false);
     });
@@ -192,6 +197,7 @@ describe('modalManager', () => {
 
     it('closeActionModal cierra el modal', () => {
       $('closeActionModal').click();
+      settle();
       expect(isOpen($('taskActionModal'))).toBe(false);
     });
   });
@@ -207,15 +213,16 @@ describe('modalManager', () => {
 
     it('añade la animación de entrada', () => {
       openNewTaskModal();
-      expect($('newTaskModal').querySelector('.modal-content').classList.contains('tornado-animate'))
+      expect($('newTaskModal').querySelector('.modal-content').classList.contains('modal-enter'))
         .toBe(true);
     });
 
     it('cierra el modal y quita la animación', () => {
       openNewTaskModal();
       closeNewTaskModal();
+      settle();
       expect(isOpen($('newTaskModal'))).toBe(false);
-      expect($('newTaskModal').querySelector('.modal-content').classList.contains('tornado-animate'))
+      expect($('newTaskModal').querySelector('.modal-content').classList.contains('modal-enter'))
         .toBe(false);
     });
 
@@ -223,11 +230,179 @@ describe('modalManager', () => {
       $('openNewTaskModal').click();
       expect(isOpen($('newTaskModal'))).toBe(true);
       $('cancelNewTaskButton').click();
+      settle();
       expect(isOpen($('newTaskModal'))).toBe(false);
 
       $('openNewTaskModal').click();
       $('closeNewTaskModal').click();
+      settle();
       expect(isOpen($('newTaskModal'))).toBe(false);
+    });
+  });
+
+  // ─── Animación de entrada ─────────────────────────────────
+  describe('animación de entrada', () => {
+    const hasEnter = (id) =>
+      $(id).querySelector('.modal-content').classList.contains('modal-enter');
+
+    it('se aplica a los cuatro modales', () => {
+      addTask();
+
+      openNewTaskModal();
+      expect(hasEnter('newTaskModal')).toBe(true);
+
+      closeNewTaskModal();
+      openActionModal(wrapper);
+      expect(hasEnter('taskActionModal')).toBe(true);
+
+      closeActionModal();
+      openEditModal(wrapper);
+      expect(hasEnter('editModal')).toBe(true);
+
+      closeEditModal();
+      $('donateButton').click();
+      expect(hasEnter('donateModal')).toBe(true);
+    });
+
+    it('vuelve a animarse al reabrir', () => {
+      openNewTaskModal();
+      closeNewTaskModal();
+      openNewTaskModal();
+      expect(hasEnter('newTaskModal')).toBe(true);
+    });
+
+    it('mueve el foco dentro del modal de acciones', () => {
+      addTask();
+      openActionModal(wrapper);
+      vi.runAllTimers();
+      expect(document.activeElement).toBe($('actionDone'));
+      closeActionModal();
+    });
+
+    it('mueve el foco al campo de texto al editar', () => {
+      addTask();
+      openEditModal(wrapper);
+      vi.runAllTimers();
+      expect(document.activeElement).toBe($('editTaskText'));
+      closeEditModal();
+    });
+  });
+
+  // ─── Salida animada ────────────────────────────────────────
+  describe('salida animada', () => {
+    const content = (id) => $(id).querySelector('.modal-content');
+
+    it('el modal sigue visible hasta que termina el fade-out', () => {
+      openNewTaskModal();
+      closeNewTaskModal();
+      expect(isOpen($('newTaskModal'))).toBe(true);
+      expect(content('newTaskModal').classList.contains('modal-leave')).toBe(true);
+
+      settle();
+      expect(isOpen($('newTaskModal'))).toBe(false);
+      expect(content('newTaskModal').classList.contains('modal-leave')).toBe(false);
+    });
+
+    it('el cierre sin animación oculta el modal al instante', () => {
+      openNewTaskModal();
+      closeNewTaskModal({ immediate: true });
+      expect(isOpen($('newTaskModal'))).toBe(false);
+    });
+
+    it('abrir de nuevo durante la salida cancela la salida', () => {
+      openNewTaskModal();
+      closeNewTaskModal();
+      openNewTaskModal();
+
+      settle();
+      expect(isOpen($('newTaskModal'))).toBe(true);
+      expect(content('newTaskModal').classList.contains('modal-leave')).toBe(false);
+      expect(content('newTaskModal').classList.contains('modal-enter')).toBe(true);
+    });
+
+    it('con movimiento reducido cierra al instante', () => {
+      vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: true });
+      openNewTaskModal();
+      closeNewTaskModal();
+      expect(isOpen($('newTaskModal'))).toBe(false);
+    });
+
+    it('devuelve el foco al botón que abrió el modal', () => {
+      openNewTaskModal();
+      vi.runAllTimers();
+      closeNewTaskModal();
+      settle();
+      expect(document.activeElement).toBe($('openNewTaskModal'));
+    });
+  });
+
+  // ─── Cierre con Escape ─────────────────────────────────────
+  describe('cierre con Escape', () => {
+    const pressEscape = (target = document) =>
+      target.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+
+    it('cierra el modal de acciones', () => {
+      addTask();
+      openActionModal(wrapper);
+      pressEscape();
+      settle();
+      expect(isOpen($('taskActionModal'))).toBe(false);
+    });
+
+    it('cierra el modal de nueva tarea', () => {
+      openNewTaskModal();
+      pressEscape();
+      settle();
+      expect(isOpen($('newTaskModal'))).toBe(false);
+    });
+
+    it('cierra el modal de edición', () => {
+      addTask();
+      openEditModal(wrapper);
+      pressEscape();
+      settle();
+      expect(isOpen($('editModal'))).toBe(false);
+    });
+
+    it('cierra el modal de donaciones', () => {
+      $('donateButton').click();
+      pressEscape();
+      settle();
+      expect(isOpen($('donateModal'))).toBe(false);
+    });
+
+    it('no hace nada si no hay ningún modal abierto', () => {
+      pressEscape();
+      settle();
+      expect(isOpen($('newTaskModal'))).toBe(false);
+      expect(isOpen($('taskActionModal'))).toBe(false);
+      expect(isOpen($('editModal'))).toBe(false);
+      expect(isOpen($('donateModal'))).toBe(false);
+    });
+
+    it('en el input de subtarea cancela la subtarea y no cierra el modal', () => {
+      addTask();
+      openActionModal(wrapper);
+      $('actionSubtask').click();
+
+      const input = $('actionSubtasksContainer').querySelector('.subtask-input');
+      expect(input).not.toBeNull();
+      pressEscape(input);
+
+      expect($('actionSubtasksContainer').querySelector('.subtask-input-wrapper')).toBeNull();
+      settle();
+      expect(isOpen($('taskActionModal'))).toBe(true);
+      closeActionModal();
+    });
+
+    it('en el buscador no cierra el modal', () => {
+      openNewTaskModal();
+      const search = $('taskSearch');
+      search.value = 'algo';
+      pressEscape(search);
+
+      settle();
+      expect(isOpen($('newTaskModal'))).toBe(true);
     });
   });
 
@@ -357,6 +532,7 @@ describe('modalManager', () => {
     it('cierra el modal tras guardar', () => {
       openForEdit();
       saveModalChanges(submitEvent());
+      settle();
       expect(isOpen($('editModal'))).toBe(false);
     });
 
@@ -387,6 +563,7 @@ describe('modalManager', () => {
       openForEdit();
       $('editTaskText').value = 'a'.repeat(500);
       saveModalChanges(submitEvent());
+      settle();
       expect(isOpen($('editModal'))).toBe(false);
     });
 
@@ -403,6 +580,7 @@ describe('modalManager', () => {
       openForEdit();
       $('editTaskDate').value = '2025-06-15';
       saveModalChanges(submitEvent());
+      settle();
       expect(isOpen($('editModal'))).toBe(false);
       expect(window.alert).not.toHaveBeenCalled();
     });
@@ -423,6 +601,7 @@ describe('modalManager', () => {
       openForEdit({ text: 'Original' });
       $('editTaskText').value = 'No guardado';
       $('cancelEditButton').click();
+      settle();
       expect(isOpen($('editModal'))).toBe(false);
       expect(wrapper.querySelector('.task-text').textContent).toBe('Original');
     });
@@ -430,6 +609,7 @@ describe('modalManager', () => {
     it('el botón X cierra el modal sin guardar', () => {
       openForEdit();
       $('closeEditModal').click();
+      settle();
       expect(isOpen($('editModal'))).toBe(false);
     });
 
@@ -451,6 +631,7 @@ describe('modalManager', () => {
         expect(wrapper.getAttribute('data-time')).toBe('14:30');
         expect(wrapper.querySelector('.task-time').textContent).toBe('14:30');
         expect(readTasks()[0].time).toBe('14:30');
+        settle();
         expect(isOpen($('editModal'))).toBe(false);
       });
 
@@ -537,6 +718,7 @@ describe('modalManager', () => {
         saveModalChanges(submitEvent());
 
         expect(window.alert).not.toHaveBeenCalled();
+        settle();
         expect(isOpen($('editModal'))).toBe(false);
         expect(wrapper.querySelector('.task-text').textContent).toBe('Renombrada');
         expect(wrapper.getAttribute('data-time')).toBe('09:00');
@@ -568,12 +750,14 @@ describe('modalManager', () => {
       $('donateButton').click();
       expect(isOpen($('donateModal'))).toBe(true);
       $('donateModal').querySelector('.close-button').click();
+      settle();
       expect(isOpen($('donateModal'))).toBe(false);
     });
 
     it('se cierra al hacer click en el fondo', () => {
       $('donateButton').click();
       $('donateModal').dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+      settle();
       expect(isOpen($('donateModal'))).toBe(false);
     });
 
@@ -603,6 +787,7 @@ describe('modalManager', () => {
       const modal = $(_name);
       expect(isOpen(modal)).toBe(true);
       modal.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+      settle();
       expect(isOpen(modal)).toBe(false);
     });
   });

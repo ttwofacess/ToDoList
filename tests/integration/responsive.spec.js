@@ -180,6 +180,7 @@ for (const { name, width, height } of WIDTHS) {
       await page.locator('.task-wrapper', { hasText: 'Flujo móvil' }).locator('.task').click();
       await page.click('#actionDone');
       await page.click('#closeActionModal');
+      await expect(page.locator('#taskActionModal')).toBeHidden();
       await expect(page.locator('.task-wrapper', { hasText: 'Flujo móvil' }).locator('.task'))
         .toHaveClass(/done/);
 

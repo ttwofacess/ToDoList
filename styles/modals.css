@@ -9,11 +9,23 @@
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0,0,0,0.4);
+    /* Fallback para navegadores sin backdrop-filter: el color base siempre
+       se aplica; el blur de abajo se suma encima cuando hay soporte. */
+    background-color: rgba(0,0,0,0.45);
     align-items: center;
     justify-content: center;
     padding: 20px 0;
     box-sizing: border-box;
+}
+
+/* Difuminado del fondo. Safari necesita el prefijo -webkit-, así que se
+   declaran los dos. El @supports evita que un navegador sin soporte
+   descarte la declaración completa (y con ella el fallback de color). */
+@supports ((backdrop-filter: blur(8px)) or (-webkit-backdrop-filter: blur(8px))) {
+    .modal {
+        -webkit-backdrop-filter: blur(8px);
+        backdrop-filter: blur(8px);
+    }
 }
 
 .modal-content {
@@ -85,4 +97,54 @@
 
 .modal-content.tornado-animate {
     animation: tornado-in 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* Entrada del modal: escala + fade + slide-up.
+   Sustituye al tornado, que queda como fallback por si el navegador no
+   soporta animaciones (ver el bloque de movimiento reducido más abajo). */
+@keyframes modal-in {
+    from {
+        opacity: 0;
+        transform: scale(0.96) translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.modal-content.modal-enter {
+    animation: modal-in 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Salida del modal: fade-out de la tarjeta. El overlay se desvanece con ella
+   (ver .modal.modal-leave) y lo oculta modalManager.js al terminar. */
+@keyframes modal-out {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+.modal-content.modal-leave {
+    animation: modal-out 0.2s ease forwards;
+}
+
+/* El overlay se desvanece con la tarjeta y deja de capturar clics: si no,
+   durante el fade-out el modal bloquea la página de atrás. */
+.modal.modal-leave {
+    animation: modal-out 0.2s ease forwards;
+    pointer-events: none;
+}
+
+/* Movimiento reducido: el modal aparece y desaparece al instante. */
+@media (prefers-reduced-motion: reduce) {
+    .modal-content.modal-enter,
+    .modal-content.modal-leave,
+    .modal.modal-leave,
+    .modal-content.tornado-animate {
+        animation: none;
+    }
 }

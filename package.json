@@ -16,6 +16,7 @@
     "test:report": "playwright show-report",
     "serve": "node tests/helpers/static-server.js",
     "lint": "node scripts/lint.js",
+    "capture:modal": "node scripts/capture-modal-reference.js",
     "setup:browsers": "playwright install --with-deps chromium"
   },
   "devDependencies": {

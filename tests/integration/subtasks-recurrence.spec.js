@@ -3,13 +3,17 @@
 // ============================================================
 
 import { test, expect } from '@playwright/test';
-import { gotoApp, addTask, readStorage, seedStorage, todayISO } from '../helpers/e2e.js';
+import { gotoApp, addTask, readStorage, seedStorage, todayISO,
+         waitForServiceWorker } from '../helpers/e2e.js';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/index.html');
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   await page.waitForFunction(() => document.getElementById('dateYear')?.textContent?.length > 0);
+  // El Service Worker se recarga al instalarse (updateNotifier.js) y ese
+  // reload puede abortar el click siguiente: se espera a que esté al mando.
+  await waitForServiceWorker(page);
 });
 
 /** Abre el modal de acciones de la tarea cuyo texto coincide. */
@@ -135,6 +139,9 @@ test.describe('Subtareas', () => {
       await openActions(page, 'Persistente');
       await expect(page.locator('#actionSubtasksContainer .subtask-item')).toHaveCount(2);
       await page.click('#closeActionModal');
+      // El cierre tiene un fade-out: se espera a que el modal esté oculto
+      // antes de volver a abrirlo.
+      await expect(page.locator('#taskActionModal')).toBeHidden();
     }
   });
 
@@ -188,6 +195,7 @@ test.describe('Recurrencia', () => {
       await openActions(page, 'Con badge');
       await page.click('#actionRecurrence');
       await page.click('#closeActionModal');
+      await expect(page.locator('#taskActionModal')).toBeHidden();
       await expect(page.locator('.recurrence-badge')).toHaveText(label);
     }
 
