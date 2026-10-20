@@ -336,6 +336,76 @@ describe('modalManager', () => {
     });
   });
 
+  // ─── Cierre con Escape ─────────────────────────────────────
+  describe('cierre con Escape', () => {
+    const pressEscape = (target = document) =>
+      target.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+
+    it('cierra el modal de acciones', () => {
+      addTask();
+      openActionModal(wrapper);
+      pressEscape();
+      settle();
+      expect(isOpen($('taskActionModal'))).toBe(false);
+    });
+
+    it('cierra el modal de nueva tarea', () => {
+      openNewTaskModal();
+      pressEscape();
+      settle();
+      expect(isOpen($('newTaskModal'))).toBe(false);
+    });
+
+    it('cierra el modal de edición', () => {
+      addTask();
+      openEditModal(wrapper);
+      pressEscape();
+      settle();
+      expect(isOpen($('editModal'))).toBe(false);
+    });
+
+    it('cierra el modal de donaciones', () => {
+      $('donateButton').click();
+      pressEscape();
+      settle();
+      expect(isOpen($('donateModal'))).toBe(false);
+    });
+
+    it('no hace nada si no hay ningún modal abierto', () => {
+      pressEscape();
+      settle();
+      expect(isOpen($('newTaskModal'))).toBe(false);
+      expect(isOpen($('taskActionModal'))).toBe(false);
+      expect(isOpen($('editModal'))).toBe(false);
+      expect(isOpen($('donateModal'))).toBe(false);
+    });
+
+    it('en el input de subtarea cancela la subtarea y no cierra el modal', () => {
+      addTask();
+      openActionModal(wrapper);
+      $('actionSubtask').click();
+
+      const input = $('actionSubtasksContainer').querySelector('.subtask-input');
+      expect(input).not.toBeNull();
+      pressEscape(input);
+
+      expect($('actionSubtasksContainer').querySelector('.subtask-input-wrapper')).toBeNull();
+      settle();
+      expect(isOpen($('taskActionModal'))).toBe(true);
+      closeActionModal();
+    });
+
+    it('en el buscador no cierra el modal', () => {
+      openNewTaskModal();
+      const search = $('taskSearch');
+      search.value = 'algo';
+      pressEscape(search);
+
+      settle();
+      expect(isOpen($('newTaskModal'))).toBe(true);
+    });
+  });
+
   describe('botones para vaciar la hora', () => {
     it('el del formulario de nueva tarea vacía su input', () => {
       $('taskTime').value = '14:30';

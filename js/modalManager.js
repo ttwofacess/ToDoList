@@ -262,6 +262,21 @@ export const saveModalChanges = (event) => {
     closeEditModal();
 };
 
+// ─── Cierre con Escape ─────────────────────────────────────
+
+// Handler de Escape a nivel documento. Se guarda para poder quitarlo si
+// initModals() corre otra vez (los tests lo llaman en cada beforeEach).
+let escapeHandler = null;
+
+// Orden de cierre: normalmente hay un solo modal abierto, pero si llega a
+// haber dos, gana el primero de esta lista.
+const MODAL_PRIORITY = ['taskActionModal', 'editModal', 'newTaskModal', 'donateModal'];
+
+/** ¿El elemento acepta escritura? Ahí Escape suele tener otro significado. */
+const isEditableTarget = (el) =>
+    !!el && (el.isContentEditable ||
+             ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName));
+
 // ─── Inicialización de Modales ─────────────────────────────
 
 export const initModals = () => {
@@ -348,6 +363,35 @@ export const initModals = () => {
         if (e.target === newTaskModal)    closeNewTaskModal();
         if (e.target === taskActionModal) closeActionModal();
     });
+
+    // Escape cierra el modal abierto.
+    if (escapeHandler) document.removeEventListener('keydown', escapeHandler);
+    escapeHandler = (e) => {
+        if (e.key !== 'Escape') return;
+
+        // Escape en el input de subtarea cancela la subtarea (lo maneja
+        // taskRenderer.js) y NO cierra el modal de acciones.
+        if (e.target?.classList?.contains('subtask-input')) return;
+
+        const openModal = MODAL_PRIORITY
+            .map(id => document.getElementById(id))
+            .find(el => el && el.style.display === 'flex');
+        if (!openModal) return;
+
+        // Si el foco está en un campo editable de fuera del modal (el
+        // buscador, por ejemplo), Escape le corresponde a ese campo: no se
+        // toca la búsqueda ni se cierra el modal.
+        if (isEditableTarget(e.target) && !openModal.contains(e.target)) return;
+
+        e.preventDefault();
+        switch (openModal.id) {
+            case 'taskActionModal': closeActionModal(); break;
+            case 'editModal':       closeEditModal();   break;
+            case 'newTaskModal':    closeNewTaskModal(); break;
+            case 'donateModal':     closeDonateModal();  break;
+        }
+    };
+    document.addEventListener('keydown', escapeHandler);
 
     document.querySelectorAll('.copy-button').forEach(button => {
         button.addEventListener('click', (e) => {

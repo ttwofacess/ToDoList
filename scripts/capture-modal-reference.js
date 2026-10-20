@@ -257,13 +257,6 @@ const captureCombo = async (browser, { vp, theme }) => {
   })();
   await inDir('02-actions-subtask-input');
 
-  // Escape con el modal de acciones abierto (comportamiento actual).
-  report.keyboard.escapeWithActionModalOpen = await (async () => {
-    await page.keyboard.press('Escape');
-    await page.waitForTimeout(150);
-    return { actionModalStillOpen: await modalOpen(page, 'taskActionModal') };
-  })();
-
   // "/" con el modal abierto.
   report.keyboard.slashWithModalOpen = await (async () => {
     await page.keyboard.press('/');
@@ -273,10 +266,21 @@ const captureCombo = async (browser, { vp, theme }) => {
     };
   })();
 
+  // Escape con el modal de acciones abierto (comportamiento actual).
+  // 400 ms: el cierre tiene un fade-out de 200 ms y el modal sigue en
+  // display:flex hasta que termina.
+  report.keyboard.escapeWithActionModalOpen = await (async () => {
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(400);
+    return { actionModalStillOpen: await modalOpen(page, 'taskActionModal') };
+  })();
+
   // Clic en el backdrop: ¿cierra?
   report.keyboard.backdropClickCloses = await (async () => {
+    await page.click('#tasksContainer .task-wrapper:first-child .task');
+    await page.waitForTimeout(300);
     await page.mouse.click(5, 5);
-    await page.waitForTimeout(150);
+    await page.waitForTimeout(400);
     return { actionModalStillOpen: await modalOpen(page, 'taskActionModal') };
   })();
 
