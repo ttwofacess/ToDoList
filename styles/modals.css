@@ -117,10 +117,33 @@
     animation: modal-in 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* Salida del modal: fade-out de la tarjeta. El overlay se desvanece con ella
+   (ver .modal.modal-leave) y lo oculta modalManager.js al terminar. */
+@keyframes modal-out {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+.modal-content.modal-leave {
+    animation: modal-out 0.2s ease forwards;
+}
+
+/* El overlay se desvanece con la tarjeta y deja de capturar clics: si no,
+   durante el fade-out el modal bloquea la página de atrás. */
+.modal.modal-leave {
+    animation: modal-out 0.2s ease forwards;
+    pointer-events: none;
+}
+
 /* Movimiento reducido: el modal aparece y desaparece al instante. */
 @media (prefers-reduced-motion: reduce) {
     .modal-content.modal-enter,
     .modal-content.modal-leave,
+    .modal.modal-leave,
     .modal-content.tornado-animate {
         animation: none;
     }

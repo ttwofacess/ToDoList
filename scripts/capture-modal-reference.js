@@ -218,6 +218,23 @@ const captureCombo = async (browser, { vp, theme }) => {
     return modalStates(page);
   })();
 
+  // ── Salida: el modal sigue visible durante el fade-out ─────
+  report.exit = await (async () => {
+    await page.click('#openNewTaskModal');
+    await page.waitForTimeout(350);
+    await page.click('#cancelNewTaskButton');
+    const during = await page.evaluate(() => ({
+      visible: document.getElementById('newTaskModal').style.display === 'flex',
+      hasLeaveClass: document
+        .querySelector('#newTaskModal .modal-content')
+        .classList.contains('modal-leave'),
+      overlayBlocksClicks: getComputedStyle(document.getElementById('newTaskModal')).pointerEvents,
+    }));
+    await page.waitForTimeout(400);
+    const after = await modalOpen(page, 'newTaskModal');
+    return { during, hiddenAfterFade: !after };
+  })();
+
   // ── 2. Modal de acciones (con subtareas movidas adentro) ─
   await page.click('#tasksContainer .task-wrapper:first-child .task');
   await page.waitForTimeout(300);
