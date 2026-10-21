@@ -24,6 +24,11 @@ export const TASK_OUT_MS = 200;
 const ENTER_RETRIES = 5;
 
 /**
+ * Intentos de espera antes de renunciar a la animación de salida.
+ */
+const EXIT_RETRIES = 5;
+
+/**
  * Limpiezas pendientes de la animación de entrada, indexadas por wrapper.
  * Sirve para cancelar el timeout y el listener cuando la misma tarea vuelve
  * a animarse (por ejemplo al deshacer un borrado).
@@ -148,6 +153,79 @@ export const deleteTask = (wrapper, tasksContainer) => {
     wrapper.remove();
     persistFromDOM(tasksContainer);
     return { wrapper, index, nextSibling };
+};
+
+/**
+ * Elimina una tarea animando su salida: la tarjeta se desvanece y colapsa su
+ * altura, así los vecinos de arriba suben sin saltar de golpe. El borrado real
+ * ocurre cuando la animación termina.
+ *
+ * El snapshot se calcula AL FINAL de la animación, no al principio: durante
+ * los ~200 ms de la salida no se puede insertar ninguna tarea (el modal de
+ * creación está cerrado y el de acciones también), así que el índice y el
+ * vecino siguiente siguen siendo válidos.
+ *
+ * @param {HTMLElement} wrapper
+ * @param {HTMLElement} tasksContainer
+ * @returns {Promise<DeleteSnapshot|null>} null si ya había una salida en curso.
+ */
+export const animateOutAndDelete = (wrapper, tasksContainer) => {
+    // Ya hay una salida en curso: no se borra dos veces ni se muestra otro
+    // aviso. La promesa pendiente se encarga del borrado.
+    if (wrapper.classList.contains('leaving')) return Promise.resolve(null);
+
+    // No está en el documento: no hay nada que animar.
+    if (!wrapper.isConnected) {
+        return Promise.resolve(deleteTask(wrapper, tasksContainer));
+    }
+
+    // La altura no se puede expresar en CSS (los wrappers crecen con las
+    // subtareas), así que se mide y se pasa por variable: los keyframes no
+    // pueden animar de `auto` a 0.
+    const height = wrapper.getBoundingClientRect().height;
+    wrapper.style.setProperty('--task-out-height', `${height}px`);
+    wrapper.classList.add('leaving');
+
+    return new Promise((resolve) => {
+        let timer = 0;
+        let retries = 0;
+        let onEnd = null;
+
+        const finish = () => {
+            clearTimeout(timer);
+            if (onEnd) wrapper.removeEventListener('animationend', onEnd);
+            // La clase y la variable se borran antes de sacar el nodo: si la
+            // tarea se deshace más tarde, el wrapper vuelve al DOM sin la
+            // animación de salida (que además dejaría la tarjeta sin clicks).
+            wrapper.classList.remove('leaving');
+            wrapper.style.removeProperty('--task-out-height');
+            resolve(deleteTask(wrapper, tasksContainer));
+        };
+
+        onEnd = (event) => {
+            if (event.target !== wrapper) return;
+            if (event.animationName !== 'task-out') return;
+            finish();
+        };
+
+        // Red de seguridad: si la animación no corre (movimiento reducido, CSS
+        // sin cargar, pestaña en segundo plano) el borrado ocurre igual. Si la
+        // animación está viva pero pendiente de arrancar, se la espera.
+        const check = () => {
+            const pending = (wrapper.getAnimations?.() ?? []).some(
+                (anim) => anim.animationName === 'task-out' && anim.playState !== 'finished',
+            );
+            if (pending && retries < EXIT_RETRIES) {
+                retries += 1;
+                timer = setTimeout(check, TASK_OUT_MS + 50);
+                return;
+            }
+            finish();
+        };
+
+        wrapper.addEventListener('animationend', onEnd);
+        timer = setTimeout(check, TASK_OUT_MS + 50);
+    });
 };
 
 /**

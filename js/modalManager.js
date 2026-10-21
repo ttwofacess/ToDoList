@@ -7,7 +7,7 @@ import { formatDisplayDate, isoStringToDate,
          formatDisplayTime, isDateTimeInPast, isValidTime,
          displayDateToIso }                  from './dateUtils.js';
 import { persistFromDOM }                  from './storage.js';
-import { changeTaskState, deleteTask }     from './taskActions.js';
+import { changeTaskState, animateOutAndDelete } from './taskActions.js';
 import { toggleRecurrence, showSubtaskInput } from './taskRenderer.js';
 import { showUndoToast }                     from './undoManager.js';
 
@@ -348,12 +348,13 @@ export const initModals = () => {
         if (currentActionWrapper) toggleRecurrence(currentActionWrapper);
     };
 
-    document.getElementById('actionDelete').onclick = () => {
+    document.getElementById('actionDelete').onclick = async () => {
         if (currentActionWrapper) {
             const wrapper = currentActionWrapper;   // capturar antes de cerrar (luego queda en null)
             closeActionModal({ immediate: true });   // 1) devuelve las subtareas al wrapper
-            const snapshot = deleteTask(wrapper, tasksContainer); // 2) borra y persiste
-            showUndoToast(snapshot);                // 3) toast + temporizador de 5 s
+            // 2) la tarjeta se colapsa y recién ahí se borra y persiste
+            const snapshot = await animateOutAndDelete(wrapper, tasksContainer);
+            if (snapshot) showUndoToast(snapshot);  // 3) toast + temporizador de 5 s
         }
     };
 
