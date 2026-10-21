@@ -18,23 +18,37 @@
        fijo: blanco sobre el relleno de marca, que mantiene contraste ≥ 3:1
        contra el fondo en ambos temas. */
     --subtask-check-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l5 5L19 6.5' fill='none' stroke='%23FFFFFF' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+
+    /* Conector vertical de la jerarquía. La línea se dibuja con el
+       border-left del contenedor (no con un pseudoelemento absoluto): así
+       queda fija mientras el contenido scrollea y no depende del alto de
+       los ítems. */
+    --subtask-line: rgba(108, 99, 255, 0.22);
+    /* Espacio entre la línea y el contenido del contenedor. De ahí sale el
+       conector horizontal de cada ítem. */
+    --subtask-indent: 16px;
+    --subtask-item-pad-y: 6px;
 }
 
 :root[data-theme="dark"] {
     --subtask-check-border: rgba(255, 255, 255, 0.55);
     --subtask-check-border-hover: var(--primary-300);
     --subtask-check-fill: var(--primary-500);
+    /* Sobre fondo oscuro la línea necesita más presencia para no perderse. */
+    --subtask-line: rgba(162, 156, 255, 0.38);
 }
 
 .subtasks-container {
-    margin-left: 10px;
+    margin-left: 12px;
+    padding-left: var(--subtask-indent);
+    border-left: 1px solid var(--subtask-line);
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 6px;
     margin-top: 10px;
     max-height: 150px;
     overflow-y: auto;
-    padding-right: 8px;
+    padding-right: 10px;
 }
 
 /* Custom scrollbar for subtasks */
@@ -58,14 +72,32 @@
 }
 
 .subtask-item {
+    position: relative;
     display: flex;
-    align-items: center;
+    /* flex-start: el checkbox queda alineado con la primera línea del
+       texto, también cuando la subtarea envuelve en varias líneas. */
+    align-items: flex-start;
     gap: 10px;
-    padding: 5px 10px;
+    padding: var(--subtask-item-pad-y) 10px;
     background-color: rgba(0,0,0,0.03);
-    border-radius: 5px;
+    border-radius: 8px;
     font-size: 0.9rem;
     color: var(--maintxt);
+}
+
+/* Conector horizontal que une el ítem con la línea vertical del
+   contenedor. Vive por fuera del ítem (left negativo), así que el fondo
+   del ítem no lo tapa; su alto es 1px y se alinea con el centro del
+   checkbox. */
+.subtask-item::before {
+    content: "";
+    position: absolute;
+    left: calc(-1 * var(--subtask-indent));
+    top: calc(var(--subtask-item-pad-y) + var(--subtask-check-size) / 2);
+    width: var(--subtask-indent);
+    height: 1px;
+    background-color: var(--subtask-line);
+    pointer-events: none;
 }
 
 [data-theme="dark"] .subtask-item {
@@ -78,7 +110,9 @@
     width: var(--subtask-check-size);
     height: var(--subtask-check-size);
     flex: none;
-    margin: 0;
+    /* Centrado óptico sobre la primera línea: la caja del checkbox es 2px
+       más alta que la línea de texto. */
+    margin: -1px 0 0 0;
     padding: 0;
     border: 2px solid var(--subtask-check-border);
     border-radius: var(--subtask-check-radius);
@@ -133,6 +167,10 @@
 
 .subtask-text {
     flex-grow: 1;
+    /* Sin min-width el texto largo empuja la fila y abre scroll horizontal
+       en pantallas estrechas; con él envuelve en su lugar. */
+    min-width: 0;
+    overflow-wrap: anywhere;
 }
 
 .subtask-done {
@@ -148,6 +186,9 @@
     font-weight: bold;
     font-size: 1.1rem;
     padding: 0 5px;
+    /* Alineado con la primera línea del texto, no con el alto del ítem. */
+    line-height: 1;
+    margin-top: 3px;
 }
 
 .subtask-input-wrapper {
