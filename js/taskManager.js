@@ -28,11 +28,12 @@ export const initTaskManager = (container, actionCallback, closeNewTaskCallback)
 
 // ─── Helpers internos ──────────────────────────────────────
 
-const buildTaskElement = (text, date, priority, subtasks, recurrence, lastCompleted, createdAt, time) => {
+const buildTaskElement = (text, date, priority, subtasks, recurrence, lastCompleted, createdAt, time, justAdded = false) => {
     const taskEl = createTaskElement(
         text, date, priority, subtasks, recurrence, lastCompleted, createdAt,
         (wrapper) => onOpenActionModal?.(wrapper),
         time,
+        justAdded,
     );
     attachDragListeners(taskEl, tasksContainer);
     return taskEl;
@@ -63,7 +64,9 @@ export const addNewTask = (event) => {
         ? formatDisplayDate(isoStringToDate(dateValue))
         : formatDisplayDate(new Date());
 
-    const taskEl = buildTaskElement(value.trim(), date, priority, [], 'none', null, Date.now(), hasTime ? timeValue : '');
+    // Único punto donde la tarea entra con animación: el resto (carga
+    // inicial, importación) reutiliza buildTaskElement sin el flag.
+    const taskEl = buildTaskElement(value.trim(), date, priority, [], 'none', null, Date.now(), hasTime ? timeValue : '', true);
     tasksContainer.prepend(taskEl);
     event.target.reset();
     persistFromDOM(tasksContainer);

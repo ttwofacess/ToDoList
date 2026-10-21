@@ -18,6 +18,91 @@ export const TASK_IN_MS = 200;
 export const TASK_OUT_MS = 200;
 
 /**
+ * Intentos de espera antes de renunciar a la animación de entrada.
+ * Cada intento espera TASK_IN_MS + 50 ms, así que el máximo es ~1,5 s.
+ */
+const ENTER_RETRIES = 5;
+
+/**
+ * Limpiezas pendientes de la animación de entrada, indexadas por wrapper.
+ * Sirve para cancelar el timeout y el listener cuando la misma tarea vuelve
+ * a animarse (por ejemplo al deshacer un borrado).
+ * @type {WeakMap<HTMLElement, {timer: number, handler: Function}>}
+ */
+const pendingEnterCleanups = new WeakMap();
+
+/**
+ * Cancela la limpieza pendiente de la animación de entrada de un wrapper.
+ * @param {HTMLElement} wrapper
+ */
+export const cancelEnterAnimation = (wrapper) => {
+    const pending = pendingEnterCleanups.get(wrapper);
+    if (!pending) return;
+    clearTimeout(pending.timer);
+    wrapper.removeEventListener('animationend', pending.handler);
+    pendingEnterCleanups.delete(wrapper);
+};
+
+/**
+ * Reproduce la animación de entrada de una tarea (fade + desplazamiento).
+ *
+ * La clase `just-added` se quita cuando termina la animación. Si el evento
+ * `animationend` nunca llega —movimiento reducido, jsdom, pestaña en
+ * segundo plano— la deja un timeout de reserva, para que la tarea no quede
+ * con la clase pegada.
+ *
+ * @param {HTMLElement} wrapper
+ */
+export const animateTaskIn = (wrapper) => {
+    cancelEnterAnimation(wrapper);
+
+    if (wrapper.classList.contains('just-added')) {
+        // La clase ya estaba puesta: sin sacarla y forzar un reflow, el
+        // navegador no reinicia la animación cuando el nodo vuelve al
+        // documento (por ejemplo al deshacer un borrado).
+        wrapper.classList.remove('just-added');
+        void wrapper.offsetWidth;
+    }
+    wrapper.classList.add('just-added');
+
+    const finish = () => {
+        cancelEnterAnimation(wrapper);
+        wrapper.classList.remove('just-added');
+    };
+
+    const handler = (event) => {
+        if (event.target !== wrapper) return;
+        if (event.animationName !== 'task-in') return;
+        finish();
+    };
+
+    // El navegador deja la animación "pendiente" hasta el primer frame, y ese
+    // frame puede tardar bastante (por ejemplo, con el modal cerrándose
+    // encima). Si el timeout de reserva se cumpliera en ese momento, la
+    // clase se iría antes de que la animación arranque y la tarea aparecería
+    // de golpe. Mientras la animación siga viva se espera a que termine; si
+    // no hay ninguna (movimiento reducido, CSS sin cargar), se limpia.
+    let retries = 0;
+    const cleanup = { timer: 0, handler };
+
+    const check = () => {
+        const pending = (wrapper.getAnimations?.() ?? []).some(
+            (anim) => anim.animationName === 'task-in' && anim.playState !== 'finished',
+        );
+        if (pending && retries < ENTER_RETRIES) {
+            retries += 1;
+            cleanup.timer = setTimeout(check, TASK_IN_MS + 50);
+            return;
+        }
+        finish();
+    };
+
+    cleanup.timer = setTimeout(check, TASK_IN_MS + 50);
+    pendingEnterCleanups.set(wrapper, cleanup);
+    wrapper.addEventListener('animationend', handler);
+};
+
+/**
  * Cambia el estado (completado/pendiente) de una tarea.
  * @param {HTMLElement} wrapper
  * @param {HTMLElement} tasksContainer
