@@ -35,3 +35,56 @@
         box-shadow: 0 0 0 2px var(--due-halo-soft);
     }
 }
+
+/* ============================================================
+   Entrada y salida de tareas
+   ============================================================ */
+
+/* Entrada: la tarea aparece con un fade y un desplazamiento de 8px hacia
+   arriba. La duración (200ms) es el mismo valor que TASK_IN_MS en
+   js/taskActions.js; ese par es el que usa el JS para dimensionar el
+   timeout de reserva cuando la animación no llega a correr (reduced motion,
+   jsdom). */
+@keyframes task-in {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* `both` deja el estado final fijo hasta que el JS quite la clase, así no
+   hay un frame sin animación que muestre la tarea sin estilo. */
+.task-wrapper.just-added {
+    animation: task-in 200ms ease-out both;
+}
+
+/* Salida: la tarea se desvanece mientras su altura y el espacio con la
+   siguiente se colapsan a cero, para que los vecinos suban sin saltar.
+   La altura inicial no se puede expresar en CSS (los wrappers crecen con
+   las subtareas), así que el JS mide el wrapper y la pasa en la variable
+   --task-out-height antes de agregar la clase .leaving: los keyframes no
+   pueden animar de `auto` a 0.
+   Duración 200ms = TASK_OUT_MS en js/taskActions.js. */
+@keyframes task-out {
+    from { opacity: 1; height: var(--task-out-height); margin-bottom: var(--task-gap); }
+    to   { opacity: 0; height: 0; margin-bottom: 0; }
+}
+
+.task-wrapper.leaving {
+    animation: task-out 200ms ease-in both;
+    /* Sin esto el contenido se ve por encima del borde mientras colapsa. */
+    overflow: hidden;
+    /* Durante los 200ms la tarjeta en salida no debe capturar clics ni
+       arrastre. */
+    pointer-events: none;
+    cursor: default;
+}
+
+/* Movimiento reducido para las tareas: sin animación. Como no llega
+   animationend, el JS resuelve el borrado con su timeout de reserva.
+   Este bloque va al final porque tiene la misma especificidad que las
+   reglas base y necesita ganarle por orden de aparición. */
+@media (prefers-reduced-motion: reduce) {
+    .task-wrapper.just-added,
+    .task-wrapper.leaving {
+        animation: none;
+    }
+}

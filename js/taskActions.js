@@ -6,6 +6,18 @@ import { formatDisplayDate } from './dateUtils.js';
 import { persistFromDOM } from './storage.js';
 
 /**
+ * Duración de la animación de entrada de una tarea, en ms.
+ * Debe coincidir con el literal de `task-in` en styles/animations.css.
+ */
+export const TASK_IN_MS = 200;
+
+/**
+ * Duración de la animación de salida de una tarea, en ms.
+ * Debe coincidir con el literal de `task-out` en styles/animations.css.
+ */
+export const TASK_OUT_MS = 200;
+
+/**
  * Cambia el estado (completado/pendiente) de una tarea.
  * @param {HTMLElement} wrapper
  * @param {HTMLElement} tasksContainer
