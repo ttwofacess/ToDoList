@@ -152,6 +152,12 @@ export const deleteTask = (wrapper, tasksContainer) => {
 
 /**
  * Reinserta una tarea borrada en su posición original y persiste.
+ *
+ * La tarea vuelve a entrar con la misma animación de creación: si todavía
+ * tenía la clase `just-added` de antes de borrarse, `animateTaskIn` la saca,
+ * fuerza un reflow y la vuelve a poner, que es lo que hace que la animación
+ * corra de nuevo sobre un nodo que sale y vuelve al documento.
+ *
  * @param {DeleteSnapshot} snapshot
  * @param {HTMLElement} tasksContainer
  * @returns {'restored'|'already-restored'}
@@ -168,6 +174,10 @@ export const restoreTask = ({ wrapper, index, nextSibling }, tasksContainer) => 
         const ref = tasksContainer.children[index] ?? null;
         tasksContainer.insertBefore(wrapper, ref);
     }
+
+    // Después de insertar: el reflow que hace animateTaskIn sólo sirve si el
+    // nodo ya está en el documento.
+    animateTaskIn(wrapper);
 
     persistFromDOM(tasksContainer);
     return 'restored';
