@@ -1,5 +1,31 @@
 /* subtasks.css — Subtareas */
 
+/* Tokens del checkbox custom.
+   El check se dibuja con un SVG embebido en background-image y no con un
+   pseudoelemento sobre el <input>: ::before/::after no se renderizan de
+   forma consistente sobre inputs en todos los motores. El input sigue
+   siendo el control real, así que :checked y page.check() de Playwright
+   no cambian. */
+:root {
+    /* Control de 24px: cumple el target táctil mínimo (WCAG 2.5.8) aunque
+       el check dibujado dentro sea más chico. */
+    --subtask-check-size: 24px;
+    --subtask-check-radius: 7px;
+    --subtask-check-border: var(--gray-400);
+    --subtask-check-border-hover: var(--primary-600);
+    --subtask-check-fill: var(--primary);
+    /* Trazo del check. El SVG no hereda currentColor, así que el color va
+       fijo: blanco sobre el relleno de marca, que mantiene contraste ≥ 3:1
+       contra el fondo en ambos temas. */
+    --subtask-check-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l5 5L19 6.5' fill='none' stroke='%23FFFFFF' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+:root[data-theme="dark"] {
+    --subtask-check-border: rgba(255, 255, 255, 0.55);
+    --subtask-check-border-hover: var(--primary-300);
+    --subtask-check-fill: var(--primary-500);
+}
+
 .subtasks-container {
     margin-left: 10px;
     display: flex;
@@ -47,9 +73,62 @@
 }
 
 .subtask-checkbox {
-    width: 16px;
-    height: 16px;
+    appearance: none;
+    -webkit-appearance: none;
+    width: var(--subtask-check-size);
+    height: var(--subtask-check-size);
+    flex: none;
+    margin: 0;
+    padding: 0;
+    border: 2px solid var(--subtask-check-border);
+    border-radius: var(--subtask-check-radius);
+    background-color: transparent;
+    background-image: var(--subtask-check-mark);
+    background-repeat: no-repeat;
+    background-position: center;
+    /* El check crece desde 0 al marcar: la transición hace que "aparezca"
+       en lugar de cambiar de golpe. */
+    background-size: 0 0;
     cursor: pointer;
+    transition: background-color 0.15s ease, background-size 0.15s ease, border-color 0.15s ease;
+}
+
+.subtask-checkbox:hover {
+    border-color: var(--subtask-check-border-hover);
+}
+
+/* appearance:none se lleva el foco nativo, así que el anillo se dibuja
+   a mano. */
+.subtask-checkbox:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+.subtask-checkbox:checked {
+    background-color: var(--subtask-check-fill);
+    border-color: var(--subtask-check-fill);
+    background-size: 70% 70%;
+    animation: subtask-check-bounce 0.2s ease-out;
+}
+
+/* Rebote al marcar. El transform no toca el layout, así que el resto de
+   la fila no se mueve. */
+@keyframes subtask-check-bounce {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.12); }
+    100% { transform: scale(1); }
+}
+
+/* Movimiento reducido: sin rebote ni transiciones, pero el check sigue
+   visible en estado marcado. */
+@media (prefers-reduced-motion: reduce) {
+    .subtask-checkbox {
+        transition: none;
+    }
+
+    .subtask-checkbox:checked {
+        animation: none;
+    }
 }
 
 .subtask-text {
