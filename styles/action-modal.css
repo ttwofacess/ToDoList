@@ -153,10 +153,14 @@
 
 #actionSubtasksContainer .subtasks-container {
     max-height: 200px; /* Allow more height in the modal */
-    margin-left: 0;   /* Remove margin when in modal to use full width */
+    /* Margen mínimo en vez de 0: la línea vertical del conector no queda
+       pegada al borde del modal. El padding-left y el border-left se
+       conservan para que el conector siga presente. */
+    margin-left: 6px;
 }
 
 #actionSubtasksContainer .subtask-item {
     background-color: var(--bckgrndbdy);
-    margin-bottom: 5px;
+    /* Sin margin-bottom: el gap del contenedor ya separa los ítems y con
+       los dos queda un espaciado doble. */
 }
