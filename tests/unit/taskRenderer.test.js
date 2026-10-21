@@ -2,7 +2,7 @@
 // Tests unitarios — js/taskRenderer.js
 // ============================================================
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   VALID_RECURRENCES,
   VALID_PRIORITIES,
@@ -12,9 +12,20 @@ import {
   showSubtaskInput,
   toggleRecurrence,
 } from '../../js/taskRenderer.js';
+import { animateTaskIn, TASK_IN_MS } from '../../js/taskActions.js';
 import { setLanguage } from '../../js/i18n.js';
 import { formatDisplayDate } from '../../js/dateUtils.js';
 import { readTasks } from '../../js/storage.js';
+
+/**
+ * jsdom no implementa la Web Animations API, así que el evento hay que
+ * armarlo a mano (con su animationName, que es lo que mira el código).
+ */
+const fireAnimationEnd = (el, animationName) => {
+  const event = new Event('animationend', { bubbles: true });
+  event.animationName = animationName;
+  el.dispatchEvent(event);
+};
 
 describe('taskRenderer', () => {
   let container;
@@ -419,6 +430,67 @@ describe('taskRenderer', () => {
       setLanguage('en');
       toggleRecurrence(wrapper);
       expect(wrapper.querySelector('.recurrence-badge').textContent).toBe('Daily');
+    });
+  });
+
+  // ── Animación de entrada ───────────────────────────────────
+  describe('createTaskElement() — animación de entrada', () => {
+    const build = (overrides = {}) => createTaskElement(
+      overrides.text ?? 'Tarea',
+      overrides.date ?? '15/06/2025',
+      overrides.priority ?? 'medium',
+      overrides.subtasks ?? [],
+      overrides.recurrence ?? 'none',
+      overrides.lastCompleted ?? null,
+      overrides.createdAt ?? '1700000000000',
+      overrides.onOpenActions ?? (() => {}),
+      overrides.time ?? '',
+      overrides.justAdded ?? false,
+    );
+
+    beforeEach(() => { vi.useFakeTimers(); });
+    afterEach(() => { vi.useRealTimers(); });
+
+    it('sin el flag no agrega la clase just-added', () => {
+      expect(build().classList.contains('just-added')).toBe(false);
+    });
+
+    it('con el flag agrega la clase just-added', () => {
+      expect(build({ justAdded: true }).classList.contains('just-added')).toBe(true);
+    });
+
+    it('quita la clase cuando termina la animación', () => {
+      const el = build({ justAdded: true });
+      fireAnimationEnd(el, 'task-in');
+      expect(el.classList.contains('just-added')).toBe(false);
+    });
+
+    it('ignora el fin de otra animación', () => {
+      const el = build({ justAdded: true });
+      fireAnimationEnd(el, 'pulse');
+      expect(el.classList.contains('just-added')).toBe(true);
+    });
+
+    it('ignora el fin de una animación que viene de un hijo', () => {
+      const el = build({ justAdded: true });
+      fireAnimationEnd(el.querySelector('.task'), 'task-in');
+      expect(el.classList.contains('just-added')).toBe(true);
+    });
+
+    it('el timeout de reserva limpia la clase si la animación no corre', () => {
+      // En jsdom no hay CSS, así que animationend nunca llega: la red de
+      // seguridad tiene que sacar la clase sola (movimiento reducido).
+      const el = build({ justAdded: true });
+      vi.advanceTimersByTime(TASK_IN_MS + 50);
+      expect(el.classList.contains('just-added')).toBe(false);
+    });
+
+    it('al reanimar el mismo nodo, el timeout viejo no corta la animación nueva', () => {
+      const el = build({ justAdded: true });
+      vi.advanceTimersByTime(100);
+      animateTaskIn(el);                    // como al deshacer un borrado
+      vi.advanceTimersByTime(TASK_IN_MS);   // el timeout viejo ya habría limpiado
+      expect(el.classList.contains('just-added')).toBe(true);
     });
   });
 });

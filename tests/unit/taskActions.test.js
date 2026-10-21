@@ -2,8 +2,10 @@
 // Tests unitarios — js/taskActions.js
 // ============================================================
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { changeTaskState, deleteTask, restoreTask } from '../../js/taskActions.js';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import {
+  changeTaskState, deleteTask, restoreTask, animateOutAndDelete, animateTaskIn, TASK_IN_MS, TASK_OUT_MS,
+} from '../../js/taskActions.js';
 import { initRenderer, createTaskElement } from '../../js/taskRenderer.js';
 import { setLanguage } from '../../js/i18n.js';
 import { formatDisplayDate } from '../../js/dateUtils.js';
@@ -22,11 +24,18 @@ describe('taskActions', () => {
   };
 
   beforeEach(() => {
+    // Reloj falso: las animaciones limpian su clase con temporizadores y
+    // ningún test debe depender de esperar en tiempo real.
+    vi.useFakeTimers();
     mountAppDom();
     container = document.getElementById('tasksContainer');
     initRenderer(container);
     setLanguage('es');
     localStorage.clear();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   describe('changeTaskState()', () => {
@@ -321,6 +330,111 @@ describe('taskActions', () => {
       mount();
       const snapshot = deleteTask(wrapper, container);
       expect(() => restoreTask(snapshot, container)).not.toThrow();
+    });
+
+    it('la tarea restaurada vuelve a animarse', () => {
+      mount();
+      const snapshot = deleteTask(wrapper, container);
+      restoreTask(snapshot, container);
+      expect(wrapper.classList.contains('just-added')).toBe(true);
+    });
+
+    it('al reanimarla, el timeout de la animación anterior no la desarma', () => {
+      mount();
+      const snapshot = deleteTask(wrapper, container);
+      restoreTask(snapshot, container);
+      animateTaskIn(wrapper);                 // segunda animación sobre el mismo nodo
+      vi.advanceTimersByTime(TASK_IN_MS + 50);
+      expect(wrapper.classList.contains('just-added')).toBe(false);
+    });
+  });
+
+  // ── Animación de salida ───────────────────────────────────
+  describe('animateOutAndDelete()', () => {
+    /** jsdom no calcula layouts: la altura se simula para poder assertarla. */
+    const withHeight = (el, height) => {
+      vi.spyOn(el, 'getBoundingClientRect').mockReturnValue({
+        x: 0, y: 0, top: 0, left: 0, right: 300, bottom: height, width: 300, height,
+        toJSON: () => {},
+      });
+      return el;
+    };
+
+    it('setea la altura inicial y la clase leaving', () => {
+      const el = withHeight(mount(), 120);
+      animateOutAndDelete(el, container);
+      expect(el.classList.contains('leaving')).toBe(true);
+      expect(el.style.getPropertyValue('--task-out-height')).toBe('120px');
+    });
+
+    it('no borra la tarea hasta que termina la animación', () => {
+      const el = mount();
+      animateOutAndDelete(el, container);
+      expect(container.querySelectorAll('.task-wrapper')).toHaveLength(1);
+    });
+
+    it('el timeout de reserva borra la tarea cuando no hay animación', async () => {
+      // En jsdom no hay CSS (es el caso del movimiento reducido): el borrado
+      // depende del timeout de reserva.
+      const el = mount();
+      const promise = animateOutAndDelete(el, container);
+
+      await vi.advanceTimersByTimeAsync(TASK_OUT_MS + 50);
+
+      expect(container.querySelectorAll('.task-wrapper')).toHaveLength(0);
+      await expect(promise).resolves.toMatchObject({ wrapper: el, index: 0, nextSibling: null });
+    });
+
+    it('el snapshot tiene el índice y el hermano siguiente correctos', async () => {
+      const a = createTaskElement('A', '15/06/2025', 'low', [], 'none', null, null, () => {});
+      const b = createTaskElement('B', '15/06/2025', 'low', [], 'none', null, null, () => {});
+      const c = createTaskElement('C', '15/06/2025', 'low', [], 'none', null, null, () => {});
+      container.append(a, b, c);
+
+      const promise = animateOutAndDelete(b, container);
+      await vi.advanceTimersByTimeAsync(TASK_OUT_MS + 50);
+
+      await expect(promise).resolves.toMatchObject({ wrapper: b, index: 1, nextSibling: c });
+    });
+
+    it('persiste la lista sin la tarea borrada', async () => {
+      mount();
+      const promise = animateOutAndDelete(wrapper, container);
+      await vi.advanceTimersByTimeAsync(TASK_OUT_MS + 50);
+      await promise;
+      expect(readTasks()).toEqual([]);
+    });
+
+    it('una segunda llamada no borra la tarea dos veces', async () => {
+      const el = mount();
+      const first  = animateOutAndDelete(el, container);
+      const second = animateOutAndDelete(el, container);
+
+      await expect(second).resolves.toBeNull();
+
+      await vi.advanceTimersByTimeAsync(TASK_OUT_MS + 50);
+      expect(container.querySelectorAll('.task-wrapper')).toHaveLength(0);
+      await expect(first).resolves.toMatchObject({ wrapper: el });
+    });
+
+    it('si la tarea ya no está en el DOM, la borra sin animar', async () => {
+      const el = mount();
+      el.remove();
+
+      const promise = animateOutAndDelete(el, container);
+
+      expect(el.classList.contains('leaving')).toBe(false);
+      await expect(promise).resolves.toMatchObject({ wrapper: el, index: -1, nextSibling: null });
+    });
+
+    it('quita la clase leaving al terminar, para que la tarea se pueda deshacer', async () => {
+      const el = mount();
+      const promise = animateOutAndDelete(el, container);
+      await vi.advanceTimersByTimeAsync(TASK_OUT_MS + 50);
+      await promise;
+
+      expect(el.classList.contains('leaving')).toBe(false);
+      expect(el.style.getPropertyValue('--task-out-height')).toBe('');
     });
   });
 });
