@@ -45,7 +45,9 @@ export const clearTasks = () => localStorage.removeItem(STORAGE_KEY);
 export const persistFromDOM = (tasksContainer) => {
     const tasks = [];
 
-    tasksContainer.querySelectorAll('.task-wrapper').forEach(el => {
+    // Las tareas que están saliendo (animación de borrado) ya no se guardan:
+    // el usuario las pidió borrar, así que no deben volver al recargar.
+    tasksContainer.querySelectorAll('.task-wrapper:not(.leaving)').forEach(el => {
         const taskEl = el.querySelector('.task');
 
         const priority = taskEl.classList.contains('priority-high') ? 'high'

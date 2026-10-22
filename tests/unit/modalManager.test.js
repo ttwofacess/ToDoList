@@ -170,10 +170,12 @@ describe('modalManager', () => {
       expect(readTasks()[0].done).toBe(true);
     });
 
-    it('actionDelete elimina la tarea, cierra el modal y persiste', () => {
+    it('actionDelete elimina la tarea, cierra el modal y persiste', async () => {
       $('actionDelete').click();
-      expect(container.querySelectorAll('.task-wrapper')).toHaveLength(0);
       expect(isOpen($('taskActionModal'))).toBe(false);
+      // El borrado ocurre al terminar la animación de salida (200 ms + margen).
+      await vi.advanceTimersByTimeAsync(300);
+      expect(container.querySelectorAll('.task-wrapper')).toHaveLength(0);
       expect(readTasks()).toEqual([]);
     });
 

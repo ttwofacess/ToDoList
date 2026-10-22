@@ -37,8 +37,17 @@
     transform: translate(-50%, calc(100% + 24px));
 }
 
+/* Entrada desde la derecha. Se anima con keyframes en vez de partir de un
+   estado oculto lateral: así el toast [hidden] sigue fuera de pantalla por
+   abajo y no genera overflow horizontal en los tests de layout. */
+@keyframes toast-in {
+    from { transform: translate(calc(-50% + 110vw), 0); }
+    to   { transform: translate(-50%, 0); }
+}
+
 .toast--visible {
     transform: translate(-50%, 0);
+    animation: toast-in 0.3s ease;
 }
 
 #updateReloadButton,
@@ -46,6 +55,13 @@
     background-color: var(--primary);
     color: #fff;
     white-space: nowrap;
+}
+
+/* ── Icono contextual del toast de deshacer ── */
+.toast-icon {
+    font-size: 1.25rem;
+    line-height: 1;
+    flex-shrink: 0;
 }
 
 /* ── Toast de deshacer ───────────────────────────────── */
@@ -86,5 +102,5 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .toast { transition: none; }
+    .toast { transition: none; animation: none; }
 }

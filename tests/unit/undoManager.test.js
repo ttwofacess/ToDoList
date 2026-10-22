@@ -82,6 +82,14 @@ describe('undoManager', () => {
       expect(readTasks().map(t => t.text)).toEqual(['Otra']);
       expect(other.isConnected).toBe(true);
     });
+
+    it('incluye un icono contextual decorativo', () => {
+      const icon = document.querySelector('#undoToast .toast-icon');
+
+      expect(icon).not.toBeNull();
+      expect(icon.getAttribute('aria-hidden')).toBe('true');
+      expect(icon.textContent).toBe('🗑️');
+    });
   });
 
   describe('temporizador', () => {
@@ -226,6 +234,73 @@ describe('undoManager', () => {
       dismissUndo();
       vi.advanceTimersByTime(UNDO_TIMEOUT_MS);
       expect(toast.hidden).toBe(true);
+    });
+  });
+
+  describe('feedback háptico', () => {
+    let vibrate;
+
+    const sinMatchMedia = () => {
+      vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false })));
+    };
+
+    beforeEach(() => {
+      vibrate = vi.fn();
+      Object.defineProperty(navigator, 'vibrate', { value: vibrate, configurable: true });
+      sinMatchMedia();
+    });
+
+    afterEach(() => {
+      delete navigator.vibrate;
+      vi.unstubAllGlobals();
+    });
+
+    it('vibra con un pulso corto al mostrar el toast', () => {
+      showUndoToast(deleteTask(mount(), container));
+
+      expect(vibrate).toHaveBeenCalledWith(10);
+    });
+
+    it('vibra con un doble pulso al expirar por timeout', () => {
+      showUndoToast(deleteTask(mount(), container));
+      vi.advanceTimersByTime(UNDO_TIMEOUT_MS);
+
+      expect(vibrate).toHaveBeenLastCalledWith([10, 40, 10]);
+    });
+
+    it('no vibra al deshacer con el botón', () => {
+      showUndoToast(deleteTask(mount(), container));
+      vibrate.mockClear();
+
+      button.click();
+
+      expect(vibrate).not.toHaveBeenCalled();
+    });
+
+    it('no vibra al cerrar con dismissUndo()', () => {
+      showUndoToast(deleteTask(mount(), container));
+      vibrate.mockClear();
+
+      dismissUndo();
+
+      expect(vibrate).not.toHaveBeenCalled();
+    });
+
+    it('no vibra si el usuario pidió reducir el movimiento', () => {
+      vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: true })));
+      showUndoToast(deleteTask(mount(), container));
+      vi.advanceTimersByTime(UNDO_TIMEOUT_MS);
+
+      expect(vibrate).not.toHaveBeenCalled();
+    });
+
+    it('no lanza si la plataforma no soporta vibrate', () => {
+      delete navigator.vibrate;
+
+      expect(() => {
+        showUndoToast(deleteTask(mount(), container));
+        vi.advanceTimersByTime(UNDO_TIMEOUT_MS);
+      }).not.toThrow();
     });
   });
 

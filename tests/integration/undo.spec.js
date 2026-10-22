@@ -100,6 +100,7 @@ test.describe('Eliminar una tarea', () => {
     await deleteTask(page, 'Se va');
 
     await expect(undoToast(page)).toBeVisible();
+    await expect(page.locator('#undoToast .toast-icon')).toBeVisible();
     await expect(undoToast(page)).toHaveClass(/toast--visible/);
     await expect(page.locator('#undoToastMessage')).toHaveText('Tarea eliminada.');
     await expect(page.locator('#undoButton')).toHaveText('Deshacer');
@@ -113,6 +114,8 @@ test.describe('Eliminar una tarea', () => {
 
     await deleteTask(page, 'Se va');
 
+    // El borrado ocurre al terminar la animación de salida de la tarjeta.
+    await expect(page.locator('.task-wrapper')).toHaveCount(1);
     expect(await taskTexts(page)).toEqual(['Se queda']);
     expect((await readStorage(page)).map(t => t.text)).toEqual(['Se queda']);
   });
@@ -134,6 +137,7 @@ test.describe('Deshacer', () => {
     await addTask(page, { text: 'Vuelve' });
 
     await deleteTask(page, 'Vuelve');
+    await expect(page.locator('.task-wrapper')).toHaveCount(0);
     expect(await readStorage(page)).toEqual([]);
 
     await page.click('#undoButton');
@@ -241,6 +245,10 @@ test.describe('Varios borrados seguidos', () => {
     await deleteTask(page, 'A');
     await deleteTask(page, 'B');
 
+    // Los dos borrados terminan su animación antes de que el aviso quede en
+    // pie: el aviso guarda siempre el último.
+    await expect(page.locator('.task-wrapper')).toHaveCount(0);
+
     await page.click('#undoButton');
 
     // B vuelve; A queda definitiva
@@ -322,8 +330,10 @@ test.describe('El aviso expira a los 5 segundos', () => {
     await addTask(page, { text: 'B' });
 
     await deleteTask(page, 'A');
+    await expect(page.locator('.task-wrapper')).toHaveCount(1);
     await page.clock.fastForward(4000);
     await deleteTask(page, 'B');
+    await expect(page.locator('.task-wrapper')).toHaveCount(0);
 
     await page.clock.fastForward(4000);   // 8000 ms desde el primero
     await expect(undoToast(page)).toBeVisible();
@@ -431,6 +441,7 @@ test.describe('Robustez', () => {
     await addTask(page, { text: 'Se va' });
     await deleteTask(page, 'Se va');
 
+    await expect(undoToast(page)).toBeVisible();
     await expect(undoToast(page)).toHaveAttribute('role', 'status');
     await expect(undoToast(page)).toHaveAttribute('aria-live', 'polite');
 

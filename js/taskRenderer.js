@@ -6,6 +6,7 @@
 import { t } from './i18n.js';
 import { formatDisplayDate, formatDisplayTime, getTaskEmojis, isValidTime } from './dateUtils.js';
 import { persistFromDOM } from './storage.js';
+import { animateTaskIn } from './taskActions.js';
 
 export const VALID_RECURRENCES = ['none', 'daily', 'weekly', 'monthly'];
 export const VALID_PRIORITIES  = ['high', 'medium', 'low'];
@@ -116,6 +117,13 @@ export const toggleRecurrence = (wrapper) => {
 
 // ─── Tarea completa ────────────────────────────────────────
 
+/**
+ * Construye el wrapper de una tarea.
+ *
+ * @param {boolean} justAdded Si es true, la tarea entra con la animación de
+ *   entrada (fade + desplazamiento). La clase se pone antes de insertar el
+ *   nodo en el documento, así la animación arranca en el primer frame.
+ */
 export const createTaskElement = (
     text,
     date,
@@ -126,6 +134,7 @@ export const createTaskElement = (
     createdAt      = null,
     onOpenActions,
     time           = '',
+    justAdded      = false,
 ) => {
     const todayStr = formatDisplayDate(new Date());
     const creationTime = createdAt ? Number(createdAt) : Date.now();
@@ -205,5 +214,8 @@ export const createTaskElement = (
     searchHint.hidden = true;
 
     taskWrapper.append(task, searchHint);
+
+    if (justAdded) animateTaskIn(taskWrapper);
+
     return taskWrapper;
 };

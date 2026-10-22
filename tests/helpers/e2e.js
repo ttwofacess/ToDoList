@@ -83,10 +83,17 @@ export const submitFormBypassingValidation = async (page, { text, priority, date
     .dispatchEvent(new Event('submit', { cancelable: true, bubbles: true })));
 };
 
-/** Fecha de hoy en el formato de display de la app según el idioma activo. */
+/**
+ * Fecha de hoy en el formato de display de la app.
+ *
+ * Se calcula en el navegador (no en Node) porque la app y el runner pueden
+ * estar en días distintos: el runner usa la zona horaria del sistema y
+ * Playwright fuerza UTC. El idioma sale del propio `lang` del documento, que
+ * la app deja como etiqueta BCP-47 ('es-ES', 'en-US', 'pt-BR').
+ */
 export const todayDisplay = async (page) =>
   page.evaluate(() => new Date().toLocaleDateString(
-    document.documentElement.lang === 'es' ? 'es-ES' : 'en-US',
+    document.documentElement.lang || 'en-US',
     { day: '2-digit', month: '2-digit', year: 'numeric' }));
 
 /** Lista los textos de las tareas visibles, en orden. */
