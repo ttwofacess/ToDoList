@@ -48,6 +48,13 @@
     white-space: nowrap;
 }
 
+/* ── Icono contextual del toast de deshacer ── */
+.toast-icon {
+    font-size: 1.25rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
 /* ── Toast de deshacer ───────────────────────────────── */
 .toast--undo {
     bottom: calc(24px + env(safe-area-inset-bottom, 0px));
