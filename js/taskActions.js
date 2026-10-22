@@ -186,6 +186,11 @@ export const animateOutAndDelete = (wrapper, tasksContainer) => {
     wrapper.style.setProperty('--task-out-height', `${height}px`);
     wrapper.classList.add('leaving');
 
+    // El borrado se persiste ya: la tarea que está saliendo no se guarda
+    // (ver storage.js), así que si la app se cierra durante la animación la
+    // tarea no vuelve al recargar.
+    persistFromDOM(tasksContainer);
+
     return new Promise((resolve) => {
         let timer = 0;
         let retries = 0;
