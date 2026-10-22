@@ -100,6 +100,7 @@ test.describe('Eliminar una tarea', () => {
     await deleteTask(page, 'Se va');
 
     await expect(undoToast(page)).toBeVisible();
+    await expect(page.locator('#undoToast .toast-icon')).toBeVisible();
     await expect(undoToast(page)).toHaveClass(/toast--visible/);
     await expect(page.locator('#undoToastMessage')).toHaveText('Tarea eliminada.');
     await expect(page.locator('#undoButton')).toHaveText('Deshacer');

@@ -4,9 +4,7 @@
     position: fixed;
     left: 50%;
     bottom: 24px;
-    /* Estado oculto: fuera por la derecha. 110vw (no 110%: el % se mide sobre
-       el ancho del toast) garantiza que no asome en ningún viewport. */
-    transform: translate(calc(-50% + 110vw), 0);
+    transform: translate(-50%, 120%);
     display: flex;
     align-items: center;
     gap: 16px;
@@ -32,14 +30,24 @@
      para que un lector de pantalla no anuncie "Nueva versión disponible" en la
      primera visita. Hace falta visibility y no display:none para poder animar
      la entrada con transform.
-   - Comparte el estado oculto de .toast: fuera por la derecha. */
+   - El + 24px compensa el `bottom` del toast: bajándolo solo un 100% de su
+     altura dejaba ~10px asomando por el borde inferior de la ventana. */
 #updateToast[hidden] {
     visibility: hidden;
-    transform: translate(calc(-50% + 110vw), 0);
+    transform: translate(-50%, calc(100% + 24px));
+}
+
+/* Entrada desde la derecha. Se anima con keyframes en vez de partir de un
+   estado oculto lateral: así el toast [hidden] sigue fuera de pantalla por
+   abajo y no genera overflow horizontal en los tests de layout. */
+@keyframes toast-in {
+    from { transform: translate(calc(-50% + 110vw), 0); }
+    to   { transform: translate(-50%, 0); }
 }
 
 .toast--visible {
     transform: translate(-50%, 0);
+    animation: toast-in 0.3s ease;
 }
 
 #updateReloadButton,
@@ -94,5 +102,5 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .toast { transition: none; }
+    .toast { transition: none; animation: none; }
 }
