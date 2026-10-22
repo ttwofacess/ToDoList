@@ -5,7 +5,7 @@
 
 import { test, expect } from '@playwright/test';
 import {
-  gotoApp, addTask, taskTexts, readStorage, seedStorage, captureDialogs,
+  gotoApp, addTask, taskTexts, readStorage, seedStorage, captureDialogs, todayDisplay,
 } from '../helpers/e2e.js';
 
 // OJO al assertar:
@@ -184,7 +184,7 @@ test.describe('Combinación con el Modo Enfoque', () => {
   // Modo Enfoque = .filter-today-active, que usa display:flex con :has().
   // search.css usa display:none !important → la combinación es AND.
   test('con ambos activos sólo se ven las que cumplen los dos filtros', async ({ page }) => {
-    const today = new Date().toLocaleDateString('es-ES');
+    const today = await todayDisplay(page);
     await seed(page, [
       task('Queso hoy',     { date: today, priority: 'high' }),   // Enfoque ✓ y búsqueda ✓
       task('Queso mañana',  { date: '01/01/2030', priority: 'low' }),  // sólo búsqueda ✓
@@ -198,7 +198,7 @@ test.describe('Combinación con el Modo Enfoque', () => {
   });
 
   test('al quitar la búsqueda el Modo Enfoque sigue aplicando', async ({ page }) => {
-    const today = new Date().toLocaleDateString('es-ES');
+    const today = await todayDisplay(page);
     await seed(page, [
       task('Con coincidencia', { date: today, priority: 'high' }),
       task('Otra',             { date: '01/01/2030', priority: 'low' }),
@@ -397,7 +397,7 @@ test.describe('Estados vacíos', () => {
   });
 
   test('con Modo Enfoque y una tarea de hoy no hay ningún aviso', async ({ page }) => {
-    const today = new Date().toLocaleDateString('es-ES');
+    const today = await todayDisplay(page);
     await seed(page, [task('Para hoy', { date: today })]);
 
     await page.click('.orderButton-wrapper .filterButton');
