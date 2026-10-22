@@ -20,12 +20,23 @@ const getEls = () => ({
     bar:    document.querySelector('#undoToast .toast-progress'),
 });
 
-const hideToast = () => {
+/** ¿El usuario pidió menos movimiento? Entonces no hay háptica. */
+const prefersReducedMotion = () =>
+    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+
+/** Vibra en plataformas que lo soportan (Android). En iOS es no-op. */
+const vibrateFeedback = (pattern) => {
+    if (prefersReducedMotion()) return;
+    navigator.vibrate?.(pattern);
+};
+
+const hideToast = (byTimeout = false) => {
     const { toast, bar } = getEls();
     if (!toast) return;
     toast.classList.remove('toast--visible');
     bar?.classList.remove('is-running');
     toast.hidden = true;
+    if (byTimeout) vibrateFeedback([10, 40, 10]);
 };
 
 /** Cierra el toast y hace definitivo el borrado pendiente. */
@@ -34,6 +45,12 @@ export const dismissUndo = () => {
     timerId = null;
     pending = null;
     hideToast();
+};
+
+const expireUndo = () => {
+    timerId = null;
+    pending = null;
+    hideToast(true);
 };
 
 /** Muestra el toast y arranca la cuenta regresiva de 5 s. */
@@ -48,12 +65,14 @@ export const showUndoToast = (snapshot) => {
     toast.hidden = false;
     toast.classList.add('toast--visible');
 
+    vibrateFeedback(10);
+
     // Reiniciar la animación de la barra
     bar?.classList.remove('is-running');
     void bar?.offsetWidth;
     bar?.classList.add('is-running');
 
-    timerId = setTimeout(dismissUndo, UNDO_TIMEOUT_MS);
+    timerId = setTimeout(expireUndo, UNDO_TIMEOUT_MS);
 };
 
 /** Restaura la tarea pendiente y cierra el toast. */
