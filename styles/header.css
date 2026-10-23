@@ -1,5 +1,18 @@
 /* header.css — Fecha del header */
 
+/* Superficie de la date card. El wrapper `.list` es blanco puro en claro, así
+   que la card se define con un gris tenue por debajo; en oscuro se aclara
+   respecto del wrapper. Los tokens viven acá porque son de propiedad del header. */
+:root {
+    --date-card-bg: #F6F7F9;
+    --date-card-border: rgba(15, 23, 42, 0.04);
+}
+
+:root[data-theme="dark"] {
+    --date-card-bg: #242233;
+    --date-card-border: rgba(255, 255, 255, 0.06);
+}
+
 .date {
     align-items: center;
     color: var(--maintxt);
