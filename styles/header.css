@@ -15,10 +15,15 @@
 
 .date {
     align-items: center;
+    background-color: var(--date-card-bg);
+    border: 1px solid var(--date-card-border);
+    border-radius: 16px;
     color: var(--maintxt);
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     margin-bottom: 20px;
+    padding: 14px 16px;
     font-family: 'Poppins', sans-serif;
 }
 
