@@ -73,12 +73,16 @@ export const renderDaySummary = (container = tasksContainer) => {
 
     const summary = computeDaySummary(container);
     if (summary.total === 0) {
-        el.hidden = true;
+        if (!el.hidden) el.hidden = true;
         return;
     }
 
-    el.textContent = formatDaySummary(summary);
-    el.hidden = false;
+    // Escribir sólo cuando el texto cambia evita re-anuncios del mismo
+    // contenido en el lector de pantalla (role="status") por mutaciones
+    // irrelevantes de la lista.
+    const text = formatDaySummary(summary);
+    if (el.textContent !== text) el.textContent = text;
+    if (el.hidden) el.hidden = false;
 };
 
 // ─── Inicialización ────────────────────────────────────────

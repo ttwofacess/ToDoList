@@ -6,11 +6,15 @@
 :root {
     --date-card-bg: #F6F7F9;
     --date-card-border: rgba(15, 23, 42, 0.04);
+    /* Tinta de la card: --gray-500 sobre este fondo se queda en 4.44:1, por
+       debajo de AA. Sobre blanco sí pasaba, pero la card ya no es blanca. */
+    --date-card-ink: var(--gray-600);
 }
 
 :root[data-theme="dark"] {
     --date-card-bg: #242233;
     --date-card-border: rgba(255, 255, 255, 0.06);
+    --date-card-ink: var(--gray-400);
 }
 
 .date {
@@ -49,14 +53,14 @@
     letter-spacing: 0.14em;
     text-transform: uppercase;
     font-weight: 600;
-    color: var(--task-meta-ink);
+    color: var(--date-card-ink);
 }
 
 .day-summary {
     flex: 0 0 100%;
     margin-top: 10px;
     font-size: var(--text-sm);
-    color: var(--task-meta-ink);
+    color: var(--date-card-ink);
     font-variant-numeric: tabular-nums;
 }
 
@@ -64,10 +68,10 @@
 #dateYear {
     font-size: 1rem;
     margin-left: 8px;
-    /* Small caps con tinta de metadata (AA en claro y en oscuro). Antes era
+    /* Small caps con tinta de la card (AA en claro y en oscuro). Antes era
        opacity 0.6, que dejaba el contraste en ~3.7:1 en claro. */
     font-variant: small-caps;
-    color: var(--task-meta-ink);
+    color: var(--date-card-ink);
     letter-spacing: 1px;
     font-weight: 500;
 }

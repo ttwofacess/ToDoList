@@ -147,6 +147,21 @@ describe('daySummary', () => {
       expect(summaryEl.hidden).toBe(true);
     });
 
+    it('no reescribe el texto si el resumen no cambió', async () => {
+      addTask({ date: today() });
+      renderDaySummary(container);
+
+      const writes = [];
+      const watcher = new MutationObserver((records) => writes.push(...records));
+      watcher.observe(summaryEl, { childList: true, characterData: true, subtree: true });
+
+      renderDaySummary(container);
+      await flushObservers();
+      watcher.disconnect();
+
+      expect(writes).toHaveLength(0);
+    });
+
     it('no lanza si #daySummary no existe', () => {
       summaryEl.remove();
       expect(() => renderDaySummary(container)).not.toThrow();

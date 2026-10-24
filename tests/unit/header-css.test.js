@@ -41,6 +41,7 @@ describe('styles/header.css', () => {
       expect(root).not.toBeNull();
       expect(root).toMatch(/--date-card-bg:\s*#F6F7F9/);
       expect(root).toMatch(/--date-card-border:\s*rgba\(15,\s*23,\s*42,\s*0?\.04\)/);
+      expect(root).toMatch(/--date-card-ink:\s*var\(--gray-600\)/);
     });
 
     it('los redefine en el tema oscuro', () => {
@@ -48,6 +49,7 @@ describe('styles/header.css', () => {
       expect(dark).not.toBeNull();
       expect(dark).toMatch(/--date-card-bg:\s*#242233/);
       expect(dark).toMatch(/--date-card-border:\s*rgba\(255,\s*255,\s*255,\s*0?\.06\)/);
+      expect(dark).toMatch(/--date-card-ink:\s*var\(--gray-400\)/);
     });
   });
 
@@ -78,7 +80,7 @@ describe('styles/header.css', () => {
       expect(text).toMatch(/font-size:\s*0\.8rem/);
       expect(text).toMatch(/letter-spacing:\s*0\.14em/);
       expect(text).toMatch(/font-weight:\s*600/);
-      expect(text).toMatch(/color:\s*var\(--task-meta-ink\)/);
+      expect(text).toMatch(/color:\s*var\(--date-card-ink\)/);
       expect(text).toMatch(/text-transform:\s*uppercase/);
     });
   });
@@ -90,7 +92,7 @@ describe('styles/header.css', () => {
       expect(summary).toMatch(/flex:\s*0 0 100%/);
       expect(summary).toMatch(/margin-top:\s*10px/);
       expect(summary).toMatch(/font-size:\s*var\(--text-sm\)/);
-      expect(summary).toMatch(/color:\s*var\(--task-meta-ink\)/);
+      expect(summary).toMatch(/color:\s*var\(--date-card-ink\)/);
       expect(summary).toMatch(/font-variant-numeric:\s*tabular-nums/);
     });
   });
