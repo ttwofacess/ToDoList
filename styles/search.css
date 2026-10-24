@@ -56,7 +56,7 @@ mark.search-mark {
     border-radius: 50%;
     background: transparent;
     color: var(--maintxt);
-    font-size: 1.3rem;
+    font-size: var(--icon-size);
     line-height: 1;
     cursor: pointer;
     opacity: 0.6;

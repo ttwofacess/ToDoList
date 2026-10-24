@@ -58,7 +58,7 @@
 .close-button {
     color: var(--gray-400);
     float: right;
-    font-size: 28px;
+    font-size: var(--icon-size);
     font-weight: bold;
     cursor: pointer;
 }
