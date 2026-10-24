@@ -53,7 +53,14 @@ export const formatDaySummary = ({ pending, dueToday }) =>
 
 // ─── Render ────────────────────────────────────────────────
 
-const getSummaryEl = () => summaryEl ?? document.getElementById(SUMMARY_ID);
+const getSummaryEl = () => {
+    // Si el DOM se reemplazó (tests, o un futuro re-render del shell), la
+    // referencia guardada queda desconectada: se vuelve a buscar por id.
+    if (!summaryEl || !summaryEl.isConnected) {
+        summaryEl = document.getElementById(SUMMARY_ID);
+    }
+    return summaryEl;
+};
 
 /**
  * Escribe el resumen en #daySummary. Con la lista vacía se oculta: el
