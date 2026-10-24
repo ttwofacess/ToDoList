@@ -16,6 +16,7 @@ import { initUpdateNotifier }                       from './updateNotifier.js';
 import { initUndoManager }                          from './undoManager.js';
 import { initSearch, applySearch }                  from './search.js';
 import { initTheme }                                from './themeManager.js';
+import { initDaySummary, renderDaySummary }          from './daySummary.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const tasksContainer = document.getElementById('tasksContainer');
@@ -28,8 +29,13 @@ document.addEventListener('DOMContentLoaded', () => {
     initDragDrop(tasksContainer);
     initModals();
 
-    // ── 2. Detectar idioma (renderiza fecha tras aplicarlo) ──
-    detectLanguage(renderHeaderDate);
+    // ── 2. Detectar idioma (renderiza fecha y resumen tras aplicarlo) ──
+    // El resumen corre antes de initDaySummary: renderDaySummary tolera que
+    // el observer todavía no exista y sólo escribe si #daySummary está.
+    detectLanguage(() => {
+        renderHeaderDate();
+        renderDaySummary(tasksContainer);
+    });
 
     // ── 2-bis. Toggle de tema (tras detectLanguage para el aria-label) ──
     initTheme(document.getElementById('themeToggleButton'));
@@ -37,6 +43,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── 3. Cargar y decorar tareas ───────────────────────────
     loadTasks();
     highlightDueTasks();
+
+    // ── 3-ter. Resumen del día (con la lista ya cargada) ─────
+    initDaySummary(tasksContainer);
 
     // ── 3-bis. Búsqueda (después de detectLanguage para t() correcto) ──
     initSearch(tasksContainer);
