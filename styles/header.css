@@ -1,11 +1,33 @@
 /* header.css — Fecha del header */
 
+/* Superficie de la date card. El wrapper `.list` es blanco puro en claro, así
+   que la card se define con un gris tenue por debajo; en oscuro se aclara
+   respecto del wrapper. Los tokens viven acá porque son de propiedad del header. */
+:root {
+    --date-card-bg: #F6F7F9;
+    --date-card-border: rgba(15, 23, 42, 0.04);
+    /* Tinta de la card: --gray-500 sobre este fondo se queda en 4.44:1, por
+       debajo de AA. Sobre blanco sí pasaba, pero la card ya no es blanca. */
+    --date-card-ink: var(--gray-600);
+}
+
+:root[data-theme="dark"] {
+    --date-card-bg: #242233;
+    --date-card-border: rgba(255, 255, 255, 0.06);
+    --date-card-ink: var(--gray-400);
+}
+
 .date {
     align-items: center;
+    background-color: var(--date-card-bg);
+    border: 1px solid var(--date-card-border);
+    border-radius: 16px;
     color: var(--maintxt);
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     margin-bottom: 20px;
+    padding: 14px 16px;
     font-family: 'Poppins', sans-serif;
 }
 
@@ -19,23 +41,37 @@
     background-clip: text;
     /* NUEVO: Tracking ajustado (ligeramente negativo para héroe) */
     letter-spacing: -2px;
+    /* Cifras tabulares: el número no cambia de ancho al pasar de 1 a 2 dígitos
+       y el mes/año no se corren. */
+    font-feature-settings: "tnum";
+    font-variant-numeric: tabular-nums;
+    min-width: 2ch;
 }
 
 #dateText {
-    font-size: 1.2rem;
-    letter-spacing: 2px;
+    font-size: 0.8rem;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
-    font-weight: 500;
+    font-weight: 600;
+    color: var(--date-card-ink);
+}
+
+.day-summary {
+    flex: 0 0 100%;
+    margin-top: 10px;
+    font-size: var(--text-sm);
+    color: var(--date-card-ink);
+    font-variant-numeric: tabular-nums;
 }
 
 #dateMonth,
 #dateYear {
     font-size: 1rem;
     margin-left: 8px;
-    /* Small caps con tinta de metadata (AA en claro y en oscuro). Antes era
+    /* Small caps con tinta de la card (AA en claro y en oscuro). Antes era
        opacity 0.6, que dejaba el contraste en ~3.7:1 en claro. */
     font-variant: small-caps;
-    color: var(--task-meta-ink);
+    color: var(--date-card-ink);
     letter-spacing: 1px;
     font-weight: 500;
 }
@@ -90,6 +126,10 @@
 
 /* Responsive typography */
 @media (max-width: 480px) {
+    .date {
+        padding: 12px;
+    }
+
     #dateNumber {
         font-size: 2.5rem;
         letter-spacing: -1px;
@@ -101,7 +141,11 @@
     }
 
     #dateText {
-        font-size: 1rem;
+        font-size: 0.75rem;
+    }
+
+    .day-summary {
+        font-size: var(--text-xs);
     }
 }
 

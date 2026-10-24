@@ -587,6 +587,28 @@ describe('modalManager', () => {
       expect(window.alert).not.toHaveBeenCalled();
     });
 
+    it('marca due-today al mover la fecha a hoy', () => {
+      openForEdit({ date: '20/06/2025' });
+      const taskEl = wrapper.querySelector('.task');
+      expect(taskEl.classList.contains('due-today')).toBe(false);
+
+      $('editTaskDate').value = '2025-06-15';
+      saveModalChanges(submitEvent());
+
+      expect(taskEl.classList.contains('due-today')).toBe(true);
+    });
+
+    it('quita due-today al mover la fecha fuera de hoy', () => {
+      openForEdit({ date: '15/06/2025' });
+      const taskEl = wrapper.querySelector('.task');
+      expect(taskEl.classList.contains('due-today')).toBe(true);
+
+      $('editTaskDate').value = '2025-06-20';
+      saveModalChanges(submitEvent());
+
+      expect(taskEl.classList.contains('due-today')).toBe(false);
+    });
+
     it('no hace nada si no hay tarea en edición', () => {
       closeEditModal();
       expect(() => saveModalChanges(submitEvent())).not.toThrow();

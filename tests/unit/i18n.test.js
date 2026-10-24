@@ -39,6 +39,13 @@ describe('i18n', () => {
         }
       }
     });
+
+    it.each(LANGS)('%s tiene el resumen diario con sus placeholders', (lang) => {
+      const summary = translations[lang].daySummary;
+      expect(summary).toBeTruthy();
+      expect(summary).toContain('{pending}');
+      expect(summary).toContain('{due}');
+    });
   });
 
   describe('getLang() / setLanguage()', () => {

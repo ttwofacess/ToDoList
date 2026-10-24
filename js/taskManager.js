@@ -128,9 +128,10 @@ export const renderOrderedTasks = () => {
     persistFromDOM(tasksContainer);
 };
 
-export const highlightDueTasks = () => {
+export const highlightDueTasks = (container = tasksContainer) => {
+    if (!container) return;
     const today = formatDisplayDate(new Date());
-    tasksContainer.querySelectorAll('.task-wrapper').forEach(wrapper => {
+    container.querySelectorAll('.task-wrapper').forEach(wrapper => {
         const dateEl = wrapper.querySelector('.task-date');
         const taskEl = wrapper.querySelector('.task');
         if (dateEl) taskEl.classList.toggle('due-today', dateEl.textContent === today);

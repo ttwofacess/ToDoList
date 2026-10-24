@@ -3,7 +3,7 @@
 // ============================================================
 
 import { test, expect } from '@playwright/test';
-import { gotoApp } from '../helpers/e2e.js';
+import { gotoApp, addTask } from '../helpers/e2e.js';
 
 const THEME_KEY = 'theme';
 const BUTTON = '#themeToggleButton';
@@ -139,17 +139,47 @@ test.describe('Toggle de tema', () => {
   });
 });
 
+test.describe('Date card — superficie por tema', () => {
+  for (const theme of ['light', 'dark']) {
+    test(`en tema ${theme} la card se distingue del wrapper`, async ({ page }) => {
+      await page.addInitScript(([key, value]) =>
+        localStorage.setItem(key, value), [THEME_KEY, theme]);
+      await gotoApp(page);
+
+      await expect(page.locator(':root')).toHaveAttribute('data-theme', theme);
+
+      const colors = await page.evaluate(() => ({
+        card: getComputedStyle(document.querySelector('.date')).backgroundColor,
+        wrapper: getComputedStyle(document.querySelector('.list')).backgroundColor,
+      }));
+
+      expect(colors.card).not.toBe(colors.wrapper);
+      expect(colors.card).not.toBe('rgba(0, 0, 0, 0)');
+    });
+  }
+});
+
 test.describe('Toggle de tema — layout a 360px', () => {
   test.use({ viewport: { width: 360, height: 640 } });
 
   test('el botón y el header caben sin desbordar', async ({ page }) => {
     await gotoApp(page);
+    await addTask(page, { text: 'Resumen' });
 
     const box = await page.locator(BUTTON).boundingBox();
     expect(box).not.toBeNull();
     expect(box.x).toBeGreaterThanOrEqual(0);
     expect(box.x + box.width).toBeLessThanOrEqual(360 + 1);
 
+    // La card completa (con el resumen abajo) entra en el ancho.
+    for (const sel of ['.date', '#daySummary']) {
+      const b = await page.locator(sel).boundingBox();
+      expect(b, `${sel} no se renderiza`).not.toBeNull();
+      expect(b.x, `${sel} se sale por la izquierda`).toBeGreaterThanOrEqual(0);
+      expect(b.x + b.width, `${sel} se sale por la derecha`).toBeLessThanOrEqual(360 + 1);
+    }
+
+    await expect(page.locator('#daySummary')).toBeVisible();
     await expect.poll(async () =>
       page.evaluate(() => document.documentElement.scrollWidth))
       .toBeLessThanOrEqual(360 + 1);
