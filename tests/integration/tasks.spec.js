@@ -456,3 +456,36 @@ test.describe('Robustez y seguridad', () => {
     expect(errors).toEqual([]);
   });
 });
+
+test.describe('Resumen del día', () => {
+  test('acompaña el alta, el completado y el borrado', async ({ page }) => {
+    await gotoApp(page);
+    await expect(page.locator('#daySummary')).toBeHidden();
+
+    await addTask(page, { text: 'Resumen' });
+    await expect(page.locator('#daySummary')).toBeVisible();
+    await expect(page.locator('#daySummary')).toHaveText('Pendientes: 1 · Vencen hoy: 1');
+
+    await page.click('.task');
+    await page.click('#actionDone');
+    await expect(page.locator('#daySummary')).toHaveText('Pendientes: 0 · Vencen hoy: 0');
+
+    await page.click('#actionDelete');
+    await expect(page.locator('#daySummary')).toBeHidden();
+  });
+
+  test('cuenta vencen hoy sólo entre las tareas de hoy', async ({ page }) => {
+    await gotoApp(page);
+
+    const future = await page.evaluate(() => {
+      const d = new Date(); d.setMonth(d.getMonth() + 2);
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    });
+
+    await addTask(page, { text: 'Para otro día', date: future });
+    await expect(page.locator('#daySummary')).toHaveText('Pendientes: 1 · Vencen hoy: 0');
+
+    await addTask(page, { text: 'Para hoy' });
+    await expect(page.locator('#daySummary')).toHaveText('Pendientes: 2 · Vencen hoy: 1');
+  });
+});

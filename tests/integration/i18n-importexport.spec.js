@@ -180,6 +180,24 @@ test.describe('i18n — coherencia con el resto de la app', () => {
     }
   });
 
+  test('el resumen del día sigue al idioma activo', async ({ browser }) => {
+    for (const [locale, expected] of [
+      ['es-ES', 'Pendientes:'], ['en-US', 'Pending:'], ['pt-BR', 'Pendentes:'],
+    ]) {
+      const ctx = await browser.newContext({ locale });
+      const page = await ctx.newPage();
+      await page.goto('/index.html');
+      await page.evaluate(() => localStorage.clear());
+      await page.reload();
+      await page.waitForFunction(() => document.getElementById('dateYear')?.textContent?.length > 0);
+
+      await addTask(page, { text: 'Resumen' });
+      await expect(page.locator('#daySummary'), `locale ${locale}`).toBeVisible();
+      await expect(page.locator('#daySummary'), `locale ${locale}`).toContainText(expected);
+      await ctx.close();
+    }
+  });
+
   test('el formato de fecha de la tarea se aplica al crear, según el idioma', async ({ browser }) => {
     // OJO: la app guarda la fecha YA formateada. Al leer de localStorage la
     // muestra tal cual; el formateo por idioma sólo ocurre al crear/editar.

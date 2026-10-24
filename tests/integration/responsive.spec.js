@@ -67,6 +67,18 @@ for (const { name, width, height } of WIDTHS) {
       expect(await hasHorizontalScroll(page)).toBe(false);
     });
 
+    test('el resumen del día cabe y no genera scroll horizontal', async ({ page }) => {
+      const summary = page.locator('#daySummary');
+      await expect(summary).toBeVisible();
+      await expect(summary).toContainText('Pendientes: 2 · Vencen hoy: 2');
+
+      const box = await summary.boundingBox();
+      expect(box).not.toBeNull();
+      expect(box.x).toBeGreaterThanOrEqual(0);
+      expect(box.x + box.width).toBeLessThanOrEqual(width + 1);
+      expect(await hasHorizontalScroll(page)).toBe(false);
+    });
+
     test('los controles principales caben en el ancho', async ({ page }) => {
       for (const sel of [
         '#openNewTaskModal',
