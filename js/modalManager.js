@@ -7,6 +7,7 @@ import { formatDisplayDate, isoStringToDate,
          formatDisplayTime, isDateTimeInPast, isValidTime,
          displayDateToIso }                  from './dateUtils.js';
 import { persistFromDOM }                  from './storage.js';
+import { highlightDueTasks }               from './taskManager.js';
 import { changeTaskState, animateOutAndDelete } from './taskActions.js';
 import { toggleRecurrence, showSubtaskInput } from './taskRenderer.js';
 import { showUndoToast }                     from './undoManager.js';
@@ -259,6 +260,9 @@ export const saveModalChanges = (event) => {
     }
 
     persistFromDOM(tasksContainer);
+    // La fecha cambió en el DOM: recalcular .due-today para que el Modo
+    // Enfoque no quede con el estado viejo hasta la próxima recarga.
+    highlightDueTasks(tasksContainer);
     closeEditModal();
 };
 
