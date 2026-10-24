@@ -61,6 +61,9 @@ export const showSubtaskInput = (targetContainer) => {
 
     const saveBtn = document.createElement('button');
     saveBtn.textContent = '✅';
+    saveBtn.classList.add('icon-chip', 'icon-chip--sm', 'icon-chip--success');
+    saveBtn.setAttribute('aria-label', t('saveButton'));
+    saveBtn.title = t('saveButton');
     saveBtn.addEventListener('click', () => {
         const text = input.value.trim();
         if (text) {
@@ -72,6 +75,9 @@ export const showSubtaskInput = (targetContainer) => {
 
     const cancelBtn = document.createElement('button');
     cancelBtn.textContent = '❌';
+    cancelBtn.classList.add('icon-chip', 'icon-chip--sm', 'icon-chip--danger');
+    cancelBtn.setAttribute('aria-label', t('cancelButton'));
+    cancelBtn.title = t('cancelButton');
     cancelBtn.addEventListener('click', () => wrapper.remove());
 
     input.addEventListener('keydown', (e) => {
