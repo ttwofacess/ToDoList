@@ -45,7 +45,7 @@
 }
 
 .newTaskMainButton .plus-icon {
-    font-size: 1.7rem;
+    font-size: var(--icon-size-lg);
     font-weight: 700;
     line-height: 1;
 }
