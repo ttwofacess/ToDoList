@@ -58,9 +58,8 @@
 }
 
 /* ── Icono contextual del toast de deshacer ── */
+/* La geometría, el tamaño de emoji y el fondo los aporta .icon-chip. */
 .toast-icon {
-    font-size: 1.25rem;
-    line-height: 1;
     flex-shrink: 0;
 }
 
