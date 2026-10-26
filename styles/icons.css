@@ -1,0 +1,67 @@
+/* icons.css — Tokens y componente de iconos (emoji + chip) */
+
+/* Tamaño y contenedor común de los iconos de acción. El chip grande es el
+   patrón que ya usaba el action modal; el chico cubre toast e inline.
+   La excepción documentada es --icon-size-lg para el + del CTA. */
+:root {
+    --icon-size: 1.25rem;
+    --icon-size-lg: 1.7rem;
+
+    --icon-chip-size: 40px;
+    --icon-chip-radius: 12px;
+    --icon-chip-size-sm: 28px;
+    --icon-chip-radius-sm: 8px;
+
+    --icon-chip-fallback: rgba(108, 99, 255, 0.15);
+    --icon-chip-primary: rgba(108, 99, 255, 0.15);
+    --icon-chip-danger: rgba(229, 72, 77, 0.15);
+    --icon-chip-success: rgba(78, 154, 94, 0.15);
+    --icon-chip-warning: rgba(217, 142, 0, 0.15);
+    --icon-chip-neutral: rgba(100, 116, 139, 0.15);
+}
+
+:root[data-theme="dark"] {
+    --icon-chip-fallback: rgba(108, 99, 255, 0.15);
+    --icon-chip-primary: rgba(123, 115, 255, 0.15);
+    --icon-chip-danger: rgba(255, 133, 133, 0.15);
+    --icon-chip-success: rgba(143, 214, 164, 0.15);
+    --icon-chip-warning: rgba(255, 184, 77, 0.15);
+    --icon-chip-neutral: rgba(159, 170, 184, 0.15);
+}
+
+/* La geometría se declara para .action-chip también, así el component
+   reemplaza la definición dispersa sin tocar el HTML existente. */
+.icon-chip,
+.action-chip {
+    flex: none;
+    display: inline-grid;
+    place-items: center;
+    width: var(--icon-chip-size);
+    height: var(--icon-chip-size);
+    border-radius: var(--icon-chip-radius);
+    font-size: var(--icon-size);
+    line-height: 1;
+    background-color: var(--chip-bg, var(--icon-chip-fallback));
+    transition: background-color 0.2s;
+}
+
+.icon-chip--sm {
+    width: var(--icon-chip-size-sm);
+    height: var(--icon-chip-size-sm);
+    border-radius: var(--icon-chip-radius-sm);
+}
+
+/* Los modificadores sólo setean el hook --chip-bg: así las reglas de
+   .action-row--* siguen ganando donde ya definían el tinte. */
+.icon-chip--primary { --chip-bg: var(--icon-chip-primary); }
+.icon-chip--danger  { --chip-bg: var(--icon-chip-danger); }
+.icon-chip--success { --chip-bg: var(--icon-chip-success); }
+.icon-chip--warning { --chip-bg: var(--icon-chip-warning); }
+.icon-chip--neutral { --chip-bg: var(--icon-chip-neutral); }
+
+@media (prefers-reduced-motion: reduce) {
+    .icon-chip,
+    .action-chip {
+        transition: none;
+    }
+}

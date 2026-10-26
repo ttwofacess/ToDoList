@@ -13,6 +13,10 @@
     gap: 15px;
 }
 
+.crypto-icon {
+    --chip-bg: var(--icon-chip-neutral);
+}
+
 .crypto-info {
     flex-grow: 1;
 }

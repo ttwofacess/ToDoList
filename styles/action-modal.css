@@ -97,16 +97,9 @@
 }
 
 /* ─── Chip de icono ────────────────────────────── */
+/* La geometría y el fondo de fallback viven en icons.css; acá sólo queda la
+   transición propia del modal (el chip también anima su escala al pulsar). */
 .action-chip {
-    flex: none;
-    width: 40px;
-    height: 40px;
-    display: grid;
-    place-items: center;
-    border-radius: 12px;
-    font-size: 1.25rem;
-    line-height: 1;
-    background-color: var(--chip-bg, rgba(108, 99, 255, 0.15));
     transition: background-color 0.2s, transform 0.2s;
 }
 

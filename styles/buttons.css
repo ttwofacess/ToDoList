@@ -89,15 +89,25 @@
 /* Iconos decorativos como pseudo-elemento: el JS reescribe textContent del
    botón (Focus Mode ↔ Show All) sin tocar el ::before, y los tests siguen verdes.
    Acotado a .orderButton-wrapper para no pintar los Cancel de los modales. */
-.orderButton-wrapper .orderButton::before {
-    content: "⇅";
-    margin-right: 6px;
+.orderButton-wrapper .orderButton::before,
+.orderButton-wrapper .filterButton::before {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: var(--icon-chip-size-sm);
+    height: var(--icon-chip-size-sm);
+    border-radius: var(--icon-chip-radius-sm);
+    font-size: var(--icon-size);
     line-height: 1;
+    margin-right: 6px;
+}
+.orderButton-wrapper .orderButton::before {
+    content: "📋";
+    background-color: var(--icon-chip-primary);
 }
 .orderButton-wrapper .filterButton::before {
     content: "🎯";
-    margin-right: 6px;
-    line-height: 1;
+    background-color: var(--icon-chip-warning);
 }
 
 /* Estado activo de Focus Mode: color de prioridad alta + dot animado al costado. */
