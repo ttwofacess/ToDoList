@@ -96,6 +96,10 @@
             <input type="file" id="importInput" accept=".json" style="display: none;">
             <button type="button" id="installButton" class="actionButton roundBorder" data-i18n-key="installButton" hidden>Install</button>
         </div>
+        <div id="focusBanner" class="focus-banner" hidden>
+            <span class="focus-banner-text" data-i18n-key="focusBannerText">Showing only today's tasks and high priority.</span>
+            <button type="button" id="focusBannerClose" class="focus-banner-close" data-i18n-label="focusBannerClose" aria-label="Exit Focus Mode" title="Exit Focus Mode">&times;</button>
+        </div>
         <div class="search-wrapper" role="search">
             <label for="taskSearch" class="visually-hidden" data-i18n-key="searchLabel">Search</label>
             <span class="search-icon" aria-hidden="true" focusable="false">
