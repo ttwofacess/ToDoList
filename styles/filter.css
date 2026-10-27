@@ -11,3 +11,72 @@
 #tasksContainer.filter-today-active .task-wrapper:has(.priority-high:not(.done)) {
     display: flex;
 }
+
+/* Banner explicativo del Modo Enfoque: vive fuera de #tasksContainer. */
+.focus-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-sizing: border-box;
+    margin: 0 0 15px;
+    padding: 10px 15px;
+    background-color: var(--color-danger-tint);
+    border: 1px solid rgba(255, 107, 107, 0.24);
+    border-radius: var(--icon-chip-radius-sm);
+    color: var(--maintxt);
+    font-family: 'Roboto', sans-serif;
+    font-size: var(--text-sm);
+}
+.focus-banner[hidden] { display: none; }
+
+.focus-banner-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.focus-banner-close {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--maintxt);
+    font-size: var(--icon-size);
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0.6;
+}
+.focus-banner-close:hover { opacity: 1; }
+.focus-banner-close:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* Fade-in sólo al mostrarse; el toggle es por atributo hidden. */
+.focus-banner:not([hidden]) {
+    animation: focus-banner-in 0.2s ease-out;
+}
+
+@keyframes focus-banner-in {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* Chrome del contenedor: la clase se replica desde toggleFilterToday porque
+   los selectores hermanos no miran hacia atrás. Borde del color de prioridad
+   alta + halo tenue, sin tocar el filtrado de arriba. */
+main.list {
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+main.list.filter-today-active {
+    border-width: 2px;
+    border-color: var(--prio-high);
+    box-shadow: 0 0 0 3px var(--color-danger-tint), var(--card-shadow);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    main.list { transition: none; }
+    .focus-banner:not([hidden]) { animation: none; }
+}
