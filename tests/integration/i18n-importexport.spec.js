@@ -126,6 +126,25 @@ test.describe('i18n — estados vacíos', () => {
       await ctx.close();
     });
   }
+
+  for (const [locale, banner] of [
+    ['es-ES', 'Mostrando solo tareas de hoy y de prioridad alta.'],
+    ['en-US', 'Showing only today\'s tasks and high priority.'],
+    ['pt-BR', 'Mostrando apenas tarefas de hoje e de prioridade alta.'],
+  ]) {
+    test(`el banner del Modo Enfoque está traducido en ${locale}`, async ({ browser }) => {
+      const ctx = await browser.newContext({ locale });
+      const page = await ctx.newPage();
+      await page.goto('/index.html');
+      await page.waitForFunction(() => document.getElementById('dateYear')?.textContent?.length > 0);
+
+      await page.click('.orderButton-wrapper .filterButton');
+
+      await expect(page.locator('#focusBanner')).toBeVisible();
+      await expect(page.locator('.focus-banner-text')).toHaveText(banner);
+      await ctx.close();
+    });
+  }
 });
 
 test.describe('i18n — coherencia con el resto de la app', () => {

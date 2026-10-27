@@ -591,5 +591,26 @@ describe('taskManager', () => {
       toggleFilterToday({ target: btn });
       expect(btn.textContent).toBe('Show All');
     });
+
+    it('muestra el banner y marca el contenedor al activar', () => {
+      const btn = document.querySelector('.filterButton');
+      toggleFilterToday({ target: btn });
+      expect(document.getElementById('focusBanner').hidden).toBe(false);
+      expect(document.querySelector('main.list').classList.contains('filter-today-active')).toBe(true);
+    });
+
+    it('oculta el banner y desmarca el contenedor al desactivar', () => {
+      const btn = document.querySelector('.filterButton');
+      toggleFilterToday({ target: btn });
+      toggleFilterToday({ target: btn });
+      expect(document.getElementById('focusBanner').hidden).toBe(true);
+      expect(document.querySelector('main.list').classList.contains('filter-today-active')).toBe(false);
+    });
+
+    it('no lanza si el banner no existe en el DOM', () => {
+      document.getElementById('focusBanner').remove();
+      const btn = document.querySelector('.filterButton');
+      expect(() => toggleFilterToday({ target: btn })).not.toThrow();
+    });
   });
 });

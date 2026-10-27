@@ -402,6 +402,31 @@ test.describe('Modo enfoque (filtro)', () => {
     await expect(filter).toHaveText('Modo Enfoque');
     await expect(page.locator('#tasksContainer')).not.toHaveClass(/filter-today-active/);
   });
+
+  test('muestra el banner con el modo activo y lo oculta al salir', async ({ page }) => {
+    await gotoApp(page);
+    const filter = page.locator('[data-i18n-key="filterButtonToday"]');
+    const banner = page.locator('#focusBanner');
+
+    await expect(banner).toBeHidden();
+    await filter.click();
+    await expect(banner).toBeVisible();
+    await filter.click();
+    await expect(banner).toBeHidden();
+  });
+
+  test('el × del banner desactiva el Modo Enfoque', async ({ page }) => {
+    await gotoApp(page);
+    const filter = page.locator('[data-i18n-key="filterButtonToday"]');
+    await filter.click();
+    await expect(page.locator('#focusBanner')).toBeVisible();
+
+    await page.click('#focusBannerClose');
+    await expect(filter).toHaveText('Modo Enfoque');
+    await expect(page.locator('#tasksContainer')).not.toHaveClass(/filter-today-active/);
+    await expect(page.locator('main.list')).not.toHaveClass(/filter-today-active/);
+    await expect(page.locator('#focusBanner')).toBeHidden();
+  });
 });
 
 test.describe('Robustez y seguridad', () => {

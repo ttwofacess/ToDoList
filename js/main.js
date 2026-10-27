@@ -68,6 +68,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // search.js no lo ve, así que hay que recalcular los estados vacíos a mano.
         .addEventListener('click', (event) => { toggleFilterToday(event); applySearch(); });
 
+    // El × del banner reutiliza el handler del botón real (toggle + applySearch).
+    document.getElementById('focusBannerClose')?.addEventListener('click', () => {
+        document.querySelector('.orderButton-wrapper .filterButton')?.click();
+    });
+
     document.querySelector('[data-action="export"]')
         ?.addEventListener('click', exportTasks);
 

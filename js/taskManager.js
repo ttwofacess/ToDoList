@@ -158,4 +158,10 @@ export const toggleFilterToday = (event) => {
     const isActive = tasksContainer.classList.toggle('filter-today-active');
     button.textContent = isActive ? t('filterButtonAll') : t('filterButtonToday');
     button.classList.toggle('filter-active', isActive);
+
+    // El banner y el chrome de `.list` viven fuera de #tasksContainer, y el
+    // MutationObserver de search.js no ve cambios de clase: se sincronizan acá.
+    const banner = document.getElementById('focusBanner');
+    if (banner) banner.hidden = !isActive;
+    document.querySelector('main.list')?.classList.toggle('filter-today-active', isActive);
 };
