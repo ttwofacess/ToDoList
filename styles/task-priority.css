@@ -125,3 +125,29 @@
        eso la dejaba por debajo del contraste mínimo. */
     opacity: 1;
 }
+
+/* Check efímero de "completado": se dibuja de izquierda a derecha con el
+   clip-path, se sostiene un instante y se desvanece. La duración (500 ms) la
+   fija la regla animada y debe coincidir con TASK_DONE_MS de taskActions.js. */
+@keyframes task-done-check {
+    0% {
+        opacity: 0;
+        clip-path: inset(0 100% 0 0);
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+    50% {
+        opacity: 1;
+        clip-path: inset(0);
+        transform: translate(-50%, -50%) scale(1);
+    }
+    75% {
+        opacity: 1;
+        clip-path: inset(0);
+        transform: translate(-50%, -50%) scale(1);
+    }
+    100% {
+        opacity: 0;
+        clip-path: inset(0);
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
