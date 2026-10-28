@@ -18,10 +18,22 @@ export const TASK_IN_MS = 200;
 export const TASK_OUT_MS = 200;
 
 /**
+ * Duración del check de "completado", en ms.
+ * Debe coincidir con el literal de `task-done-check` en
+ * styles/task-priority.css.
+ */
+export const TASK_DONE_MS = 500;
+
+/**
  * Intentos de espera antes de renunciar a la animación de entrada.
  * Cada intento espera TASK_IN_MS + 50 ms, así que el máximo es ~1,5 s.
  */
 const ENTER_RETRIES = 5;
+
+/**
+ * Intentos de espera antes de renunciar al check de "completado".
+ */
+const DONE_RETRIES = 5;
 
 /**
  * Intentos de espera antes de renunciar a la animación de salida.
@@ -108,6 +120,79 @@ export const animateTaskIn = (wrapper) => {
 };
 
 /**
+ * Limpiezas pendientes del check de "completado", indexadas por la tarjeta
+ * (`.task`, no el wrapper). Espejo de pendingEnterCleanups.
+ * @type {WeakMap<HTMLElement, {timer: number, handler: Function}>}
+ */
+const pendingDoneCleanups = new WeakMap();
+
+/**
+ * Cancela la limpieza pendiente del check de "completado" de una tarjeta.
+ * @param {HTMLElement} taskEl
+ */
+export const cancelDoneAnimation = (taskEl) => {
+    const pending = pendingDoneCleanups.get(taskEl);
+    if (!pending) return;
+    clearTimeout(pending.timer);
+    taskEl.removeEventListener('animationend', pending.handler);
+    pendingDoneCleanups.delete(taskEl);
+};
+
+/**
+ * Reproduce el check efímero de "completado" sobre una tarjeta.
+ *
+ * La clase `just-done` se quita al terminar la animación. Si el evento
+ * `animationend` nunca llega —movimiento reducido, jsdom, pestaña en segundo
+ * plano— la limpia un timeout de reserva, igual que `animateTaskIn`.
+ *
+ * @param {HTMLElement} taskEl
+ */
+export const animateTaskDone = (taskEl) => {
+    cancelDoneAnimation(taskEl);
+
+    if (taskEl.classList.contains('just-done')) {
+        // La clase ya estaba puesta (toggle repetido con el modal abierto):
+        // sin sacarla y forzar un reflow, el navegador no reinicia el keyframe.
+        taskEl.classList.remove('just-done');
+        void taskEl.offsetWidth;
+    }
+    taskEl.classList.add('just-done');
+
+    const finish = () => {
+        cancelDoneAnimation(taskEl);
+        taskEl.classList.remove('just-done');
+    };
+
+    const handler = (event) => {
+        if (event.target !== taskEl) return;
+        if (event.animationName !== 'task-done-check') return;
+        finish();
+    };
+
+    // El keyframe vive en el ::after de .task-text, así que animationend
+    // llega con target en la tarjeta. Si la animación sigue viva pero pendiente
+    // de arrancar, se la espera; si no hay ninguna, se limpia igual.
+    let retries = 0;
+    const cleanup = { timer: 0, handler };
+
+    const check = () => {
+        const pending = (taskEl.getAnimations?.() ?? []).some(
+            (anim) => anim.animationName === 'task-done-check' && anim.playState !== 'finished',
+        );
+        if (pending && retries < DONE_RETRIES) {
+            retries += 1;
+            cleanup.timer = setTimeout(check, TASK_DONE_MS + 50);
+            return;
+        }
+        finish();
+    };
+
+    cleanup.timer = setTimeout(check, TASK_DONE_MS + 50);
+    pendingDoneCleanups.set(taskEl, cleanup);
+    taskEl.addEventListener('animationend', handler);
+};
+
+/**
  * Cambia el estado (completado/pendiente) de una tarea.
  * @param {HTMLElement} wrapper
  * @param {HTMLElement} tasksContainer
@@ -118,7 +203,10 @@ export const changeTaskState = (wrapper, tasksContainer) => {
 
     if (isDone) {
         wrapper.setAttribute('data-last-completed', Date.now());
+        animateTaskDone(taskEl);
     } else {
+        cancelDoneAnimation(taskEl);
+        taskEl.classList.remove('just-done');
         // When reactivating a recurring task, update the date to today
         const recurrence = wrapper.getAttribute('data-recurrence') || 'none';
         if (recurrence !== 'none') {

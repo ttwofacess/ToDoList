@@ -30,6 +30,12 @@
     --done-ink: #4A5D50;
     --done-strike: rgba(74, 93, 80, 0.55);
     --done-badge: var(--green-700);
+
+    /* Check transitorio de "completado". El trazo reusa el SVG blanco de las
+       subtareas (subtasks.css): si ese token cambia de forma o se elimina,
+       este check queda desactualizado. */
+    --done-check-mark: var(--subtask-check-mark);
+    --done-check-bg: var(--green-500);
 }
 
 :root[data-theme="dark"] {
@@ -48,6 +54,10 @@
     --done-ink: #A9C3B0;
     --done-strike: rgba(169, 195, 176, 0.55);
     --done-badge: var(--green-300);
+
+    /* En oscuro --green-400 es demasiado claro para el trazo blanco del check
+       (contraste ~1.6:1): --green-600 lo mantiene legible sobre el fondo. */
+    --done-check-bg: var(--green-600);
 }
 
 /* Indicador lateral fino (3px) de extremos redondeados. Va en un
@@ -114,4 +124,64 @@
     /* La etiqueta trae opacity 0.8 de tasks.css: sobre el verde completado
        eso la dejaba por debajo del contraste mínimo. */
     opacity: 1;
+}
+
+/* Check efímero de "completado": disco centrado sobre el área de texto. Vive
+   en .task-text::after (el único pseudoelemento libre) y es invisible por
+   defecto, así no aparece sin animación (reduced-motion, carga, import). */
+.task-text::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background-color: var(--done-check-bg);
+    background-image: var(--done-check-mark);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 70%;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+}
+
+.done.just-done .task-text::after {
+    animation: task-done-check 500ms ease-in-out;
+}
+
+/* Check efímero de "completado": se dibuja de izquierda a derecha con el
+   clip-path, se sostiene un instante y se desvanece. La duración (500 ms) la
+   fija la regla animada y debe coincidir con TASK_DONE_MS de taskActions.js. */
+@keyframes task-done-check {
+    0% {
+        opacity: 0;
+        clip-path: inset(0 100% 0 0);
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+    50% {
+        opacity: 1;
+        clip-path: inset(0);
+        transform: translate(-50%, -50%) scale(1);
+    }
+    75% {
+        opacity: 1;
+        clip-path: inset(0);
+        transform: translate(-50%, -50%) scale(1);
+    }
+    100% {
+        opacity: 0;
+        clip-path: inset(0);
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+/* Movimiento reducido: sin check animado. La clase just-done la limpia el
+   timeout de reserva de taskActions.js, así el estado .done queda igual. */
+@media (prefers-reduced-motion: reduce) {
+    .done.just-done .task-text::after {
+        animation: none;
+    }
 }

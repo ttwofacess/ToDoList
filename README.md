@@ -20,7 +20,7 @@ Una aplicación web simple y elegante para gestionar tus tareas diarias. La inte
 - **Exportar e Importar**: Guarda una copia de seguridad de tus tareas en un archivo JSON o impórtalas en otro dispositivo.
 - **Eliminar Tareas**: Borra tareas o subtareas que ya no necesites.
 - **Deshacer borrado**: Tras eliminar una tarea aparece un aviso de 5 segundos, con icono contextual y entrada lateral, con un botón para recuperarla en su posición original. En dispositivos compatibles vibra al aparecer y al expirar (salvo que el sistema pida reducir el movimiento). Si no lo pulsas, el borrado queda definitivo. Aplica solo a tareas, no a subtareas.
-- **Animaciones suaves**: Las tareas nuevas entran con un fundido y las que se borran se van colapsando, para que la lista no dé saltos. Se desactivan solas si el sistema pide menos movimiento.
+- **Animaciones suaves**: Las tareas nuevas entran con un fundido y las que se borran se van colapsando, para que la lista no dé saltos. Al marcar una tarea como hecha se dibuja un check efímero sobre el texto. Todas se desactivan solas si el sistema pide menos movimiento.
 - **Ordenar Tareas**: Reorganiza automáticamente la lista para mostrar las tareas pendientes al principio.
 - **Persistencia de Datos**: Todo se guarda automáticamente en el `localStorage` de tu navegador.
 - **Diseño Moderno y Adaptativo**: Interfaz limpia con una paleta de colores moderna y totalmente responsive.
