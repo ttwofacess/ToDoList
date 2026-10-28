@@ -11,7 +11,7 @@
 // ============================================================
 
 import { test, expect } from '@playwright/test';
-import { addTask } from '../helpers/e2e.js';
+import { addTask, seedStorage } from '../helpers/e2e.js';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/index.html');
@@ -53,6 +53,31 @@ const readCapture = (page) => page.evaluate(() => window.__captura);
 const esperarEntradaTerminada = (page) =>
   expect(page.locator('#tasksContainer .task-wrapper'))
     .not.toHaveClass(/just-added/, { timeout: 5000 });
+
+/**
+ * Anota el `animationName` del ::after de la primera tarjeta que recibe
+ * `just-done`. La clase vive en `.task` y la animación en su pseudoelemento.
+ */
+const captureOnTaskClass = (page, className) => page.evaluate((cls) => {
+  window.__capturaCheck = null;
+  const container = document.getElementById('tasksContainer');
+  const observer = new MutationObserver(() => {
+    if (window.__capturaCheck) return;
+    const task = container.querySelector(`.task.${cls}`);
+    if (!task) return;
+    window.__capturaCheck = {
+      existe: true,
+      animation: getComputedStyle(task.querySelector('.task-text'), '::after').animationName,
+    };
+    observer.disconnect();
+  });
+  observer.observe(container, {
+    attributes: true, subtree: true, childList: true, attributeFilter: ['class'],
+  });
+}, className);
+
+/** Lo que anotó el observador del check (null si la clase nunca apareció). */
+const readTaskCapture = (page) => page.evaluate(() => window.__capturaCheck);
 
 test.describe('Animaciones de tareas', () => {
   test('crear una tarea la muestra con la animación de entrada', async ({ page }) => {
@@ -127,6 +152,37 @@ test.describe('Animaciones de tareas', () => {
     expect(state.animation).toBe('task-in');
   });
 
+  test('marcar una tarea como hecha dibuja el check de completado', async ({ page }) => {
+    await addTask(page, { text: 'Completar' });
+    await esperarEntradaTerminada(page);
+
+    await captureOnTaskClass(page, 'just-done');
+    await page.click('#tasksContainer .task .task-text');
+    await page.click('#actionDone');
+
+    const state = await readTaskCapture(page);
+    expect(state).not.toBeNull();
+    expect(state.animation).toBe('task-done-check');
+
+    await expect(page.locator('#tasksContainer .task')).toHaveClass(/done/);
+  });
+
+  test('recargar con tareas ya hechas no anima ningún check', async ({ page }) => {
+    await seedStorage(page, [{ text: 'Hecha', done: true }]);
+    await page.reload();
+    await page.waitForFunction(() => document.getElementById('dateYear')?.textContent?.length > 0);
+
+    const state = await page.evaluate(() => {
+      const task = document.querySelector('#tasksContainer .task.done');
+      return {
+        justDone: task.classList.contains('just-done'),
+        animation: getComputedStyle(task.querySelector('.task-text'), '::after').animationName,
+      };
+    });
+    expect(state.justDone).toBe(false);
+    expect(state.animation).toBe('none');
+  });
+
   test('con movimiento reducido la entrada y la salida son instantáneas', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
 
@@ -136,6 +192,23 @@ test.describe('Animaciones de tareas', () => {
     const entrada = await readCapture(page);
     expect(entrada).not.toBeNull();
     expect(entrada.animation).toBe('none');
+
+    // El check de completado tampoco corre con movimiento reducido.
+    await page.click('#tasksContainer .task .task-text');
+    await page.click('#actionDone');
+
+    const completado = await page.evaluate(() => {
+      const task = document.querySelector('#tasksContainer .task');
+      return {
+        done: task.classList.contains('done'),
+        animation: getComputedStyle(task.querySelector('.task-text'), '::after').animationName,
+      };
+    });
+    expect(completado.done).toBe(true);
+    expect(completado.animation).toBe('none');
+
+    // #actionDone deja el modal abierto: cerrarlo antes de borrar.
+    await page.keyboard.press('Escape');
 
     await page.click('#tasksContainer .task .task-text');
     await page.click('#actionDelete');
