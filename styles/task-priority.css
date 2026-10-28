@@ -30,6 +30,12 @@
     --done-ink: #4A5D50;
     --done-strike: rgba(74, 93, 80, 0.55);
     --done-badge: var(--green-700);
+
+    /* Check transitorio de "completado". El trazo reusa el SVG blanco de las
+       subtareas (subtasks.css): si ese token cambia de forma o se elimina,
+       este check queda desactualizado. */
+    --done-check-mark: var(--subtask-check-mark);
+    --done-check-bg: var(--green-500);
 }
 
 :root[data-theme="dark"] {
@@ -48,6 +54,10 @@
     --done-ink: #A9C3B0;
     --done-strike: rgba(169, 195, 176, 0.55);
     --done-badge: var(--green-300);
+
+    /* En oscuro --green-400 es demasiado claro para el trazo blanco del check
+       (contraste ~1.6:1): --green-600 lo mantiene legible sobre el fondo. */
+    --done-check-bg: var(--green-600);
 }
 
 /* Indicador lateral fino (3px) de extremos redondeados. Va en un
