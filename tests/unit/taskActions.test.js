@@ -4,7 +4,8 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
-  changeTaskState, deleteTask, restoreTask, animateOutAndDelete, animateTaskIn, TASK_IN_MS, TASK_OUT_MS,
+  changeTaskState, deleteTask, restoreTask, animateOutAndDelete, animateTaskIn,
+  TASK_IN_MS, TASK_OUT_MS, TASK_DONE_MS,
 } from '../../js/taskActions.js';
 import { initRenderer, createTaskElement } from '../../js/taskRenderer.js';
 import { setLanguage } from '../../js/i18n.js';
@@ -118,6 +119,58 @@ describe('taskActions', () => {
       changeTaskState(wrapper, container);
       expect(other.querySelector('.task').classList.contains('done')).toBe(false);
       expect(readTasks().map(t => t.done)).toEqual([true, false]);
+    });
+  });
+
+  // ── Animación de completado ───────────────────────────────
+  describe('animación de completado', () => {
+    const taskEl = () => wrapper.querySelector('.task');
+
+    it('al completar deja la clase just-done en la tarjeta', () => {
+      mount();
+      changeTaskState(wrapper, container);
+      expect(taskEl().classList.contains('just-done')).toBe(true);
+    });
+
+    it('el timeout de reserva limpia just-done si no hay animationend', () => {
+      mount();
+      changeTaskState(wrapper, container);
+
+      vi.advanceTimersByTime(TASK_DONE_MS + 50);
+
+      expect(taskEl().classList.contains('just-done')).toBe(false);
+    });
+
+    it('al desmarcar no queda la clase just-done', () => {
+      mount();
+      changeTaskState(wrapper, container);
+      changeTaskState(wrapper, container);
+      expect(taskEl().classList.contains('just-done')).toBe(false);
+    });
+
+    it('desmarcar a mitad de la animación cancela la limpieza pendiente', () => {
+      mount();
+      changeTaskState(wrapper, container);   // anima
+      changeTaskState(wrapper, container);   // desmarca antes de que termine
+
+      vi.advanceTimersByTime(TASK_DONE_MS + 50);
+
+      expect(taskEl().classList.contains('just-done')).toBe(false);
+      expect(taskEl().classList.contains('done')).toBe(false);
+    });
+
+    it('toggle done → undone → done reinicia la animación y limpia una vez', () => {
+      mount();
+      changeTaskState(wrapper, container);
+      changeTaskState(wrapper, container);
+      changeTaskState(wrapper, container);
+
+      expect(taskEl().classList.contains('just-done')).toBe(true);
+
+      vi.advanceTimersByTime(TASK_DONE_MS + 50);
+
+      expect(taskEl().classList.contains('just-done')).toBe(false);
+      expect(taskEl().classList.contains('done')).toBe(true);
     });
   });
 

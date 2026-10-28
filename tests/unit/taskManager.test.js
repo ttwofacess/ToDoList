@@ -276,6 +276,14 @@ describe('taskManager', () => {
       expect(wrappers[1].querySelector('.task').classList.contains('done')).toBe(false);
     });
 
+    it('no anima el check de las tareas que ya estaban hechas', () => {
+      writeTasks([{ text: 'Hecha', done: true }]);
+      loadTasks();
+      const taskEl = container.querySelector('.task');
+      expect(taskEl.classList.contains('done')).toBe(true);
+      expect(taskEl.classList.contains('just-done')).toBe(false);
+    });
+
     it('descarta tareas sin text string o sin done boolean', () => {
       writeTasks([
         { text: 'Válida', done: false },
