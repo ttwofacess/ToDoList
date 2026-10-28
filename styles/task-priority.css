@@ -177,3 +177,11 @@
         transform: translate(-50%, -50%) scale(1);
     }
 }
+
+/* Movimiento reducido: sin check animado. La clase just-done la limpia el
+   timeout de reserva de taskActions.js, así el estado .done queda igual. */
+@media (prefers-reduced-motion: reduce) {
+    .done.just-done .task-text::after {
+        animation: none;
+    }
+}
