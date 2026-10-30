@@ -11,7 +11,7 @@
 // ============================================================
 
 import { test, expect } from '@playwright/test';
-import { addTask, seedStorage } from '../helpers/e2e.js';
+import { addTask, seedStorage, todayISO } from '../helpers/e2e.js';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/index.html');
@@ -216,5 +216,64 @@ test.describe('Animaciones de tareas', () => {
     // Sin animación, el borrado es inmediato: la tarjeta ya no está.
     await expect(page.locator('.task-wrapper')).toHaveCount(0);
     await expect(page.locator('#undoToast')).toBeVisible();
+  });
+
+  test.describe('Movimiento reducido global', () => {
+    test('apaga las transiciones que no tenían bloque propio (tasks y forms)', async ({ page }) => {
+      // Éstos eran los huecos: .task y .newTaskMainButton animaban igual con
+      // reduce activo. El blanket global tiene que dejarlos en 0s.
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      await addTask(page, { text: 'Sin transición' });
+      await esperarEntradaTerminada(page);
+
+      const durations = await page.evaluate(() => ({
+        task: getComputedStyle(document.querySelector('#tasksContainer .task')).transitionDuration,
+        primaryButton: getComputedStyle(document.querySelector('.newTaskMainButton')).transitionDuration,
+      }));
+      expect(durations.task).toBe('0s');
+      expect(durations.primaryButton).toBe('0s');
+    });
+
+    test('el pulso de due-today queda como anillo fijo sin animación', async ({ page }) => {
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      await addTask(page, { text: 'Vence hoy', date: await todayISO(page) });
+      await esperarEntradaTerminada(page);
+
+      const pulse = await page.evaluate(() => {
+        const task = document.querySelector('#tasksContainer .task.due-today');
+        const after = getComputedStyle(task, '::after');
+        return { animation: after.animationName, boxShadow: after.boxShadow };
+      });
+      expect(pulse.animation).toBe('none');
+      expect(pulse.boxShadow).not.toBe('none');
+    });
+
+    test('la barra de cuenta regresiva del toast queda estática', async ({ page }) => {
+      // Decisión 2.3 = A: el blanket también congela la barra; el borrado
+      // definitivo lo sigue garantizando el timer JS.
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      await addTask(page, { text: 'Se va' });
+      await esperarEntradaTerminada(page);
+
+      await page.click('#tasksContainer .task .task-text');
+      await page.click('#actionDelete');
+      await expect(page.locator('#undoToast')).toBeVisible();
+
+      const animation = await page.evaluate(() =>
+        getComputedStyle(document.querySelector('#undoToast .toast-progress')).animationName);
+      expect(animation).toBe('none');
+    });
+
+    test('sin movimiento reducido las transiciones siguen activas (regresión)', async ({ page }) => {
+      // Espejo del primer test: el blanket no se tiene que colar en el modo
+      // normal.
+      await page.emulateMedia({ reducedMotion: 'no-preference' });
+      await addTask(page, { text: 'Con transición' });
+      await esperarEntradaTerminada(page);
+
+      const duration = await page.evaluate(() =>
+        getComputedStyle(document.querySelector('#tasksContainer .task')).transitionDuration);
+      expect(duration).not.toBe('0s');
+    });
   });
 });

@@ -88,3 +88,19 @@
         animation: none;
     }
 }
+
+/* Red de seguridad global: apaga TODO el motion de la app cuando el usuario
+   lo pide, incluido el que entre después sin su propio bloque (así pasó con
+   forms.css y tasks.css). Los bloques por componente de arriba siguen siendo
+   necesarios: algunos pintan estados estáticos de reemplazo (anillo del
+   pulso, halo del filtro) que este blanket no pinta.
+   Va con !important porque el motion real vive en reglas de clase
+   (.task-wrapper.just-added, .modal-content.modal-enter, ...), que con
+   especificidad le ganarían a un * normal. Hoy no hay ninguna declaración
+   de animation/transition con !important en styles/, así que no pisa nada. */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+    }
+}
